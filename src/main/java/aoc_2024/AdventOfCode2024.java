@@ -6,8 +6,6 @@ import java.io.IOException;
 public class AdventOfCode2024 {
     public static void main(String[] args) {
 
-      //  System.out.println("Working Directory = " + System.getProperty("user.dir"));
-
         //String input_string = "input/2024/day_03_test_01.txt";
        String input_string = "input/2024/day_03_input_01.txt";
         try {
@@ -17,7 +15,7 @@ public class AdventOfCode2024 {
             System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
             System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
         } catch (IOException e) {
-            throw new RuntimeException("error opening file " + input_string + " " + e.toString());
+            throw new RuntimeException("error opening file " + input_string + " " + e);
         }
 
     }
