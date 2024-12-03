@@ -8,7 +8,7 @@ public class AdventOfCode2024 {
 
       //  System.out.println("Working Directory = " + System.getProperty("user.dir"));
 
-       // String input_string = "input/2024/day_03_test_01.txt";
+        //String input_string = "input/2024/day_03_test_01.txt";
        String input_string = "input/2024/day_03_input_01.txt";
         try {
             String[] results = Day03.runDay(System.out,input_string );
