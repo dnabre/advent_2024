@@ -14,7 +14,7 @@ public class Day03 {
     public static final String PART2_ANSWER = "82045421";// too low
 
     public static final String PART1_REGEX = "mul\\(\\d{1,3},\\d{1,3}\\)";
-    public static final String PART2_REGEX = "mul\\(\\d{1,3},\\d{1,3}\\)|don\\'t\\(\\)|do\\(\\)";
+    public static final String PART2_REGEX = "mul\\(\\d{1,3},\\d{1,3}\\)|don't\\(\\)|do\\(\\)";
 
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
@@ -46,8 +46,8 @@ public class Day03 {
 
         while (matcher.find()) {
             String mg = matcher.group();
-            String nums = mg.substring(4, mg.length() - 1);
-            String[] parts = nums.split(",");
+            String numbers = mg.substring(4, mg.length() - 1);
+            String[] parts = numbers.split(",");
             int left = Integer.parseInt(parts[0]);
             int right = Integer.parseInt(parts[1]);
             total += left * right;
@@ -68,17 +68,13 @@ public class Day03 {
             String mg = matcher.group();
             if (mg.startsWith("mul")) {
                 if (mul_enabled) {
-                    String nums = mg.substring(4, mg.length() - 1);
-                    String[] parts = nums.split(",");
+                    String numbers = mg.substring(4, mg.length() - 1);
+                    String[] parts = numbers.split(",");
                     int left = Integer.parseInt(parts[0]);
                     int right = Integer.parseInt(parts[1]);
                     total += left * right;
                 }
-            } else if (mg.equals("don't()")) {
-                mul_enabled = false;
-            } else {
-                mul_enabled = true;
-            }
+            } else mul_enabled = !mg.equals("don't()");
         }
         int answer = total;
         return Integer.toString(answer);
