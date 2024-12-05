@@ -7,7 +7,8 @@ import java.nio.file.Path;
 
 public class Day04 {
     public static final String PART1_ANSWER = "2297";
-    public static final String PART2_ANSWER = "1745";// too low
+    public static final String PART2_ANSWER = "1745";
+
     public static int[][] octo_directions = {{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1}};
     public static int[][] corner_direction = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     private static char[][] grid = null;
