@@ -1,6 +1,7 @@
 package src.main.java.aoc_2024;
 
 import java.util.List;
+import java.util.function.IntFunction;
 
 public class AoCUtils {
     public static int[] WhitespaceDelimitedLineToIntegers(String ln) {
@@ -32,4 +33,5 @@ public class AoCUtils {
         }
         return ret;
     }
+
 }
