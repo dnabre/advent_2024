@@ -5,15 +5,17 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static java.lang.System.out;
 
 public class Day05 {
     public static final String PART1_ANSWER = "4814";
-    public static final String PART2_ANSWER = "1745";// too low
+    public static final String PART2_ANSWER = "5448";
+
     private static HashMap<Integer, HashSet<Integer>> after_rules;
     private static HashMap<Integer, HashSet<Integer>> before_rules;
-    private static LinkedList<List<Integer>> update_list;
+    private static LinkedList<LinkedList<Integer>> update_list;
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -32,6 +34,84 @@ public class Day05 {
             out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], Day02.PART2_ANSWER);
         }
         return answers;
+    }
+
+
+    public static String getPart1() {
+
+        LinkedList<Integer> good_middle_pages = new LinkedList<>();
+
+        for (List<Integer> ups : update_list) {
+            boolean updates_good = checkUpdateList(ups);
+            if (updates_good) {
+                good_middle_pages.add(get_middle_of_list(ups));
+            }
+        }
+
+        int answer = good_middle_pages.stream().mapToInt(i -> i).sum();
+        return Integer.toString(answer);
+    }
+
+
+    public static String getPart2() {
+        List<LinkedList<Integer>> ll_bad_updates = update_list.stream().filter((ls) -> !checkUpdateList(ls)).toList();
+        LinkedList<LinkedList<Integer>> bad_updates = new LinkedList<>(ll_bad_updates);
+        LinkedList<LinkedList<Integer>> fixed_updates = new LinkedList<>();
+        LinkedList<Integer> good_middle_pages = new LinkedList<>();
+
+        int mid_value_total = 0;
+        for (LinkedList<Integer> b_ls : bad_updates) {
+
+
+            int[] updates = b_ls.stream().mapToInt(i -> i).toArray();
+            int pre_total = IntStream.of(updates).sum();
+            int pre_size = pre_size = updates.length;
+
+            do {
+
+                fix_update_list(updates);
+            } while (! checkUpdateArray(updates));
+//            out.printf("inital list: %s \t --> \t", b_ls);
+//            out.print(Arrays.toString(updates));
+//            out.printf("  \t good: %b \n", checkUpdateArray(updates));
+
+
+
+            int m = get_middle_of_array(updates);
+//            out.printf("\t\t middle element: %d\n", m);
+            mid_value_total += m;
+        }
+
+
+        int answer = mid_value_total;
+        return Integer.toString(answer);
+    }
+
+    private static void fix_update_list(int[] updates) {
+        for (int i = 1; i < updates.length; i++) {
+            int left = updates[i - 1];
+            int right = updates[i];
+            boolean after_good = true;
+            boolean before_good = true;
+            //before rules
+            if (before_rules.containsKey(right)) {
+                if (!before_rules.get(right).contains(left)) {
+                    updates[i - 1] = right;
+                    updates[i] = left;
+
+                }
+            }
+            left = updates[i - 1];
+            right = updates[i];
+
+            //after rules
+            if (after_rules.containsKey(left)) {
+                if (!after_rules.get(left).contains(right)) {
+                    updates[i - 1] = right;
+                    updates[i] = left;
+                }
+            }
+        }
     }
 
     private static void parseInput(String input_filename) throws IOException {
@@ -74,48 +154,74 @@ public class Day05 {
         }
     }
 
-    public static String getPart1() {
-        int list_count =0;
-        LinkedList<Integer> good_middle_pages = new LinkedList<>();
+    private static boolean checkUpdateList(List<Integer> ups) {
+        int[] updates = ups.stream().mapToInt(i -> i).toArray();
+        boolean updates_good = true;
 
-        for (List<Integer> ups : update_list) {
-            list_count++;
-            int[] updates = ups.stream().mapToInt(i-> i).toArray();
-            boolean updates_good = true;
-
-            for (int i = 1; i < updates.length; i++) {
-                int left = updates[i - 1];
-                int right = updates[i];
-                boolean after_good = true;
-                boolean before_good = true;
-                //before rules
-                if (before_rules.containsKey(right)) {
-                    if (!before_rules.get(right).contains(left)) {
-                        before_good = false;
-                    }
+        for (int i = 1; i < updates.length; i++) {
+            int left = updates[i - 1];
+            int right = updates[i];
+            boolean after_good = true;
+            boolean before_good = true;
+            //before rules
+            if (before_rules.containsKey(right)) {
+                if (!before_rules.get(right).contains(left)) {
+                    before_good = false;
+                    return false;
                 }
-                //after rules
-                if (after_rules.containsKey(left)) {
-                    if (!after_rules.get(left).contains(right)) {
-                        after_good = false;
-                    }
+            }
+            //after rules
+            if (after_rules.containsKey(left)) {
+                if (!after_rules.get(left).contains(right)) {
+                    after_good = false;
+                    return false;
                 }
-                updates_good = before_good && after_good && updates_good;
             }
-            if ( updates_good) {
-                int mid_index = ups.size() /2;
-                int mid_element = ups.get(mid_index);
-                good_middle_pages.add(mid_element);
-            }
+            updates_good = before_good && after_good && updates_good;
         }
+        return updates_good;
 
-        int answer = good_middle_pages.stream().mapToInt(i->i).sum();
-        return Integer.toString(answer);
+
     }
 
-    public static String getPart2() {
 
-        int answer = 2;
-        return Integer.toString(answer);
+    private static boolean checkUpdateArray(int[] updates) {
+        boolean updates_good = true;
+
+        for (int i = 1; i < updates.length; i++) {
+            int left = updates[i - 1];
+            int right = updates[i];
+            boolean after_good = true;
+            boolean before_good = true;
+            //before rules
+            if (before_rules.containsKey(right)) {
+                if (!before_rules.get(right).contains(left)) {
+                    before_good = false;
+                    return false;
+                }
+            }
+            //after rules
+            if (after_rules.containsKey(left)) {
+                if (!after_rules.get(left).contains(right)) {
+                    after_good = false;
+                    return false;
+                }
+            }
+            updates_good = before_good && after_good && updates_good;
+        }
+        return updates_good;
+
+
     }
+
+
+    private static <T> T get_middle_of_list(List<T> ups) {
+        int mid_index = ups.size() / 2;
+        return ups.get(mid_index);
+    }
+    private static int get_middle_of_array(int[] ups) {
+        int mid_index = ups.length /2;
+        return ups[mid_index];
+    }
+
 }

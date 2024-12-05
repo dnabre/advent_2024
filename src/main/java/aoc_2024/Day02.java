@@ -8,8 +8,7 @@ import java.nio.file.Path;
 
 public class Day02 {
     public static final String PART1_ANSWER = "421";
-    public static final String PART2_ANSWER = "476";// too low
-
+    public static final String PART2_ANSWER = "476";
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");

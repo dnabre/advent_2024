@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class Day03 {
     public static final String PART1_ANSWER = "161085926";
-    public static final String PART2_ANSWER = "82045421";// too low
+    public static final String PART2_ANSWER = "82045421";
 
     public static final String PART1_REGEX = "mul\\(\\d{1,3},\\d{1,3}\\)";
     public static final String PART2_REGEX = "mul\\(\\d{1,3},\\d{1,3}\\)|don't\\(\\)|do\\(\\)";
