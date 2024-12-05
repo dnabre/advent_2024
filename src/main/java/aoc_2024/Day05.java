@@ -5,9 +5,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.IntStream;
-
-import static java.lang.System.out;
 
 public class Day05 {
     public static final String PART1_ANSWER = "4814";
@@ -27,11 +24,11 @@ public class Day05 {
         answers[1] = getPart2();
 
         if (!answers[0].equals(PART1_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], Day02.PART1_ANSWER);
+            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
         }
 
         if (!answers[1].equals(PART2_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], Day02.PART2_ANSWER);
+            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
         }
         return answers;
     }
@@ -54,31 +51,22 @@ public class Day05 {
 
 
     public static String getPart2() {
-        List<LinkedList<Integer>> ll_bad_updates = update_list.stream().filter((ls) -> !checkUpdateList(ls)).toList();
-        LinkedList<LinkedList<Integer>> bad_updates = new LinkedList<>(ll_bad_updates);
-        LinkedList<LinkedList<Integer>> fixed_updates = new LinkedList<>();
-        LinkedList<Integer> good_middle_pages = new LinkedList<>();
+        List<LinkedList<Integer>> bad_updates = update_list.stream().filter((ls) -> !checkUpdateList(ls)).toList();
 
         int mid_value_total = 0;
         for (LinkedList<Integer> b_ls : bad_updates) {
 
-
             int[] updates = b_ls.stream().mapToInt(i -> i).toArray();
-            int pre_total = IntStream.of(updates).sum();
-            int pre_size = pre_size = updates.length;
+
 
             do {
 
                 fix_update_list(updates);
-            } while (! checkUpdateArray(updates));
-//            out.printf("inital list: %s \t --> \t", b_ls);
-//            out.print(Arrays.toString(updates));
-//            out.printf("  \t good: %b \n", checkUpdateArray(updates));
-
+            } while (!checkUpdateArray(updates));
 
 
             int m = get_middle_of_array(updates);
-//            out.printf("\t\t middle element: %d\n", m);
+
             mid_value_total += m;
         }
 
@@ -91,8 +79,6 @@ public class Day05 {
         for (int i = 1; i < updates.length; i++) {
             int left = updates[i - 1];
             int right = updates[i];
-            boolean after_good = true;
-            boolean before_good = true;
             //before rules
             if (before_rules.containsKey(right)) {
                 if (!before_rules.get(right).contains(left)) {
@@ -156,62 +142,28 @@ public class Day05 {
 
     private static boolean checkUpdateList(List<Integer> ups) {
         int[] updates = ups.stream().mapToInt(i -> i).toArray();
-        boolean updates_good = true;
-
-        for (int i = 1; i < updates.length; i++) {
-            int left = updates[i - 1];
-            int right = updates[i];
-            boolean after_good = true;
-            boolean before_good = true;
-            //before rules
-            if (before_rules.containsKey(right)) {
-                if (!before_rules.get(right).contains(left)) {
-                    before_good = false;
-                    return false;
-                }
-            }
-            //after rules
-            if (after_rules.containsKey(left)) {
-                if (!after_rules.get(left).contains(right)) {
-                    after_good = false;
-                    return false;
-                }
-            }
-            updates_good = before_good && after_good && updates_good;
-        }
-        return updates_good;
-
-
+        return checkUpdateArray(updates);
     }
 
-
     private static boolean checkUpdateArray(int[] updates) {
-        boolean updates_good = true;
-
         for (int i = 1; i < updates.length; i++) {
             int left = updates[i - 1];
             int right = updates[i];
-            boolean after_good = true;
-            boolean before_good = true;
             //before rules
             if (before_rules.containsKey(right)) {
                 if (!before_rules.get(right).contains(left)) {
-                    before_good = false;
+
                     return false;
                 }
             }
             //after rules
             if (after_rules.containsKey(left)) {
                 if (!after_rules.get(left).contains(right)) {
-                    after_good = false;
                     return false;
                 }
             }
-            updates_good = before_good && after_good && updates_good;
         }
-        return updates_good;
-
-
+        return true;
     }
 
 
@@ -219,8 +171,9 @@ public class Day05 {
         int mid_index = ups.size() / 2;
         return ups.get(mid_index);
     }
+
     private static int get_middle_of_array(int[] ups) {
-        int mid_index = ups.length /2;
+        int mid_index = ups.length / 2;
         return ups[mid_index];
     }
 
