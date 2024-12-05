@@ -9,7 +9,7 @@ import java.util.*;
 import static java.lang.System.out;
 
 public class Day05 {
-    public static final String PART1_ANSWER = "2297";
+    public static final String PART1_ANSWER = "4814";
     public static final String PART2_ANSWER = "1745";// too low
     private static HashMap<Integer, HashSet<Integer>> after_rules;
     private static HashMap<Integer, HashSet<Integer>> before_rules;
@@ -29,7 +29,7 @@ public class Day05 {
         }
 
         if (!answers[1].equals(PART2_ANSWER)) {
-            out.printf("\n\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], Day02.PART2_ANSWER);
+            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], Day02.PART2_ANSWER);
         }
         return answers;
     }
@@ -75,45 +75,41 @@ public class Day05 {
     }
 
     public static String getPart1() {
-        out.println(update_list.getFirst());
-        // int[] updates = update_list.getFirst().stream().mapToInt(i -> i).toArray();
         int list_count =0;
+        LinkedList<Integer> good_middle_pages = new LinkedList<>();
+
         for (List<Integer> ups : update_list) {
             list_count++;
-            //int[] updates = update_list.getFirst().stream().mapToInt(i -> i).toArray();
             int[] updates = ups.stream().mapToInt(i-> i).toArray();
             boolean updates_good = true;
-            out.printf("%-3d update list: %s\n", list_count, ups);
+
             for (int i = 1; i < updates.length; i++) {
                 int left = updates[i - 1];
                 int right = updates[i];
                 boolean after_good = true;
                 boolean before_good = true;
-                //before
+                //before rules
                 if (before_rules.containsKey(right)) {
                     if (!before_rules.get(right).contains(left)) {
                         before_good = false;
                     }
                 }
-                if(list_count == 4) {
-                    out.printf("\t\t pair (%d,%d) after: %b", left, right, before_good);
-                }
-                //after
+                //after rules
                 if (after_rules.containsKey(left)) {
                     if (!after_rules.get(left).contains(right)) {
                         after_good = false;
                     }
                 }
-                if(list_count == 4) {
-                    out.printf("\t before: %b \n", after_good);
-                }
                 updates_good = before_good && after_good && updates_good;
             }
-            out.printf("\t%-3d update list: %s is good: %b \n", list_count,ups, updates_good);
+            if ( updates_good) {
+                int mid_index = ups.size() /2;
+                int mid_element = ups.get(mid_index);
+                good_middle_pages.add(mid_element);
+            }
         }
 
-
-        int answer = 1;
+        int answer = good_middle_pages.stream().mapToInt(i->i).sum();
         return Integer.toString(answer);
     }
 
