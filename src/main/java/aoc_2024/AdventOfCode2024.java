@@ -5,11 +5,10 @@ import java.io.IOException;
 
 public class AdventOfCode2024 {
     public static void main(String[] args) {
-
-        //String input_string = "input/2024/day_04_test_01.txt";
-       String input_string = "input/2024/day_04_input_01.txt";
+       // String input_string = "input/2024/day_05_test_01.txt";
+        String input_string = "input/2024/day_05_input_01.txt";
         try {
-            String[] results = Day04.runDay(System.out,input_string );
+            String[] results = Day05.runDay(System.out, input_string);
 
 
             System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
