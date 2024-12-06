@@ -10,6 +10,11 @@ public class AdventOfCode2024 {
             "input/2024/day_03_test_01.txt",
             "input/2024/day_04_test_01.txt",
             "input/2024/day_05_test_01.txt",
+            "input/2024/day_06_test_01.txt",
+            "input/2024/day_07_test_01.txt",
+            "input/2024/day_08_test_01.txt",
+            "input/2024/day_09_test_01.txt",
+            "input/2024/day_10_test_01.txt",
     };
 
     static final String[] input_files= {
@@ -18,14 +23,19 @@ public class AdventOfCode2024 {
             "input/2024/day_03_input_01.txt",
             "input/2024/day_04_input_01.txt",
             "input/2024/day_05_input_01.txt",
+            "input/2024/day_06_input_01.txt",
+            "input/2024/day_07_input_01.txt",
+            "input/2024/day_08_input_01.txt",
+            "input/2024/day_09_input_01.txt",
+            "input/2024/day_10_input_01.txt",
     };
 
 
-    public static final boolean TESTING = false;
+    public static final boolean TESTING = true;
 
     public static void main(String[] args){
 
-        int day_number=5;
+        int day_number=6;
 
 
         String input_string;
@@ -36,7 +46,7 @@ public class AdventOfCode2024 {
         }
 
         try {
-            String[] results = Day05.runDay(System.out, input_string);
+            String[] results = Day06.runDay(System.out, input_string);
             System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
             System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
         } catch (IOException e) {
