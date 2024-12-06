@@ -19,8 +19,8 @@ public class Day06 {
     private static Point guard_start;
     private static Compass guard_init_dir;
 
-    private static char EMPTY='.';
-    private static char BLOCK='#';
+    private static final char EMPTY='.';
+    private static final char BLOCK='#';
 
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
