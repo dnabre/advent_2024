@@ -22,16 +22,24 @@ public class Vector2d extends Point {
     }
 
     public boolean inside(int xMax, int yMax) {
+        if ((x < 0) || (y<0)) {
+            return false;
+        }
         return (x <= xMax) && (y <= yMax);
     }
 
     @Override
     public String toString() {
-         return String.format("<%d, %d>", this.x, this.y);
+         return String.format("(%d, %d)", this.x, this.y);
     }
 
     public char fromGrid(char[][] grid) {
         char ch = grid[x][y];
         return ch;
+    }
+
+    public void sub(Vector2d delta) {
+        this.x = this.x - delta.x;
+        this.y = this.y - delta.y;
     }
 }
