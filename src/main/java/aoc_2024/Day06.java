@@ -17,7 +17,7 @@ import static src.main.java.aoc_2024.Directions.Compass;
 
 public class Day06 {
     public static final String PART1_ANSWER = "5067";
-    public static final String PART2_ANSWER = "1793";  // 1931 was too
+    public static final String PART2_ANSWER = "1793";
     private static final char EMPTY = '.';
     private static final char BLOCK = '#';
     private static char[][] grid;
@@ -101,7 +101,7 @@ public class Day06 {
 //        out.println("TestForward Validation");
 //        Run_Result rr = TestForward(new Guard(guard_start, guard_init_dir),new HashSet<Guard>(), blockers );
 //        out.printf("rr=%s, answer=%d\n", rr, t_visit.size());
-      //  printGrid(grid);
+        //  printGrid(grid);
 
         out.println("\ntracing back path");
         HashSet<Vector2d> loop_makers = new HashSet<>();
@@ -116,7 +116,7 @@ public class Day06 {
             Guard last_state = path_state_stack.pop();
             // add blocker
             Vector2d new_blocker = g_state.loc;
-            blockers.add(new_blocker);
+
             out.printf("\ttesting blocker @ %s: ", new_blocker);
             // get state before step into tile with new blocker
             Vector2d previous_step = step_backwards_location(new Guard(new_blocker, g_state.heading));
@@ -129,17 +129,14 @@ public class Day06 {
             if(!path_state_stack.empty() ){
 
                 Guard previous_state_guy = path_state_stack.peek();
-                Run_Result r = TestForward(previous_state_guy, visited_states, blockers);
+                Run_Result r = TestForward(new Guard(guard_start,guard_init_dir),new_blocker );
                 out.printf("\t %s \n", r);
                 if (r == Run_Result.LOOP) {
                     loop_makers.add(new_blocker);
-                } else {
-
                 }
 
             }
 
-            blockers.remove(new_blocker);
         }
 
 
@@ -185,7 +182,7 @@ public class Day06 {
         }
         original_grid = grid.clone();
         out.println(guard_start);
-        System.exit(0);
+
     }
 
     private static Vector2d step_forward_location(Guard g) {
@@ -228,26 +225,26 @@ public class Day06 {
         out.println("--------------------------------------------------");
     }
     //private static HashSet<Vector2d> t_visit = new HashSet<>();
-    private static Run_Result TestForward(Guard guy, HashSet<Guard> previous_states, HashSet<Vector2d> current_blockers) {
+    private static Run_Result TestForward(Guard guy, Vector2d new_block) {
         HashSet<Guard> newly_visited_states = new HashSet<>();
-//        char[][] t_grid = grid.clone();
-//        t_grid[guy.loc.x][guy.loc.y] = guy.heading.toChar();
-//        for(Vector2d v: current_blockers) {
-//            t_grid[v.x][v.y] = '#';
-//        }
-//        printGrid(t_grid);
+
         while (true) {
-         //   t_visit.add(guy.loc);
+            //   t_visit.add(guy.loc);
+
             Vector2d next_step = step_forward_location(guy);
             if (next_step == null) {
                 return Run_Result.ESCAPE;
             }
-            if (current_blockers.contains(next_step)) {
+            if (next_step.equals(new_block)) {
+                out.printf("\tnext_step blocked by new blockers (%s)\n", new_block);
+            }
+
+            if (blockers.contains(next_step) || (next_step.equals(new_block))) {
                 guy = new Guard(guy.loc, guy.heading.turnRight());
             } else {
                 guy = new Guard(next_step, guy.heading);
             }
-            if (previous_states.contains(guy) || newly_visited_states.contains(guy)){
+            if (newly_visited_states.contains(guy)){
                 return Run_Result.LOOP;
             } else {
                 newly_visited_states.add(guy);
