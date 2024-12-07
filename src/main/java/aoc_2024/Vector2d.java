@@ -1,8 +1,20 @@
 package src.main.java.aoc_2024;
 
-import java.awt.*;
 
-public class Vector2d extends Point {
+import java.util.Objects;
+
+public class Vector2d  {
+
+    public boolean equals(Object o) {
+        if (!(o instanceof Vector2d vector2d)) return false;
+        return x == vector2d.x && y == vector2d.y;
+    }
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+
+    public int x;
+    public int y;
     public Vector2d(Vector2d other) {
         this.x = other.x;
         this.y = other.y;
