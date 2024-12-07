@@ -1,6 +1,6 @@
 package src.main.java.aoc_2024;
 
-import java.awt.*;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -16,6 +16,8 @@ public class Day06 {
     public static final String PART2_ANSWER = "5448";
     private static char[][] grid;
     private static char[][] original_grid;
+    private static HashSet<Vector2d> blockers;
+
     private static Vector2d maxes;
     private static Vector2d guard_start;
     private static Compass guard_init_dir;
@@ -64,21 +66,17 @@ public class Day06 {
 
 
     public static String getPart1() {
-        final char VISITED='X';
         HashSet<Vector2d> visited = new HashSet<>();
-
         Guard guy = new Guard(guard_start, guard_init_dir);
         while(guard_on_map(guy)) {
             grid = original_grid.clone();
             visited.add(guy.loc);
-            grid[guy.loc.x][guy.loc.y]=VISITED;
             Vector2d next_step = step_forward_location(guy);
             if (next_step == null) {
                 break;
             }
             char next_tile = next_step.fromGrid(grid);
             if (next_tile == BLOCK) {
-                Compass new_head = guy.heading.turnRight();
                 guy.heading = guy.heading.turnRight();
             } else {
                 guy.loc = next_step;
@@ -106,7 +104,28 @@ public class Day06 {
 
 
     public static String getPart2() {
-        int answer = 2;
+        HashSet<Vector2d> visited = new HashSet<>();
+        HashSet<Guard> visited_states = new HashSet<>();
+        Guard guy = new Guard(guard_start, guard_init_dir);
+        grid = original_grid.clone();
+        while (true) {
+            visited.add(guy.loc);
+            Vector2d next_step = step_forward_location(guy);
+            if (next_step == null) {
+                break;
+            }
+            if(blockers.contains(next_step)) {
+                guy.heading = guy.heading.turnRight();
+            } else {
+                guy.loc = next_step;
+            }
+        }
+
+
+
+
+
+        int answer = visited.size();
         return Integer.toString(answer);
     }
 
@@ -114,10 +133,11 @@ public class Day06 {
         char[][] input_grid = Files.readAllLines(Path.of(filename)).stream().map(String::toCharArray).toList().toArray(new char[0][0]);
         int input_x_max = input_grid[0].length - 1;
         int input_y_max = input_grid.length - 1;
+
         Day06.x_max = input_y_max;
         Day06.y_max = input_x_max;
 
-
+        blockers = new HashSet<>();
         grid = new char[input_x_max+1][input_y_max+1];
         maxes = new Vector2d(input_x_max,input_y_max);
 
@@ -128,6 +148,8 @@ public class Day06 {
                     guard_start = new Vector2d(x,y);
                     guard_init_dir = Compass.NORTH;
                     ch = EMPTY;
+                } else if (ch == BLOCK) {
+                    blockers.add(new Vector2d(x,y));
                 }
                 grid[x][y] = ch;
             }
@@ -135,11 +157,11 @@ public class Day06 {
         original_grid = grid.clone();
     }
 
-    private static void printGrid(char[][] grid) {
+    public static void printGrid(char[][] grid) {
        out.println("--------------------------------------------------");
         for(int y =0; y <= maxes.y; y++) {
             for(int x =0; x <= maxes.x; x++){
-                out.print(Day06.grid[x][y]);
+                out.print(grid[x][y]);
             }
             out.println();
         }
