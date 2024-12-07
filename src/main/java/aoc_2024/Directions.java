@@ -39,6 +39,42 @@ public class Directions {
         }
 
 
+        public Compass reverse() {
+            switch(this) {
+                case NORTH -> {
+                    return SOUTH;
+                }
+                case EAST -> {
+                    return WEST;
+                }
+                case SOUTH -> {
+                    return NORTH;
+                }
+                case WEST -> {
+                    return EAST;
+                }
+            }
+            throw new RuntimeException("This should be Unreachable");
+        }
+        public char toChar() {
+            switch(this) {
+                case NORTH -> {
+                    return '^';
+                }
+                case EAST -> {
+                    return '>';
+                }
+                case SOUTH -> {
+                    return 'v';
+                }
+                case WEST -> {
+                    return '<';
+                }
+            }
+            throw new RuntimeException("This should be Unreachable");
+        }
+
+
     }
 
 }

@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Stack;
 
 import static java.lang.System.out;
 import static src.main.java.aoc_2024.Directions.Compass;
@@ -14,33 +16,16 @@ import static src.main.java.aoc_2024.Directions.Compass;
 public class Day06 {
     public static final String PART1_ANSWER = "5067";
     public static final String PART2_ANSWER = "5448";
+    private static final char EMPTY = '.';
+    private static final char BLOCK = '#';
     private static char[][] grid;
     private static char[][] original_grid;
     private static HashSet<Vector2d> blockers;
-
     private static Vector2d maxes;
     private static Vector2d guard_start;
     private static Compass guard_init_dir;
-
-    private static final char EMPTY='.';
-    private static final char BLOCK='#';
     private static int x_max;
     private static int y_max;
-
-    public static class  Guard {
-        public Vector2d loc;
-        public Compass heading;
-
-        public Guard(Vector2d init_loc, Compass init_heading) {
-            loc = init_loc;
-            heading = init_heading;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Guard @ %s facing %s", loc.toString(), heading.toString());
-        }
-    }
 
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
@@ -64,11 +49,10 @@ public class Day06 {
         return answers;
     }
 
-
     public static String getPart1() {
         HashSet<Vector2d> visited = new HashSet<>();
         Guard guy = new Guard(guard_start, guard_init_dir);
-        while(guard_on_map(guy)) {
+        while (guard_on_map(guy)) {
             grid = original_grid.clone();
             visited.add(guy.loc);
             Vector2d next_step = step_forward_location(guy);
@@ -77,55 +61,77 @@ public class Day06 {
             }
             char next_tile = next_step.fromGrid(grid);
             if (next_tile == BLOCK) {
-                guy.heading = guy.heading.turnRight();
+                guy = new Guard(guy.loc, guy.heading.turnRight());
             } else {
-                guy.loc = next_step;
+                guy = new Guard(next_step, guy.heading);
             }
         }
         int answer = visited.size();
         return Integer.toString(answer);
     }
 
-    private static Vector2d step_forward_location(Guard g) {
-        Vector2d delta = g.heading.coordDelta();
-        Vector2d new_loc = new Vector2d(g.loc);
-        new_loc.add(delta);
-        if (!new_loc.inside(x_max,y_max)) {
-        //    out.println("step would take guard outside grid");
-            return null;
-        }
-        return new_loc;
-    }
-
-    private static boolean guard_on_map(Guard g) {
-        return g.loc.inside(x_max, y_max);
-
-    }
-
-
     public static String getPart2() {
-        HashSet<Vector2d> visited = new HashSet<>();
-        HashSet<Guard> visited_states = new HashSet<>();
+        HashSet<Vector2d> visited_locs = new HashSet<>();
         Guard guy = new Guard(guard_start, guard_init_dir);
         grid = original_grid.clone();
+        ArrayList<Guard> path_states = new ArrayList<Guard>();
+
+        HashSet<Guard> visited_states = new HashSet<>();
+        Stack<Guard> path_state_stack = new Stack<>();
+
         while (true) {
-            visited.add(guy.loc);
+            visited_states.add(guy);
+            path_states.add(guy);
             Vector2d next_step = step_forward_location(guy);
             if (next_step == null) {
+                out.printf("guard would exit map visited tiles: %d\n", visited_locs.size());
                 break;
             }
-            if(blockers.contains(next_step)) {
-                guy.heading = guy.heading.turnRight();
+
+            if (blockers.contains(next_step)) {
+                guy = new Guard(guy.loc, guy.heading.turnRight());
             } else {
-                guy.loc = next_step;
+                guy = new Guard(next_step, guy.heading);
+                path_state_stack.push(guy);
             }
+
+        }
+//        out.println("TestForward Validation");
+//        Run_Result rr = TestForward(new Guard(guard_start, guard_init_dir),new HashSet<Guard>(), blockers );
+//        out.printf("rr=%s, answer=%d\n", rr, t_visit.size());
+      //  printGrid(grid);
+
+        out.println("\ntracing back path");
+        HashSet<Vector2d> loop_makers = new HashSet<>();
+        for (Guard g_state : path_states.reversed()) {
+            out.printf("found blocker positions: %d\n", loop_makers.size());
+            Guard last_state = path_state_stack.pop();
+            // add blocker
+            Vector2d new_blocker = g_state.loc;
+            blockers.add(new_blocker);
+            out.printf("\ttesting blocker @ %s: ", new_blocker);
+            // get state before step into tile with new blocker
+            Vector2d previous_step = step_backwards_location(new Guard(new_blocker, g_state.heading));
+            assert previous_step != null;
+            // remove last step before location of new  block from earlier path
+            Guard state_to_remove = g_state;
+            visited_states.remove(state_to_remove);
+            // run to test escape/loop from this location
+            out.println("testing escape/loop test");
+            Guard previous_state_guy = path_state_stack.peek();
+
+            Run_Result r = TestForward(previous_state_guy, visited_states, blockers);
+            out.printf("\t %s \n", r);
+            if (r == Run_Result.LOOP) {
+                loop_makers.add(new_blocker);
+            } else {
+
+            }
+            blockers.remove(new_blocker);
         }
 
 
-
-
-
-        int answer = visited.size();
+        int answer = loop_makers.size();
         return Integer.toString(answer);
     }
 
@@ -138,18 +144,18 @@ public class Day06 {
         Day06.y_max = input_x_max;
 
         blockers = new HashSet<>();
-        grid = new char[input_x_max+1][input_y_max+1];
-        maxes = new Vector2d(input_x_max,input_y_max);
+        grid = new char[input_x_max + 1][input_y_max + 1];
+        maxes = new Vector2d(input_x_max, input_y_max);
 
-        for(int y =0; y <= maxes.y; y++) {
-            for(int x =0; x <= maxes.x; x++){
+        for (int y = 0; y <= maxes.y; y++) {
+            for (int x = 0; x <= maxes.x; x++) {
                 char ch = input_grid[y][x];
                 if (ch == '^') {
-                    guard_start = new Vector2d(x,y);
+                    guard_start = new Vector2d(x, y);
                     guard_init_dir = Compass.NORTH;
                     ch = EMPTY;
                 } else if (ch == BLOCK) {
-                    blockers.add(new Vector2d(x,y));
+                    blockers.add(new Vector2d(x, y));
                 }
                 grid[x][y] = ch;
             }
@@ -157,14 +163,84 @@ public class Day06 {
         original_grid = grid.clone();
     }
 
+    private static Vector2d step_forward_location(Guard g) {
+        Vector2d delta = g.heading.coordDelta();
+        Vector2d new_loc = new Vector2d(g.loc);
+        new_loc.add(delta);
+        if (!new_loc.inside(x_max, y_max)) {
+            //    out.println("step would take guard outside grid");
+            return null;
+        }
+        return new_loc;
+    }
+
+    private static Vector2d step_backwards_location(Guard g) {
+        Vector2d delta = g.heading.reverse().coordDelta();
+        Vector2d new_loc = new Vector2d(g.loc);
+        new_loc.add(delta);
+        if (!new_loc.inside(x_max, y_max)) {
+            //    out.println("step would take guard outside grid");
+            return null;
+        }
+        return new_loc;
+    }
+
+    private static boolean guard_on_map(Guard g) {
+        return g.loc.inside(x_max, y_max);
+
+    }
+
     public static void printGrid(char[][] grid) {
-       out.println("--------------------------------------------------");
-        for(int y =0; y <= maxes.y; y++) {
-            for(int x =0; x <= maxes.x; x++){
+        out.println("--------------------------------------------------");
+        for (int y = 0; y <= maxes.y; y++) {
+            for (int x = 0; x <= maxes.x; x++) {
                 out.print(grid[x][y]);
             }
             out.println();
         }
         out.println("--------------------------------------------------");
     }
+    //private static HashSet<Vector2d> t_visit = new HashSet<>();
+    private static Run_Result TestForward(Guard guy, HashSet<Guard> previous_states, HashSet<Vector2d> current_blockers) {
+        HashSet<Guard> newly_visited_states = new HashSet<>();
+//        char[][] t_grid = grid.clone();
+//        t_grid[guy.loc.x][guy.loc.y] = guy.heading.toChar();
+//        for(Vector2d v: current_blockers) {
+//            t_grid[v.x][v.y] = '#';
+//        }
+//        printGrid(t_grid);
+        while (true) {
+         //   t_visit.add(guy.loc);
+            Vector2d next_step = step_forward_location(guy);
+            if (next_step == null) {
+                return Run_Result.ESCAPE;
+            }
+            if (current_blockers.contains(next_step)) {
+                guy = new Guard(guy.loc, guy.heading.turnRight());
+            } else {
+                guy = new Guard(next_step, guy.heading);
+            }
+            if (previous_states.contains(guy) || newly_visited_states.contains(guy)){
+                return Run_Result.LOOP;
+            } else {
+                newly_visited_states.add(guy);
+            }
+        }
+
+    }
+
+    private enum Run_Result {
+        ESCAPE, LOOP
+    }
+
+    public record Guard(Vector2d loc, Compass heading) {
+        @Override
+        public String toString() {
+            return String.format("Guard @ %s facing %s", loc.toString(), heading.toString());
+        }
+    }
+
+    ;
 }
+
+
