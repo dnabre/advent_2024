@@ -1,0 +1,37 @@
+package src.main.java.aoc_2024;
+
+import java.awt.*;
+
+public class Vector2d extends Point {
+    public Vector2d(Vector2d other) {
+        this.x = other.x;
+        this.y = other.y;
+    }
+    public Vector2d(int nx, int ny) {
+        x = nx;
+        y = ny;
+    }
+
+    public void add(Vector2d delta) {
+        add(delta.x, delta.y);
+    }
+
+    private void add(int dx, int dy) {
+        x += dx;
+        y += dy;
+    }
+
+    public boolean inside(int xMax, int yMax) {
+        return (x <= xMax) && (y <= yMax);
+    }
+
+    @Override
+    public String toString() {
+         return String.format("<%d, %d>", this.x, this.y);
+    }
+
+    public char fromGrid(char[][] grid) {
+        char ch = grid[x][y];
+        return ch;
+    }
+}
