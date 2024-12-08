@@ -1,8 +1,6 @@
 package src.main.java.aoc_2024;
 
 
-
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -11,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
 
-import static java.lang.System.out;
 import static src.main.java.aoc_2024.Directions.Compass;
 
 
@@ -86,7 +83,6 @@ public class Day06 {
             path_states.add(guy);
             Vector2d next_step = step_forward_location(guy);
             if (next_step == null) {
-                out.printf("guard would exit map visited tiles: %d\n", visited_locs.size());
                 break;
             }
 
@@ -98,39 +94,33 @@ public class Day06 {
             }
             path_state_stack.push(guy);
         }
-//        out.println("TestForward Validation");
-//        Run_Result rr = TestForward(new Guard(guard_start, guard_init_dir),new HashSet<Guard>(), blockers );
-//        out.printf("rr=%s, answer=%d\n", rr, t_visit.size());
-        //  printGrid(grid);
 
-        out.println("\ntracing back path");
+
         HashSet<Vector2d> loop_makers = new HashSet<>();
-        out.printf("path_states: %d, path_state_stack: %d, visited_states: %d",
-                path_states.size(), path_state_stack.size(), visited_states.size());
-        for (Guard g_state : path_states.reversed()) {
-            out.printf("found blocker positions: %d\n", loop_makers.size());
 
-            if( path_state_stack.empty()) {
+        for (Guard g_state : path_states.reversed()) {
+
+
+            if (path_state_stack.empty()) {
                 continue;
             }
             Guard last_state = path_state_stack.pop();
-            // add blocker
+
             Vector2d new_blocker = g_state.loc;
 
-            out.printf("\ttesting blocker @ %s: ", new_blocker);
-            // get state before step into tile with new blocker
+
             Vector2d previous_step = step_backwards_location(new Guard(new_blocker, g_state.heading));
-            assert previous_step != null;
-            // remove last step before location of new  block from earlier path
+
+
             Guard state_to_remove = g_state;
             visited_states.remove(state_to_remove);
-            // run to test escape/loop from this location
-            out.println("testing escape/loop test");
-            if(!path_state_stack.empty() ){
+
+
+            if (!path_state_stack.empty()) {
 
                 Guard previous_state_guy = path_state_stack.peek();
-                Run_Result r = TestForward(new Guard(guard_start,guard_init_dir),new_blocker );
-                out.printf("\t %s \n", r);
+                Run_Result r = TestForward(new Guard(guard_start, guard_init_dir), new_blocker);
+
                 if (r == Run_Result.LOOP) {
                     loop_makers.add(new_blocker);
                 }
@@ -138,20 +128,7 @@ public class Day06 {
             }
 
         }
-
-
-        for(Vector2d v: loop_makers) {
-            out.println(v);
-        }
-
-
-
-
         int answer = loop_makers.size();
-
-
-
-
         return Integer.toString(answer);
     }
 
@@ -181,7 +158,6 @@ public class Day06 {
             }
         }
         original_grid = grid.clone();
-        out.println(guard_start);
 
     }
 
@@ -190,7 +166,6 @@ public class Day06 {
         Vector2d new_loc = new Vector2d(g.loc);
         new_loc.add(delta);
         if (!new_loc.inside(x_max, y_max)) {
-            //    out.println("step would take guard outside grid");
             return null;
         }
         return new_loc;
@@ -200,10 +175,9 @@ public class Day06 {
         Vector2d delta = g.heading.reverse().coordDelta();
         Vector2d new_loc = new Vector2d(g.loc);
         new_loc.add(delta);
-        assert new_loc.x >=0;
-        assert new_loc.y >=0;
+        assert new_loc.x >= 0;
+        assert new_loc.y >= 0;
         if (!new_loc.inside(x_max, y_max)) {
-            //    out.println("step would take guard outside grid");
             return null;
         }
         return new_loc;
@@ -214,29 +188,14 @@ public class Day06 {
 
     }
 
-    public static void printGrid(char[][] grid) {
-        out.println("--------------------------------------------------");
-        for (int y = 0; y <= maxes.y; y++) {
-            for (int x = 0; x <= maxes.x; x++) {
-                out.print(grid[x][y]);
-            }
-            out.println();
-        }
-        out.println("--------------------------------------------------");
-    }
-    //private static HashSet<Vector2d> t_visit = new HashSet<>();
+
     private static Run_Result TestForward(Guard guy, Vector2d new_block) {
         HashSet<Guard> newly_visited_states = new HashSet<>();
 
         while (true) {
-            //   t_visit.add(guy.loc);
-
             Vector2d next_step = step_forward_location(guy);
             if (next_step == null) {
                 return Run_Result.ESCAPE;
-            }
-            if (next_step.equals(new_block)) {
-                out.printf("\tnext_step blocked by new blockers (%s)\n", new_block);
             }
 
             if (blockers.contains(next_step) || (next_step.equals(new_block))) {
@@ -244,7 +203,7 @@ public class Day06 {
             } else {
                 guy = new Guard(next_step, guy.heading);
             }
-            if (newly_visited_states.contains(guy)){
+            if (newly_visited_states.contains(guy)) {
                 return Run_Result.LOOP;
             } else {
                 newly_visited_states.add(guy);
