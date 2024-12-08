@@ -62,6 +62,8 @@ public class Day08 {
         for (char id : antennas.keySet()) {
             List<Vector2d> ant_list = antennas.get(id);
             out.printf("freq %c has %d stations\n", id, ant_list.size());
+
+            // #TODO change from adjacent pairs to all pairs
             List<Vector2d[]> pp = Vector2d.getAllAdjacentPairs(ant_list);
 
             for (Vector2d[] v : pp) {
