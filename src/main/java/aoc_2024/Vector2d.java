@@ -1,6 +1,10 @@
 package src.main.java.aoc_2024;
 
 
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 public class Vector2d  {
@@ -45,13 +49,35 @@ public class Vector2d  {
          return String.format("(%d, %d)", this.x, this.y);
     }
 
-    public char fromGrid(char[][] grid) {
-        char ch = grid[x][y];
-        return ch;
+    public Vector2d[] antinodes(Vector2d other) {
+        int l_dx = this.x - other.x;
+        int l_dy = this.y - other.y;
+        int r_dx = other.x - this.x;
+        int r_dy = other.y - this.y;
+
+        Vector2d[] result = new Vector2d[2];
+        result[0] = new Vector2d( other.x + 2*l_dx, other.y + 2*l_dy);
+        result[1] = new Vector2d(  this.x + 2*r_dx, this.y + 2* r_dy);
+        return result;
     }
 
-    public void sub(Vector2d delta) {
-        this.x = this.x - delta.x;
-        this.y = this.y - delta.y;
+
+    public static List<Vector2d[]> getAllAdjacentPairs(List<Vector2d> ls) {
+        List<Vector2d[]> result = new ArrayList<>();
+
+        Iterator<Vector2d> iter = ls.iterator();
+        if (iter.hasNext()) {
+            Vector2d left = iter.next();
+            while (iter.hasNext()) {
+                final Vector2d right = iter.next();
+
+                Vector2d[] pair = {left, right};
+                result.add(pair);
+                left = right;
+            }
+        }
+        Vector2d[] wrap_around = {ls.getLast(), ls.getFirst()};
+        result.add(wrap_around);
+        return result;
     }
 }
