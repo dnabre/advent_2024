@@ -52,7 +52,8 @@ public class Day06 {
             if (next_step == null) {
                 break;
             }
-            char next_tile = next_step.fromGrid(grid);
+            //char next_tile = next_step.fromGrid(grid);
+            char next_tile = grid[next_step.x][next_step.y];
             if (next_tile == BLOCK) {
                 guy = new Guard(guy.loc, guy.heading.turnRight());
             } else {
