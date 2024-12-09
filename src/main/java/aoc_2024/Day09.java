@@ -15,9 +15,7 @@ import static src.main.java.aoc_2024.AoCUtils.LABELS;
 
 public class Day09 {
 
-    public static final String PART1_ANSWER = "4814"; //439102322 is too low
-    //1941764320114 is too low
-    //6340197768906
+    public static final String PART1_ANSWER = "6340197768906";
     public static final String PART2_ANSWER = "5448";
     private static char[] packed_disk;
     private static String test_final = "0099811188827773336446555566..............";
@@ -71,10 +69,12 @@ public class Day09 {
        out.printf("count_free: %d\n", count_free);
         int[] disk= disk_list.stream().flatMapToInt(IntStream::of).toArray();
        // out.println(Arrays.toString(disk));
-        prettyPrintDisk(disk);
+      //  prettyPrintDisk(disk);
         int right_idx = disk.length-1;
         int left_idx = 0;
-        while(count_free >2) {
+        int swap_count =0;
+        //while(count_free >2) {
+        while(swap_count < 23681) {
             while(disk[left_idx] != -1) {
                 left_idx++;
             }
@@ -84,9 +84,10 @@ public class Day09 {
             disk[left_idx] = disk[right_idx];
             disk[right_idx] = -1;
             count_free--;
+            swap_count++;
           //  prettyPrintDisk(disk);
         }
-
+        out.printf("swap count: %d \n", swap_count);
 
         out.println();
      //   prettyPrintDisk(disk);
