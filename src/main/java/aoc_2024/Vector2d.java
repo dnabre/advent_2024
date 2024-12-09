@@ -1,7 +1,7 @@
 package src.main.java.aoc_2024;
 
 
-import java.awt.geom.Point2D;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,19 +47,6 @@ public class Vector2d  {
     @Override
     public String toString() {
          return String.format("(%d, %d)", this.x, this.y);
-    }
-
-    public Vector2d[] antinodes(Vector2d other) {
-        int l_dx = this.x - other.x;
-        int l_dy = this.y - other.y;
-        int r_dx = other.x - this.x;
-        int r_dy = other.y - this.y;
-
-        Vector2d[] result = new Vector2d[2];
-        result[0] = new Vector2d(  this.x + l_dx, this.y +  l_dy);
-        result[1] = new Vector2d( other.x - l_dx, other.y -l_dy);
-
-        return result;
     }
 
 

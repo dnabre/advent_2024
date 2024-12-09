@@ -14,13 +14,6 @@ public class Day08 {
     private static char[][] grid;
     private static Vector2d max;
 
-    public static String getPart2() {
-
-
-        int answer = 2;
-        return Integer.toString(answer);
-    }
-
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.println("\tDay  8");
@@ -60,6 +53,43 @@ public class Day08 {
                 int y = ant_list.get(i).y;
 
                 for (int j = i + 1; j < ant_list.size(); j++) {
+                    int compare_x = ant_list.get(j).x;
+                    int compare_y = ant_list.get(j).y;
+
+                    int xDiff = x - compare_x;
+                    int yDiff = y - compare_y;
+
+                    int antinode_1x = x + xDiff;
+                    int antinode_1y = y + yDiff;
+
+                    int antinode_2x = compare_x - xDiff;
+                    int antinode_2y = compare_y - yDiff;
+
+                    if (antinode_1x < max.x && antinode_1x >= 0 && antinode_1y < max.y && antinode_1y >= 0) {
+                        antinodes.add(new Vector2d(antinode_1x,antinode_1y));
+                    }
+
+                    if (antinode_2x < max.x && antinode_2x >= 0 && antinode_2y < max.y && antinode_2y >= 0) {
+                        antinodes.add(new Vector2d(antinode_2x, antinode_2y));
+                    }
+                }
+            }
+        }
+
+        int answer = antinodes.size();
+        return Integer.toString(answer);
+    }
+    public static String getPart2() {
+
+        HashSet<Vector2d> antinodes = new HashSet<>();
+        HashMap<Character, ArrayList<Vector2d>> antennas = getAntennaList(grid);
+        for (ArrayList<Vector2d> ant_list : antennas.values()) {
+
+            for (int i = 0; i < ant_list.size(); i++) {
+                int x = ant_list.get(i).x;
+                int y = ant_list.get(i).y;
+
+                for (int j = i + 1; j < ant_list.size(); j++) {
                     int compareX = ant_list.get(j).x;
                     int compareY = ant_list.get(j).y;
 
@@ -72,13 +102,19 @@ public class Day08 {
                     int antinode_2X = compareX - xDiff;
                     int antinode_2Y = compareY - yDiff;
 
-                    if (antinode_1X < max.x && antinode_1X >= 0 && antinode_1Y < max.y && antinode_1Y >= 0) {
-                        antinodes.add(new Vector2d(antinode_1Y, antinode_1X));
+                    while (antinode_1X < max.x && antinode_1X >= 0 && antinode_1Y < max.y && antinode_1Y >= 0) {
+                        antinodes.add(new Vector2d(antinode_1X,antinode_1Y));
+                        antinode_1Y += yDiff;
+                        antinode_1X += xDiff;
                     }
 
-                    if (antinode_2X < max.x && antinode_2X >= 0 && antinode_2Y < max.y && antinode_2Y >= 0) {
-                        antinodes.add(new Vector2d(antinode_2Y, antinode_2X));
+                    while (antinode_2X < max.x && antinode_2X >= 0 && antinode_2Y < max.y && antinode_2Y >= 0) {
+                        antinodes.add(new Vector2d(antinode_2X, antinode_2Y));
+                        antinode_2Y -= yDiff;
+                        antinode_2X -= xDiff;
                     }
+                    antinodes.add(new Vector2d(x,y));
+                    antinodes.add(new Vector2d(compareX, compareY));
                 }
             }
         }
