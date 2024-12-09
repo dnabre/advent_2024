@@ -33,7 +33,7 @@ public class AdventOfCode2024 {
     };
 
 
-    public static final boolean TESTING = true;
+    public static final boolean TESTING = false;
     public static final int TEST_IDX=0;
 
     public static void main(String[] args){
