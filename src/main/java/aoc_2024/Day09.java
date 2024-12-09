@@ -16,9 +16,10 @@ import static java.lang.System.out;
 public class Day09 {
 
     public static final String PART1_ANSWER = "6340197768906";
-    public static final String PART2_ANSWER = "5448";
+    public static final String PART2_ANSWER = "6363913128533";
     private static char[] packed_disk;
 
+    private static String part2_test_final = "00992111777.44.333....5555.6666.....8888..";
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.println("\tDay  9");
@@ -47,7 +48,12 @@ public class Day09 {
     }
 
     public static String getPart1() {
+
+
+
         int[] disk = getUnpackedDisk(packed_disk);
+
+
 
         int used_space = 0;
         for(int v: disk) {
@@ -106,10 +112,57 @@ public class Day09 {
         file_list.sort(Comparator.comparingInt(f -> -f.number));
         TreeSet<EmptyBlock> empty_blocks = new TreeSet<>(empty_list);
 
+        for(FileBlock f:file_list) {
+            out.println(f);
+            int need_size = f.size;
+            EmptyBlock go_here = null;
+            for(EmptyBlock eb:empty_blocks) {
+                if(eb.size >= need_size) {
+                    go_here = eb;
+                    out.println("\tfound block" + go_here );
+                    break;
+                }
+            }
 
+            if (go_here == null) {
+                out.println("could not place file: " + f);
+            } else {
+                empty_blocks.remove(go_here);
 
+                for(int i=0;  i < f.size; i++) {
+                    out.print("\t") ; prettyPrintDisk(disk);
+                    disk[go_here.offset+i] = disk[f.offset+ i];
+                }
+                EmptyBlock freed_space = new EmptyBlock(f.offset, f.size);
+                for(int i=0; i < f.size; i++) {
+                    disk[f.offset+i] = -1;
+                }
+                if(go_here.size > f.size) {
+                    // left over space to save
+                    EmptyBlock left_over = null;
+                    int offset = go_here.offset() + f.size;
+                    int size = go_here.size - f.size;
+                    if (offset + size == freed_space.offset) {
+                        //merge two freed blocks
+                        left_over = new EmptyBlock(offset, size + freed_space.size);
+                        empty_blocks.add(left_over);
+                        freed_space = null;
+                    } else {
+                        left_over = new EmptyBlock(go_here.offset + f.size, go_here.size() - f.size);
+                    }
+                }
+                if(freed_space != null) {
+                    empty_blocks.add(freed_space);
+                }
 
-        long answer = 2;
+            }
+            prettyPrintDisk(disk);
+        }
+        out.println("defrag done");
+        long cs = getChecksum(disk);
+        out.printf("checksum: %d \n", cs);
+        prettyPrintDisk(disk);
+        long answer = getChecksum(disk);
        return String.valueOf(answer);
     }
 
