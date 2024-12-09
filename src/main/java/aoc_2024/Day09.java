@@ -18,6 +18,14 @@ public class Day09 {
     public static final String PART2_ANSWER = "6363913128533";
     private static char[] packed_disk;
 
+    private sealed interface BlockSpan { }
+    private record FileBlock(int number, int offset, int size) implements BlockSpan { }
+    private record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {
+        @Override
+        public int compareTo(EmptyBlock other) {
+            return Integer.compare(this.offset, other.offset);
+        }
+    }
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -70,7 +78,7 @@ public class Day09 {
         return String.valueOf(answer);
     }
 
-    public static String getPart2() throws IOException {
+    public static String getPart2()  {
         ArrayList<FileBlock> file_list = new ArrayList<>();
         ArrayList<EmptyBlock> empty_list = new ArrayList<>();
 
@@ -93,75 +101,39 @@ public class Day09 {
                     empty_list.add(eb);
                 }
             }
-
             for (int count = 0; count < chick; count++) {
                 disk_list.add(to_write);
             }
             isFile = !isFile;
         }
-
         int[] disk = disk_list.stream().flatMapToInt(IntStream::of).toArray();
-
-      //  prettyPrintDisk(disk);
         file_list.sort(Comparator.comparingInt(f -> -f.number));
         TreeSet<EmptyBlock> empty_blocks = new TreeSet<>(empty_list);
-
         for (FileBlock f : file_list) {
- //           out.println(f);
-            int need_size = f.size;
-            EmptyBlock go_here = null;
+             EmptyBlock go_here = null;
             for (EmptyBlock eb : empty_blocks) {
-                if ((eb.size >= need_size)  && (eb.offset < f.offset )){
+                if ((eb.size >= f.size)  && (eb.offset < f.offset )){
                     go_here = eb;
-//                    out.println("\tfound block" + go_here);
                     break;
                 }
             }
 
-            if (go_here == null) {
-      //          out.println("could not place file: " + f);
-            } else {
+            if (go_here != null) {
                 empty_blocks.remove(go_here);
 
                 for (int i = 0; i < f.size; i++) {
                     disk[go_here.offset + i] = disk[f.offset + i];
-                }
-
-
-                for (int i = 0; i < f.size; i++) {
                     disk[f.offset + i] = -1;
                 }
 
-
                 EmptyBlock freed_space = new EmptyBlock(f.offset, f.size);
                 empty_blocks.add(freed_space);
-
-
                 if (go_here.size > f.size) {
                     EmptyBlock leftover = new EmptyBlock(go_here.offset + f.size, go_here.size - f.size);
                     empty_blocks.add(leftover);
                 }
-
-//                // left over space to save
-//                EmptyBlock left_over = null;
-//                int offset = go_here.offset() + f.size;
-//                int size = go_here.size - f.size;
-//                if (offset + size == freed_space.offset) {
-//                    //merge two freed blocks
-//                    left_over = new EmptyBlock(offset, size + freed_space.size);
-//                    empty_blocks.add(left_over);
-//                    freed_space = null;
-//                } else {
-//                    left_over = new EmptyBlock(go_here.offset + f.size, go_here.size() - f.size);
-//                }
             }
-
-       //     prettyPrintDisk(disk);
         }
-
-
-
-     //   prettyPrintDisk(disk);
         long answer = getChecksum(disk);
         return String.valueOf(answer);
     }
@@ -200,29 +172,7 @@ public class Day09 {
 
     }
 
-    private static void prettyPrintDisk(int[] p_disk) {
-        for (int v : p_disk) {
-            if (v == -1) {
-                out.print('.');
-            } else {
-                out.print(v);
-            }
-        }
-        out.printf("\t size: %d \n", p_disk.length);
-    }
 
-    sealed interface BlockSpan {
-    }
 
-    record FileBlock(int number, int offset, int size) implements BlockSpan {
-    }
-
-    record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {
-
-        @Override
-        public int compareTo(EmptyBlock other) {
-            return Integer.compare(this.offset, other.offset);
-        }
-    }
 
 }

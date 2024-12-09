@@ -7,8 +7,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class Day07 {
-    public static final String PART1_ANSWER = "4814";
-    public static final String PART2_ANSWER = "5448";
+    public static final String PART1_ANSWER = "267566105056";
+    public static final String PART2_ANSWER = "116094961956019";
 
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
