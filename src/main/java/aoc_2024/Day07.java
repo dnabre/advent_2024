@@ -20,14 +20,17 @@ public class Day07 {
         answers[0] = getPart1();
         answers[1] = getPart2();
 
-        if (!answers[0].equals(PART1_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-        }
+        if (!AdventOfCode2024.TESTING) {
+            if (!answers[0].equals(PART1_ANSWER)) {
+                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
+            }
 
-        if (!answers[1].equals(PART2_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
+            if (!answers[1].equals(PART2_ANSWER)) {
+                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
+            }
         }
         return answers;
+
     }
 
 

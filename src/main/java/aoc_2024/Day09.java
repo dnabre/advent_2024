@@ -5,7 +5,9 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.TreeSet;
 import java.util.stream.IntStream;
 
 import static java.lang.System.out;
@@ -17,7 +19,6 @@ public class Day09 {
     public static final String PART2_ANSWER = "5448";
     private static char[] packed_disk;
 
-
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.println("\tDay  9");
@@ -27,12 +28,14 @@ public class Day09 {
         answers[0] = getPart1();
         answers[1] = getPart2();
 
-        if (!answers[0].equals(PART1_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-        }
+        if (!AdventOfCode2024.TESTING) {
+            if (!answers[0].equals(PART1_ANSWER)) {
+                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
+            }
 
-        if (!answers[1].equals(PART2_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
+            if (!answers[1].equals(PART2_ANSWER)) {
+                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
+            }
         }
         return answers;
     }
@@ -40,28 +43,18 @@ public class Day09 {
     public static void parseInput(String filename) throws IOException {
         String raw_input = Files.readString(Path.of(filename));
         packed_disk = raw_input.toCharArray();
+
     }
 
     public static String getPart1() {
-        ArrayList<Integer> disk_list = new ArrayList<>();
-        int file_no = 0;
-        boolean isFile = true;
-        int used_space = 0;
-        for (char ch : packed_disk) {
-            int chick = Character.getNumericValue(ch);
-            int to_write = -1;
-            if (isFile) {
-                to_write = file_no;
-                file_no++;
-                used_space += chick;
-            }
-            for (int count = 0; count < chick; count++) {
-                disk_list.add(to_write);
-            }
-            isFile = !isFile;
-        }
+        int[] disk = getUnpackedDisk(packed_disk);
 
-        int[] disk = disk_list.stream().flatMapToInt(IntStream::of).toArray();
+        int used_space = 0;
+        for(int v: disk) {
+            if (v != -1) {
+                used_space++;
+            }
+        }
         int right_idx = disk.length - 1;
         int left_idx = 0;
         while (right_idx > used_space) {
@@ -77,16 +70,47 @@ public class Day09 {
         long answer = getChecksum(disk);
         return String.valueOf(answer);
     }
+    public static String getPart2() {
+        ArrayList<FileBlock> file_list = new ArrayList<>();
+        ArrayList<EmptyBlock> empty_list = new ArrayList<>();
 
-    private static void prettyPrintDisk(int[] p_disk) {
-        for (int v : p_disk) {
-            if (v == -1) {
-                out.print('.');
+        char[] packed = packed_disk;
+        ArrayList<Integer> disk_list = new ArrayList<>();
+        int file_no = 0;
+        boolean isFile = true;
+
+        for (char ch : packed) {
+            int chick = Character.getNumericValue(ch);
+            int to_write = -1;
+            if (isFile) {
+                to_write = file_no;
+                FileBlock fb = new FileBlock(file_no, disk_list.size(), chick);
+                file_list.add(fb);
+                file_no++;
             } else {
-                out.print(v);
+                if(chick != 0){
+                    EmptyBlock eb = new EmptyBlock(disk_list.size(), chick);
+                    empty_list.add(eb);
+                }
             }
+
+            for (int count = 0; count < chick; count++) {
+                disk_list.add(to_write);
+            }
+            isFile = !isFile;
         }
-        out.printf("\t size: %d \n", p_disk.length);
+
+        int[] disk = disk_list.stream().flatMapToInt(IntStream::of).toArray();
+
+        prettyPrintDisk(disk);
+        file_list.sort(Comparator.comparingInt(f -> -f.number));
+        TreeSet<EmptyBlock> empty_blocks = new TreeSet<>(empty_list);
+
+
+
+
+        long answer = 2;
+       return String.valueOf(answer);
     }
 
 
@@ -102,9 +126,47 @@ public class Day09 {
         return checksum;
     }
 
+    private static int[] getUnpackedDisk(char[] packed) {
+        ArrayList<Integer> disk_list = new ArrayList<>();
+        int file_no = 0;
+        boolean isFile = true;
 
-    public static String getPart2() {
-        int answer = 2;
-        return Integer.toString(answer);
+        for (char ch : packed) {
+            int chick = Character.getNumericValue(ch);
+            int to_write = -1;
+            if (isFile) {
+                to_write = file_no;
+                file_no++;
+
+            }
+            for (int count = 0; count < chick; count++) {
+                disk_list.add(to_write);
+            }
+            isFile = !isFile;
+        }
+
+        return  disk_list.stream().flatMapToInt(IntStream::of).toArray();
+
     }
+    private static void prettyPrintDisk(int[] p_disk) {
+        for (int v : p_disk) {
+            if (v == -1) {
+                out.print('.');
+            } else {
+                out.print(v);
+            }
+        }
+        out.printf("\t size: %d \n", p_disk.length);
+    }
+
+    sealed interface BlockSpan{}
+    record FileBlock(int number, int offset, int size) implements BlockSpan {}
+    record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {
+
+        @Override
+        public int compareTo(EmptyBlock other) {
+            return Integer.compare(this.offset, other.offset);
+        }
+    }
+
 }
