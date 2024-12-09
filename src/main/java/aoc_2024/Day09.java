@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.PriorityQueue;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
 
@@ -19,7 +18,7 @@ public class Day09 {
     public static final String PART2_ANSWER = "6363913128533";
     private static char[] packed_disk;
 
-    private static String part2_test_final = "00992111777.44.333....5555.6666.....8888..";
+
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.println("\tDay  9");
@@ -48,15 +47,11 @@ public class Day09 {
     }
 
     public static String getPart1() {
-
-
-
         int[] disk = getUnpackedDisk(packed_disk);
-
-
-
+        System.out.printf("checksum: %d\n", getChecksum(disk));
+        prettyPrintDisk(disk);
         int used_space = 0;
-        for(int v: disk) {
+        for (int v : disk) {
             if (v != -1) {
                 used_space++;
             }
@@ -76,7 +71,8 @@ public class Day09 {
         long answer = getChecksum(disk);
         return String.valueOf(answer);
     }
-    public static String getPart2() {
+
+    public static String getPart2() throws IOException{
         ArrayList<FileBlock> file_list = new ArrayList<>();
         ArrayList<EmptyBlock> empty_list = new ArrayList<>();
 
@@ -94,7 +90,7 @@ public class Day09 {
                 file_list.add(fb);
                 file_no++;
             } else {
-                if(chick != 0){
+                if (chick != 0) {
                     EmptyBlock eb = new EmptyBlock(disk_list.size(), chick);
                     empty_list.add(eb);
                 }
@@ -112,14 +108,14 @@ public class Day09 {
         file_list.sort(Comparator.comparingInt(f -> -f.number));
         TreeSet<EmptyBlock> empty_blocks = new TreeSet<>(empty_list);
 
-        for(FileBlock f:file_list) {
+        for (FileBlock f : file_list) {
             out.println(f);
             int need_size = f.size;
             EmptyBlock go_here = null;
-            for(EmptyBlock eb:empty_blocks) {
-                if(eb.size >= need_size) {
+            for (EmptyBlock eb : empty_blocks) {
+                if (eb.size >= need_size) {
                     go_here = eb;
-                    out.println("\tfound block" + go_here );
+                    out.println("\tfound block" + go_here);
                     break;
                 }
             }
@@ -129,15 +125,16 @@ public class Day09 {
             } else {
                 empty_blocks.remove(go_here);
 
-                for(int i=0;  i < f.size; i++) {
-                    out.print("\t") ; prettyPrintDisk(disk);
-                    disk[go_here.offset+i] = disk[f.offset+ i];
+                for (int i = 0; i < f.size; i++) {
+                    out.print("\t");
+                    prettyPrintDisk(disk);
+                    disk[go_here.offset + i] = disk[f.offset + i];
                 }
                 EmptyBlock freed_space = new EmptyBlock(f.offset, f.size);
-                for(int i=0; i < f.size; i++) {
-                    disk[f.offset+i] = -1;
+                for (int i = 0; i < f.size; i++) {
+                    disk[f.offset + i] = -1;
                 }
-                if(go_here.size > f.size) {
+                if (go_here.size > f.size) {
                     // left over space to save
                     EmptyBlock left_over = null;
                     int offset = go_here.offset() + f.size;
@@ -151,7 +148,7 @@ public class Day09 {
                         left_over = new EmptyBlock(go_here.offset + f.size, go_here.size() - f.size);
                     }
                 }
-                if(freed_space != null) {
+                if (freed_space != null) {
                     empty_blocks.add(freed_space);
                 }
 
@@ -163,18 +160,16 @@ public class Day09 {
         out.printf("checksum: %d \n", cs);
         prettyPrintDisk(disk);
         long answer = getChecksum(disk);
-       return String.valueOf(answer);
+        return String.valueOf(answer);
     }
 
 
     private static long getChecksum(int[] disk_for_checksum) {
         long checksum = 0;
         for (int i = 0; i < disk_for_checksum.length; i++) {
-            int ch = disk_for_checksum[i];
-            if (ch == -1) {
-                return checksum;
-            }
-            checksum += (long)ch * (long)i;
+            if(disk_for_checksum[i] == -1) continue;
+
+            checksum += (i * disk_for_checksum[i]);
         }
         return checksum;
     }
@@ -198,9 +193,10 @@ public class Day09 {
             isFile = !isFile;
         }
 
-        return  disk_list.stream().flatMapToInt(IntStream::of).toArray();
+        return disk_list.stream().flatMapToInt(IntStream::of).toArray();
 
     }
+
     private static void prettyPrintDisk(int[] p_disk) {
         for (int v : p_disk) {
             if (v == -1) {
@@ -212,8 +208,12 @@ public class Day09 {
         out.printf("\t size: %d \n", p_disk.length);
     }
 
-    sealed interface BlockSpan{}
-    record FileBlock(int number, int offset, int size) implements BlockSpan {}
+    sealed interface BlockSpan {
+    }
+
+    record FileBlock(int number, int offset, int size) implements BlockSpan {
+    }
+
     record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {
 
         @Override

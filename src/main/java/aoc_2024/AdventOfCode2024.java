@@ -13,7 +13,7 @@ public class AdventOfCode2024 {
             {"input/2024/day_06_test_01.txt"},
             {"input/2024/day_07_test_01.txt"},
             {"input/2024/day_08_test_01.txt","input/2024/day_08_test_02.txt" },
-            {"input/2024/day_09_test_01.txt"},
+            {"input/2024/day_09_test_01.txt","input/2024/day_09_test_02.txt"},
             {"input/2024/day_10_test_01.txt"},
 
 
