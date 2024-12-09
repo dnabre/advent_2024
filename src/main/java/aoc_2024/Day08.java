@@ -2,15 +2,24 @@ package src.main.java.aoc_2024;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
-import static java.lang.System.out;
 
 public class Day08 {
-    public static final String PART1_ANSWER = "4814";
-    public static final String PART2_ANSWER = "5448";
+
+    public static final String PART1_ANSWER = "261"; // 340 is too high
+    public static final String PART2_ANSWER = "898";
     private static char[][] grid;
     private static Vector2d max;
+
+    public static String getPart2() {
+
+
+        int answer = 2;
+        return Integer.toString(answer);
+    }
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -41,84 +50,59 @@ public class Day08 {
     }
 
     public static String getPart1() {
-        HashMap<Character, List<Vector2d>> antennas = new HashMap<>();
 
+        HashSet<Vector2d> antinodes = new HashSet<>();
+        HashMap<Character, ArrayList<Vector2d>> antennas = getAntennaList(grid);
+        for (ArrayList<Vector2d> ant_list : antennas.values()) {
+
+            for (int i = 0; i < ant_list.size(); i++) {
+                int x = ant_list.get(i).x;
+                int y = ant_list.get(i).y;
+
+                for (int j = i + 1; j < ant_list.size(); j++) {
+                    int compareX = ant_list.get(j).x;
+                    int compareY = ant_list.get(j).y;
+
+                    int xDiff = x - compareX;
+                    int yDiff = y - compareY;
+
+                    int antinode_1X = x + xDiff;
+                    int antinode_1Y = y + yDiff;
+
+                    int antinode_2X = compareX - xDiff;
+                    int antinode_2Y = compareY - yDiff;
+
+                    if (antinode_1X < max.x && antinode_1X >= 0 && antinode_1Y < max.y && antinode_1Y >= 0) {
+                        antinodes.add(new Vector2d(antinode_1Y, antinode_1X));
+                    }
+
+                    if (antinode_2X < max.x && antinode_2X >= 0 && antinode_2Y < max.y && antinode_2Y >= 0) {
+                        antinodes.add(new Vector2d(antinode_2Y, antinode_2X));
+                    }
+                }
+            }
+        }
+
+        int answer = antinodes.size();
+        return Integer.toString(answer);
+    }
+
+    private static HashMap<Character, ArrayList<Vector2d>> getAntennaList(char[][] grid) {
+        HashMap<Character, ArrayList<Vector2d>> antennas = new HashMap<>();
         for (int y = 0; y < max.y; y++) {
             for (int x = 0; x < max.x; x++) {
                 char ch = grid[x][y];
-                if (Character.isLetterOrDigit(ch)) {
-                    List<Vector2d> ant_list;
-                    if (antennas.containsKey(ch)) {
-                        ant_list = antennas.get(ch);
-                    } else {
-                        ant_list = new ArrayList<>();
-                        antennas.put(ch, ant_list);
-                    }
+                if (ch != '.') {
+                    ArrayList<Vector2d> ant_list = antennas.getOrDefault(ch, new ArrayList<>());
                     ant_list.add(new Vector2d(x, y));
+                    antennas.put(ch, ant_list);
                 }
             }
         }
-        out.printf("found %d antennas\n", antennas.size());
-        for (char id : antennas.keySet()) {
-            List<Vector2d> ant_list = antennas.get(id);
-            out.printf("freq %c has %d stations\n", id, ant_list.size());
-
-            // #TODO change from adjacent pairs to all pairs
-            List<Vector2d[]> pp = Vector2d.getAllAdjacentPairs(ant_list);
-
-            for (Vector2d[] v : pp) {
-                out.println(Arrays.toString(v));
-            }
-            out.println();
-        }
-        List<Vector2d> all_antinodes = new ArrayList<>();
-        AoCUtils.printGrid(grid);     out.println("====================================");
-
-        HashSet<Vector2d> antinodes = new HashSet<>();
-        for (char id : antennas.keySet()) {
-
-            List<Vector2d> ant_list = antennas.get(id);
-            List<Vector2d[]> pp = Vector2d.getAllAdjacentPairs(ant_list);
-
-            for (Vector2d[] v : pp) {
-                Vector2d[] antinodes_pair = v[0].antinodes(v[1]);
-                for(Vector2d vv: antinodes_pair) {
-
-                    antinodes.add(vv);
-                }
-
-            }
-            out.println();
-            all_antinodes.addAll(antinodes);
-            antinodes = new HashSet<>();
-        }
-        for(Vector2d v: all_antinodes) {
-            try {
-                grid[v.x][v.y] = '#';
-            } catch (ArrayIndexOutOfBoundsException e) {
-                continue;
-            }
-        }
-
-
-
-
-        AoCUtils.printGrid(grid);
-        out.println("====================================");
-
-
-        int answer = all_antinodes.size();
-        return Integer.toString(answer);
+        return antennas;
     }
-
-
-    public static String getPart2() {
-
-
-        int answer = 2;
-        return Integer.toString(answer);
-    }
-
 
 
 }
+
+

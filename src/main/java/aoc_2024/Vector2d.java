@@ -56,8 +56,9 @@ public class Vector2d  {
         int r_dy = other.y - this.y;
 
         Vector2d[] result = new Vector2d[2];
-        result[0] = new Vector2d( other.x + 2*l_dx, other.y + 2*l_dy);
-        result[1] = new Vector2d(  this.x + 2*r_dx, this.y + 2* r_dy);
+        result[0] = new Vector2d(  this.x + l_dx, this.y +  l_dy);
+        result[1] = new Vector2d( other.x - l_dx, other.y -l_dy);
+
         return result;
     }
 
