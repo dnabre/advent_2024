@@ -84,12 +84,12 @@ public class Day09 {
             disk[left_idx] = disk[right_idx];
             disk[right_idx] = -1;
             count_free--;
-            prettyPrintDisk(disk);
+          //  prettyPrintDisk(disk);
         }
 
 
         out.println();
-        prettyPrintDisk(disk);
+     //   prettyPrintDisk(disk);
 
 
 
