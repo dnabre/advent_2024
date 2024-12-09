@@ -48,8 +48,6 @@ public class Day09 {
 
     public static String getPart1() {
         int[] disk = getUnpackedDisk(packed_disk);
-        System.out.printf("checksum: %d\n", getChecksum(disk));
-        prettyPrintDisk(disk);
         int used_space = 0;
         for (int v : disk) {
             if (v != -1) {
@@ -72,7 +70,7 @@ public class Day09 {
         return String.valueOf(answer);
     }
 
-    public static String getPart2() throws IOException{
+    public static String getPart2() throws IOException {
         ArrayList<FileBlock> file_list = new ArrayList<>();
         ArrayList<EmptyBlock> empty_list = new ArrayList<>();
 
@@ -104,61 +102,66 @@ public class Day09 {
 
         int[] disk = disk_list.stream().flatMapToInt(IntStream::of).toArray();
 
-        prettyPrintDisk(disk);
+      //  prettyPrintDisk(disk);
         file_list.sort(Comparator.comparingInt(f -> -f.number));
         TreeSet<EmptyBlock> empty_blocks = new TreeSet<>(empty_list);
 
         for (FileBlock f : file_list) {
-            out.println(f);
+ //           out.println(f);
             int need_size = f.size;
             EmptyBlock go_here = null;
             for (EmptyBlock eb : empty_blocks) {
-                if (eb.size >= need_size) {
+                if ((eb.size >= need_size)  && (eb.offset < f.offset )){
                     go_here = eb;
-                    out.println("\tfound block" + go_here);
+//                    out.println("\tfound block" + go_here);
                     break;
                 }
             }
 
             if (go_here == null) {
-                out.println("could not place file: " + f);
+      //          out.println("could not place file: " + f);
             } else {
                 empty_blocks.remove(go_here);
 
                 for (int i = 0; i < f.size; i++) {
-                    out.print("\t");
-                    prettyPrintDisk(disk);
                     disk[go_here.offset + i] = disk[f.offset + i];
                 }
-                EmptyBlock freed_space = new EmptyBlock(f.offset, f.size);
+
+
                 for (int i = 0; i < f.size; i++) {
                     disk[f.offset + i] = -1;
                 }
+
+
+                EmptyBlock freed_space = new EmptyBlock(f.offset, f.size);
+                empty_blocks.add(freed_space);
+
+
                 if (go_here.size > f.size) {
-                    // left over space to save
-                    EmptyBlock left_over = null;
-                    int offset = go_here.offset() + f.size;
-                    int size = go_here.size - f.size;
-                    if (offset + size == freed_space.offset) {
-                        //merge two freed blocks
-                        left_over = new EmptyBlock(offset, size + freed_space.size);
-                        empty_blocks.add(left_over);
-                        freed_space = null;
-                    } else {
-                        left_over = new EmptyBlock(go_here.offset + f.size, go_here.size() - f.size);
-                    }
-                }
-                if (freed_space != null) {
-                    empty_blocks.add(freed_space);
+                    EmptyBlock leftover = new EmptyBlock(go_here.offset + f.size, go_here.size - f.size);
+                    empty_blocks.add(leftover);
                 }
 
+//                // left over space to save
+//                EmptyBlock left_over = null;
+//                int offset = go_here.offset() + f.size;
+//                int size = go_here.size - f.size;
+//                if (offset + size == freed_space.offset) {
+//                    //merge two freed blocks
+//                    left_over = new EmptyBlock(offset, size + freed_space.size);
+//                    empty_blocks.add(left_over);
+//                    freed_space = null;
+//                } else {
+//                    left_over = new EmptyBlock(go_here.offset + f.size, go_here.size() - f.size);
+//                }
             }
-            prettyPrintDisk(disk);
+
+       //     prettyPrintDisk(disk);
         }
-        out.println("defrag done");
-        long cs = getChecksum(disk);
-        out.printf("checksum: %d \n", cs);
-        prettyPrintDisk(disk);
+
+
+
+     //   prettyPrintDisk(disk);
         long answer = getChecksum(disk);
         return String.valueOf(answer);
     }
@@ -167,9 +170,9 @@ public class Day09 {
     private static long getChecksum(int[] disk_for_checksum) {
         long checksum = 0;
         for (int i = 0; i < disk_for_checksum.length; i++) {
-            if(disk_for_checksum[i] == -1) continue;
+            if (disk_for_checksum[i] == -1) continue;
 
-            checksum += (i * disk_for_checksum[i]);
+            checksum += ((long) i * disk_for_checksum[i]);
         }
         return checksum;
     }
