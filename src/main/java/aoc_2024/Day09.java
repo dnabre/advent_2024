@@ -6,11 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.stream.IntStream;
 
 import static java.lang.System.out;
-import static src.main.java.aoc_2024.AoCUtils.LABELS;
 
 
 public class Day09 {
@@ -18,7 +16,7 @@ public class Day09 {
     public static final String PART1_ANSWER = "6340197768906";
     public static final String PART2_ANSWER = "5448";
     private static char[] packed_disk;
-    private static String test_final = "0099811188827773336446555566..............";
+
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -27,7 +25,7 @@ public class Day09 {
         String[] answers = {"", ""};
         parseInput(inputString);
         answers[0] = getPart1();
-        //   answers[1] = getPart2();
+        answers[1] = getPart2();
 
         if (!answers[0].equals(PART1_ANSWER)) {
             out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
@@ -45,63 +43,43 @@ public class Day09 {
     }
 
     public static String getPart1() {
-       out.println(Arrays.toString(packed_disk));
-       ArrayList<Integer> disk_list = new ArrayList<>();
-       int file_no=0;
-       boolean isFile = true;
-       int count_free=0;
-       for(int i=0; i < packed_disk.length; i++) {
-           char ch = packed_disk[i];
-           int chick = Character.getNumericValue(ch);
-           int to_write=-1;
-           if (isFile) {
-               to_write = file_no;
-               file_no++;
-           }
-           for(int count=0; count < chick; count++) {
-               disk_list.add(to_write);
-               if(!isFile) {
-                   count_free++;
-               }
-           }
-           isFile = !isFile;
-       }
-       out.printf("count_free: %d\n", count_free);
-        int[] disk= disk_list.stream().flatMapToInt(IntStream::of).toArray();
-       // out.println(Arrays.toString(disk));
-      //  prettyPrintDisk(disk);
-        int right_idx = disk.length-1;
+        ArrayList<Integer> disk_list = new ArrayList<>();
+        int file_no = 0;
+        boolean isFile = true;
+        int used_space = 0;
+        for (char ch : packed_disk) {
+            int chick = Character.getNumericValue(ch);
+            int to_write = -1;
+            if (isFile) {
+                to_write = file_no;
+                file_no++;
+                used_space += chick;
+            }
+            for (int count = 0; count < chick; count++) {
+                disk_list.add(to_write);
+            }
+            isFile = !isFile;
+        }
+
+        int[] disk = disk_list.stream().flatMapToInt(IntStream::of).toArray();
+        int right_idx = disk.length - 1;
         int left_idx = 0;
-        int swap_count =0;
-        //while(count_free >2) {
-        while(swap_count < 23681) {
-            while(disk[left_idx] != -1) {
+        while (right_idx > used_space) {
+            while (disk[left_idx] != -1) {
                 left_idx++;
             }
-            while(disk[right_idx] == -1) {
+            while (disk[right_idx] == -1) {
                 right_idx--;
             }
             disk[left_idx] = disk[right_idx];
             disk[right_idx] = -1;
-            count_free--;
-            swap_count++;
-          //  prettyPrintDisk(disk);
         }
-        out.printf("swap count: %d \n", swap_count);
-
-        out.println();
-     //   prettyPrintDisk(disk);
-
-
-
-
         long answer = getChecksum(disk);
         return String.valueOf(answer);
     }
 
     private static void prettyPrintDisk(int[] p_disk) {
-        for(int i=0; i < p_disk.length; i++) {
-            int v = p_disk[i];
+        for (int v : p_disk) {
             if (v == -1) {
                 out.print('.');
             } else {
@@ -119,7 +97,7 @@ public class Day09 {
             if (ch == -1) {
                 return checksum;
             }
-            checksum += ch * i;
+            checksum += (long)ch * (long)i;
         }
         return checksum;
     }
