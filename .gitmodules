@@ -1,4 +1,0 @@
-[submodule "input"]
-	path = input
-	url = git@github.com:dnabre/aoc_input.git
-

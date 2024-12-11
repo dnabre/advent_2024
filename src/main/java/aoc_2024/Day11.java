@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static src.main.java.aoc_2024.AoCUtils.LongPair;
 
@@ -98,10 +99,66 @@ public class Day11 {
             stones = new_stones;
         }
         long answer = stones.size();
+        HashSet<Long> set_test = new HashSet<>();
+        set_test.addAll(stones);
+        System.out.printf("number of stones      : %d\n",answer );
+        System.out.printf("number of uniq stones : %d\b", set_test.size());
+        System.out.println(set_test);
         return String.valueOf(answer);
     }
 
     public static String getPart2() {
+        HashMap<Long,Long> value_count = new HashMap<>();
+        ArrayList<Long> stones = new ArrayList<>(parsed_input);
+
+
+        for (int blink = 0; blink <BLINKS[0]; blink++) {
+            ArrayList<Long> new_stones = new ArrayList<>(stones.size());
+            for (int i = 0; i < stones.size(); i++) {
+                long current = stones.get(i);
+                if (current == 0) {
+                    increment_map(value_count, current, 1L);
+                    new_stones.add(1L);
+                } else {
+                    String s_str = Long.toString(current);
+                    int s_length = s_str.length();
+                    if (s_length % 2 == 0) {
+                        String s_left = s_str.substring(0, s_length / 2);
+                        String s_right = s_str.substring(s_length / 2, s_length);
+                        long left = Long.parseLong(s_left);
+                        long right= Long.parseLong(s_right);
+                        increment_map(value_count,left, 1L);
+                        increment_map(value_count, right, 1L);
+                        new_stones.add(left);
+                        new_stones.add(right);
+                    } else {
+                        long new_value = 2024L * current;
+                        increment_map(value_count,new_value, 1L );
+                        new_stones.add(2024L * current);
+                    }
+                }
+            }
+            stones = new_stones;
+        }
+        long answer = stones.size();
+        HashSet<Long> set_test = new HashSet<>();
+        set_test.addAll(stones);
+        System.out.printf("number of stones      : %d\n",answer );
+        System.out.printf("number of uniq stones : %d\b", set_test.size());
+        System.out.println(set_test);
+        return String.valueOf(answer);
+    }
+
+    private static void increment_map(HashMap<Long, Long> valueCount, long current, long l) {
+        if (valueCount.containsKey(current)) {
+            long cc = valueCount.get(current);
+            valueCount.put(current, cc + l);
+        } else {
+            valueCount.put(current,l);
+        }
+    }
+
+    public static String getPart2_cache() {
         ArrayList<Long> stones = new ArrayList<>(parsed_input);
         for (int blink = 0; blink < BLINKS[1]; blink++) {
             ArrayList<Long> new_stones = new ArrayList<>(stones.size());
