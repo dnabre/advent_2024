@@ -76,7 +76,7 @@ public class Day11 {
         return String.valueOf(answer);
     }
 
-
+    private static long max = Long.MIN_VALUE;
     public static String getPart2() {
         ArrayList<Long> stones = new ArrayList<>(parsed_input);
         HashMap<Long, Long> counts = new HashMap<>();
@@ -105,8 +105,14 @@ public class Day11 {
             }
 
             counts = new_counts;
+            for(long v : counts.keySet()) {
+                if (v > max) {
+                    max = v;
+                }
+            }
         }
 
+        
         long answer = counts.values().stream().mapToLong(x -> x).sum();
         return String.valueOf(answer);
     }
