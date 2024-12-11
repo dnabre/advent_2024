@@ -47,5 +47,5 @@ public class AoCUtils {
         return grid;
     }
 
-    public static record LongPair(Long first, Long second){}
+
 }
