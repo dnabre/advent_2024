@@ -3,13 +3,8 @@ package src.main.java.aoc_2024;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-
 
 public class AoCUtils {
-
-
-
     public static int[] WhitespaceDelimitedLineToIntegers(String ln) {
         String[] parts = ln.split("\\s+");
         int[] result = new int[parts.length];

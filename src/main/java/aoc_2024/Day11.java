@@ -6,9 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-
-import static java.lang.System.out;
 
 
 public class Day11 {
@@ -91,16 +88,16 @@ public class Day11 {
             new_counts = new HashMap<>();
             for (long current : counts.keySet()) {
                 if (current == 0) {
-                    new_counts.put(1L, new_counts.getOrDefault(1L, 0L)  + counts.get(current));
+                    new_counts.put(1L, new_counts.getOrDefault(1L, 0L) + counts.get(current));
                 } else if (hasEvenNumDigit(current)) {
                     String s_str = Long.toString(current);
                     int s_length = s_str.length();
                     String s_left = s_str.substring(0, s_length / 2);
                     String s_right = s_str.substring(s_length / 2, s_length);
                     long left = Long.parseLong(s_left);
-                    long right =Long.parseLong(s_right);
-                    new_counts.put(left, new_counts.getOrDefault(left, 0L)  + counts.getOrDefault(current, 0L));
-                    new_counts.put(right, new_counts.getOrDefault(right, 0L)  + counts.getOrDefault(current, 0L));
+                    long right = Long.parseLong(s_right);
+                    new_counts.put(left, new_counts.getOrDefault(left, 0L) + counts.getOrDefault(current, 0L));
+                    new_counts.put(right, new_counts.getOrDefault(right, 0L) + counts.getOrDefault(current, 0L));
                 } else {
                     long new_value = 2024L * current;
                     new_counts.put(new_value, new_counts.getOrDefault(new_value, 0L) + counts.getOrDefault(current, 0L));
@@ -108,7 +105,6 @@ public class Day11 {
             }
 
             counts = new_counts;
-            new_counts = null;
         }
 
         long answer = counts.values().stream().mapToLong(x -> x).sum();
