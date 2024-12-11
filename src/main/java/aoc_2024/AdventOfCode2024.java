@@ -14,7 +14,13 @@ public class AdventOfCode2024 {
             {"input/2024/day_07_test_01.txt"},
             {"input/2024/day_08_test_01.txt","input/2024/day_08_test_02.txt" },
             {"input/2024/day_09_test_01.txt","input/2024/day_09_test_02.txt"},
-            {"input/2024/day_10_test_01.txt"},
+            {"input/2024/day_10_test_01.txt","input/2024/day_10_test_02.txt"},
+            {"input/2024/day_11_test_01.txt"},
+            {"input/2024/day_12_test_01.txt"},
+            {"input/2024/day_13_test_01.txt"},
+            {"input/2024/day_14_test_01.txt"},
+            {"input/2024/day_15_test_01.txt"},
+            {"input/2024/day_16_test_01.txt"},
 
 
     };
@@ -30,12 +36,18 @@ public class AdventOfCode2024 {
             "input/2024/day_08_input_01.txt",
             "input/2024/day_09_input_01.txt",
             "input/2024/day_10_input_01.txt",
+            "input/2024/day_11_input_01.txt",
+            "input/2024/day_12_input_01.txt",
+            "input/2024/day_13_input_01.txt",
+            "input/2024/day_14_input_01.txt",
+            "input/2024/day_15_input_01.txt",
+            "input/2024/day_16_input_01.txt",
     };
 
 
     public static final boolean TESTING = false;
     public static final int TEST_IDX=0;
-
+    public static final boolean TIMING = true;
     public static void main(String[] args){
 
         int day_number=11;
@@ -50,8 +62,10 @@ public class AdventOfCode2024 {
 
         try {
             String[] results = Day11.runDay(System.out, input_string);
-            System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
-            System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
+            if(!TIMING) {
+                System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
+                System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
+            }
         } catch (IOException e) {
             throw new RuntimeException("error opening file " + input_string + " " + e);
         }
