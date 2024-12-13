@@ -14,8 +14,8 @@ import static java.lang.System.out;
 
 public class Day10 {
 
-    public static final String PART1_ANSWER = "6340197768906";
-    public static final String PART2_ANSWER = "6363913128533";
+    public static final String PART1_ANSWER = "737";
+    public static final String PART2_ANSWER = "1619";
     private static char[] packed_disk;
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
