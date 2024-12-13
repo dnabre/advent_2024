@@ -4,8 +4,9 @@
 
 Java Version is 23 , to include Tuples and Pattern Match on Type
 
-| Problem                                                              |                                | 1                                                                                        | 2                                                                                        |
-|----------------------------------------------------------------------|--------------------------------|------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+
+| Problem                                                                        |                     | 1 | 2 |
+|--------------------------------------------------------------------------------|---------------------|---|---|
 | [Day 1: Historian Hysteria](https://adventofcode.com/2024/day/1)     | Simple Array ops               | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day01.)     | [*](https://raw.githubusercontent.com/dnabre/advent_2024/master/Day01.java)              |
 | [Day 2: Red-Nosed Reports](https://adventofcode.com/2024/day/2)      | Array Manipulation             | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day02.java) | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day02.java) |
 | [Day 3: Mull It Over ](https://adventofcode.com/2024/day/3)          | Regexs                         | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day03.java) | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day03.java) |
@@ -15,7 +16,7 @@ Java Version is 23 , to include Tuples and Pattern Match on Type
 | [Day 7:  Bridge Repair](https://adventofcode.com/2024/day/7)         |                                | [ ](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day07.java) | [ ](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day07.java) |
 | [Day 8: Resonant Collinearity ](https://adventofcode.com/2024/day/8) | Vector Math                    | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day08.java) | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day08.java) |
 | [Day 9:  Disk Fragmenter](https://adventofcode.com/2024/day/9)       | Simple Defragmenation          | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day09.java) | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day09.java) |
-| [Day 10: Hoof It](https://adventofcode.com/2024/day/10)              | DFS Search                     | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day10.java) | [ ](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day10.java) |
+| [Day 10: Hoof It](https://adventofcode.com/2024/day/10)              | State Search                   | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day10.java) |
 | [Day 11: Plutonian Pebbles](https://adventofcode.com/2024/day/11)    | Automata required Optimization | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day11.java) | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day11.java) |
 | [Day 12: Garden Groups](https://adventofcode.com/2024/day/12)        | Flood Fill/Perimeter Walk      | [ ](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day12.java) | [ ](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day12.java) |
 | [Day 13: Claw Contraptio](https://adventofcode.com/2024/day/13)      | Linear Algebra                 | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day13.java) | [*](https://github.com/dnabre/advent_2024/blob/master/src/main/java/aoc_2024/Day13.java) |
