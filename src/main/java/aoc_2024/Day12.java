@@ -12,9 +12,7 @@ public class Day12 {
 
     public static final String PART1_ANSWER = "199986";
     public static final String PART2_ANSWER = "236804088748754";
-    private static final int[] BLINKS = {25, 75};
 
-    private static ArrayList<Long> parsed_input;
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
