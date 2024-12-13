@@ -16,7 +16,7 @@ public class AdventOfCode2024 {
             {"input/2024/day_09_test_01.txt","input/2024/day_09_test_02.txt"},
             {"input/2024/day_10_test_01.txt","input/2024/day_10_test_02.txt"},
             {"input/2024/day_11_test_01.txt"},
-            {"input/2024/day_12_test_01.txt"},
+            {"input/2024/day_12_test_01.txt", "input/2024/day_12_test_02.txt","input/2024/day_12_test_03.txt"},
             {"input/2024/day_13_test_01.txt"},
             {"input/2024/day_14_test_01.txt"},
             {"input/2024/day_15_test_01.txt"},
@@ -46,16 +46,16 @@ public class AdventOfCode2024 {
 
 
     public static final boolean TESTING = false;
-    public static final int TEST_IDX=0;
+    public static final int TEST_IDX=2;
     public static final boolean TIMING = false;
     public static void main(String[] args){
 
-        int day_number=13;
+        int day_number=10;
 
 
         String input_string;
         if (TESTING) {
-            input_string = test_files[day_number-1][TEST_IDX];
+            input_string = test_files[day_number-1][TEST_IDX-1];
         } else {
             input_string = input_files[day_number-1];
         }
@@ -66,7 +66,7 @@ public class AdventOfCode2024 {
                  start = System.currentTimeMillis();
             }
 
-            String[] results = Day13.runDay(System.out, input_string);
+            String[] results = Day10.runDay(System.out, input_string);
 
                 System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
                 System.out.printf("\t\tpart2:\t\t%s\n", results[1]);

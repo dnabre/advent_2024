@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static java.lang.System.out;
+
 public class AoCUtils {
     public static int[] WhitespaceDelimitedLineToIntegers(String ln) {
         String[] parts = ln.split("\\s+");
@@ -29,7 +31,6 @@ public class AoCUtils {
         int max_y = input_grid.length;
         int max_x = input_grid[0].length;
 
-
         char[][] grid = new char[max_x][max_y];
 
         for (int y = 0; y < input_grid.length; y++) {
@@ -41,6 +42,21 @@ public class AoCUtils {
         }
         return grid;
     }
+    public static char[][] parseGridTurn(String filename) throws IOException {
+        char[][] input_grid = Files.readAllLines(Path.of(filename)).stream().map(String::toCharArray).toList().toArray(new char[0][0]);
+        int max_y = input_grid.length;
+        int max_x = input_grid[0].length;
 
+        char[][] grid = new char[max_x][max_y];
+
+        for (int y = 0; y < input_grid.length; y++) {
+            for (int x = 0; x < input_grid[y].length; x++) {
+                char ch = input_grid[y][x];
+                //          grid[x][y] = ch;
+                grid[x][y] = ch;
+            }
+        }
+        return grid;
+    }
 
 }
