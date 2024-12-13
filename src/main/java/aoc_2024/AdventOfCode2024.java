@@ -47,10 +47,10 @@ public class AdventOfCode2024 {
 
     public static final boolean TESTING = false;
     public static final int TEST_IDX=0;
-    public static final boolean TIMING = true;
+    public static final boolean TIMING = false;
     public static void main(String[] args){
 
-        int day_number=11;
+        int day_number=13;
 
 
         String input_string;
@@ -66,7 +66,7 @@ public class AdventOfCode2024 {
                  start = System.currentTimeMillis();
             }
 
-            String[] results = Day11.runDay(System.out, input_string);
+            String[] results = Day13.runDay(System.out, input_string);
 
                 System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
                 System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
