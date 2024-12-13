@@ -105,11 +105,6 @@ public class Day11 {
             }
 
             counts = new_counts;
-            for(long v : counts.keySet()) {
-                if (v > max) {
-                    max = v;
-                }
-            }
         }
 
         
