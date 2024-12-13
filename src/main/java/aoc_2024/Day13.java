@@ -16,10 +16,11 @@ import static java.lang.System.out;
 public class Day13 {
 
     public static final String PART1_ANSWER = "25629";
-    public static final String PART2_ANSWER = "236804088748754";
+    public static final String PART2_ANSWER = "107487112929999";
 
     private static final int A_TOKEN = 3;
     private static final int B_TOKEN = 1;
+    private static final long PART2_FACTOR = 10000000000000L;
     private static ArrayList<Problem> parsed_input;
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
@@ -64,39 +65,57 @@ public class Day13 {
     }
     public static String getPart1() {
         ArrayList<Problem> problems = new ArrayList<>(parsed_input);
-        int tokens =0;
+        long tokens =0;
         for(Problem p: problems) {
             Button A = p.a;
             Button B = p.b;
             Prize P = p.p;
-            out.println(p);
-            out.println();
 
-            for(int a_press =0; a_press < 101; a_press++) {
-                for(int b_press =0; b_press < 101; b_press++) {
-                    int t_x = A.x_press(a_press) + B.x_press(b_press);
-                    int t_y = A.y_press(a_press) + B.y_press(b_press);
+            for(long a_press =0; a_press < 101; a_press++) {
+                for(long b_press =0; b_press < 101; b_press++) {
+                    long t_x = A.x_press(a_press) + B.x_press(b_press);
+                    long t_y = A.y_press(a_press) + B.y_press(b_press);
                     if((P.x == t_x) && (P.y == t_y)) {
-                        out.printf("solution a: %d, b: %d,    gives t_x: %d, t_y: %d for prize: %s \n",
-                                a_press, b_press, t_x, t_y, P);
                         tokens += (A_TOKEN * a_press) + (B_TOKEN * b_press);
                     }
                 }
             }
-
-
-
         }
-        out.printf("total tokens: %d \n", tokens);
 
-        int answer = tokens;
+        long answer = tokens;
         return String.valueOf(answer);
     }
 
 
     public static String getPart2() {
 
-        int answer = -1;
+        ArrayList<Problem> problems = new ArrayList<>();
+        for(Problem p :parsed_input) {
+            Problem new_p = new Problem(p.a,p.b,new Prize(p.p.x + PART2_FACTOR, p.p.y + PART2_FACTOR));
+            problems.add(new_p);
+        }
+        long tokens =0;
+
+
+        //
+
+//        public static long clc(long px, long py, long ax, long ay, long bx, long by)
+
+        for(Problem p: problems) {
+            Button A = p.a;
+            Button B = p.b;
+            Prize P = p.p;
+            out.println(p);
+            out.println();
+            long r = clc(P.x, P.y, A.x, A.y, B.x, B.y);
+
+            tokens += r;
+
+
+            out.println("--------------------------------------------");
+        }
+
+        long answer = tokens;
         return String.valueOf(answer);
     }
 
@@ -106,40 +125,57 @@ public class Day13 {
             return a + "\n" + b + "\n" + p;
         }
     }
-    record Button(char letter, int x, int y) {
+    record Button(char letter, long x, long y) {
         @Override
         public String toString() {
-            return String.format("Button %c: X%c%d, Y%c%d",
+            return String.format("Button: %c: X%c%d, Y%c%d",
                     letter, (x<0)?' ':'+', x, (y<0)?' ':'+' , y);
         }
         public static Button parse(String s) {
             String[] parts = s.split("\\+");
             char b_char = s.charAt(7);
-            int a_x = Integer.valueOf(parts[1].split(",")[0]);
-            int a_y = Integer.valueOf(parts[2]);
-            Button a = new Button(b_char, a_x, a_y);
-            return a;
+            long a_x = Long.parseLong(parts[1].split(",")[0]);
+            long a_y = Long.parseLong(parts[2]);
+            return new Button(b_char, a_x, a_y);
         }
-        public int x_press(int times) {
+        public long x_press(long times) {
             return x * times;
         }
-        public int y_press(int times) {
+        public long y_press(long times) {
             return y * times;
         }
     }
-    record Prize(int x, int y){
+    record Prize(long x, long y){
         @Override
         public String toString() {
-            return String.format("Prize X=%d, Y=%d", x, y);
+            return String.format("Prize: X=%d, Y=%d", x, y);
         }
         public static Prize parse(String s) {
             String[] parts = s.split("=");
-            int p_x = Integer.valueOf(parts[1].split(",")[0]);
-            int p_y = Integer.valueOf(parts[2]);
+            long p_x = Long.parseLong(parts[1].split(",")[0]);
+            long p_y = Long.parseLong(parts[2]);
             return new Prize(p_x, p_y);
         }
     }
 
+    public static long clc(long px, long py, long ax, long ay, long bx, long by) {
+        long det = ax * by - ay*bx;
+        if (det ==0) {
+            return 0;
+        }
+        long numa = px * by - py * bx;
+        long numb = py * ax - px * ay;
+        if ((numa % det !=0) || (numb % det != 0)) {
+            return 0;
+        }
+        long a = numa / det;
+        long b = numb /det;
+        if ((a>=0) && (b>=0)) {
+            return A_TOKEN * a + B_TOKEN * b;
+        } else {
+            return 0L;
+        }
+    }
 }
 
 
