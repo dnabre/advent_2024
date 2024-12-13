@@ -1,8 +1,21 @@
 package src.main.java.aoc_2024;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class Directions {
     public  enum Compass {
         NORTH,EAST,SOUTH,WEST;
+        public static List<Vector2d> getNeighborsClamped(Vector2d pos, int min_idx, int max_idx) {
+            List<Vector2d> results = new LinkedList<>();
+            for(Compass d:Compass.values()) {
+                Vector2d delta = pos.plus(d.coordDelta());
+                if ((delta.x >= min_idx) && (delta.x <= max_idx) && (delta.y >= min_idx) &&(delta.y <= max_idx)) {
+                    results.add(delta);
+                }
+            }
+            return results;
+        }
         public Vector2d coordDelta() {
             switch(this) {
                 case NORTH -> {

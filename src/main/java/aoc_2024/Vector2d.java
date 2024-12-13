@@ -37,6 +37,11 @@ public class Vector2d  {
         y += dy;
     }
 
+    public Vector2d plus(Vector2d delta) {
+        return new Vector2d(this.x + delta.x, this.y + delta.y);
+    }
+
+
     public boolean inside(int xMax, int yMax) {
         if ((x < 0) || (y<0)) {
             return false;
