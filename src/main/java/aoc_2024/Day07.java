@@ -9,16 +9,17 @@ import java.util.List;
 
 
 public class Day07 {
-    public static final String PART1_ANSWER = "267566105056";
-    public static final String PART2_ANSWER = "116094961956019";
-    
+    public static final String PART1_ANSWER = "737";
+    public static final String PART2_ANSWER = "1619";
+    private static final int MAX_HEIGHT = 9;
+    private static char[][] grid;
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
-        out.println("\tDay  07");
+        out.println("\tDay  10");
 
         String[] answers = {"", ""};
-      //  parseInput(inputString);
+        parseInput(inputString);
         answers[0] = getPart1();
         answers[1] = getPart2();
 
@@ -34,24 +35,11 @@ public class Day07 {
         return answers;
     }
 
-
-    public static String getPart1() {
-        long answer=-1;
-        return String.valueOf(answer);
-    }
-
-    public static String getPart2() {
-
-        long answer = -2;
-        return String.valueOf(answer);
-    }
-   
-
     public static void parseInput(String filename) throws IOException {
         grid = AoCUtils.parseGrid(filename);
     }
 
-    public static String getPart1_10() {
+    public static String getPart1() {
         List<Vector2d> starts = getStartingPositions();
         List<Vector2d> targets = getTargetPositions();
         int path_total = 0;
@@ -63,7 +51,7 @@ public class Day07 {
         return String.valueOf(answer);
     }
 
-    public static String getPart2_10() {
+    public static String getPart2() {
         List<Vector2d> starts = getStartingPositions();
         List<Vector2d> targets = getTargetPositions();
         int path_total = 0;
@@ -74,7 +62,7 @@ public class Day07 {
         long answer = path_total;
         return String.valueOf(answer);
     }
-    private static int FindPathStartToPeaks_10(Vector2d start_point, List<Vector2d> targets) {
+    private static int FindPathStartToPeaks(Vector2d start_point, List<Vector2d> targets) {
         HashSet<Vector2d> peaks_pathed_to = new HashSet<>();
         int min_idx = 0;
         int max_idx = grid.length - 1;
@@ -101,7 +89,7 @@ public class Day07 {
         return peaks_pathed_to.size();
     }
 
-    private static int FindDistinctPathStartToPeaks_10(Vector2d start_point, List<Vector2d> targets) {
+    private static int FindDistinctPathStartToPeaks(Vector2d start_point, List<Vector2d> targets) {
         HashSet<ArrayList<Vector2d>> unique_paths = new HashSet<>();
         int min_idx = 0;
         int max_idx = grid.length - 1;
