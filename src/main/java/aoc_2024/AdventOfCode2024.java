@@ -19,7 +19,7 @@ public class AdventOfCode2024 {
             {"inputs/2024/day_12_test_01.txt", "inputs/2024/day_12_test_02.txt","inputs/2024/day_12_test_03.txt"},
             {"inputs/2024/day_13_test_01.txt"},
             {"inputs/2024/day_14_test_01.txt"},
-            {"inputs/2024/day_15_test_01.txt"},
+            {"inputs/2024/day_15_test_01.txt","inputs/2024/day_15_test_02.txt","inputs/2024/day_15_test_03.txt"},
             {"inputs/2024/day_16_test_01.txt"},
 
 
@@ -46,7 +46,7 @@ public class AdventOfCode2024 {
 
 
     public static final boolean TESTING = true;
-    public static final int TEST_IDX=1;
+    public static final int TEST_IDX=3;
     public static final boolean TIMING = true;
     public static void main(String[] args){
 

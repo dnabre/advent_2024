@@ -28,9 +28,9 @@ public class AoCUtils {
     }
 
     public static void printGridWithSpecial(char[][] grid, Vector2d special_loc, char special_tile) {
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[0].length; x++) {
-                 if( special_loc.isEqual(x,y)) {
+        for (int x = 0; x < grid.length; x++) {
+            for (int y = 0; y < grid[0].length; y++) {
+                if( special_loc.isEqual(x,y)) {
                      System.out.print(special_tile);
                  } else {
                      System.out.print(grid[x][y]);
