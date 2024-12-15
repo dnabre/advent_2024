@@ -1,11 +1,13 @@
 package src.main.java.aoc_2024;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Vector;
 
 import static java.lang.System.out;
 import static src.main.java.aoc_2024.Directions.Compass;
@@ -16,7 +18,8 @@ public class Day15 {
     public static final String PART2_ANSWER = "1457703";
 
     private static char[][] initial_grid;
-    private static int grid_size;
+    private static Vector2d grid_sizes;
+   // private static int grid_size;
 
     private static Vector2d robot_start;
     private static Compass[] move_list;
@@ -33,7 +36,9 @@ public class Day15 {
         out.println();
 
         String[] answers = {"", ""};
-        parseInput(inputString);
+        String INPUT = Files.readString(Path.of(inputString));
+
+        parseInput(INPUT);
         answers[0] = getPart1();
         answers[1] = getPart2();
 
@@ -52,8 +57,8 @@ public class Day15 {
 
 
 
-    public static void parseInput(String filename) throws IOException {
-        String INPUT = Files.readString(Path.of(filename));
+    public static void parseInput(String INPUT) throws IOException {
+
         List<List<String>> blocks  = AoCUtils.breakDataByNewline(INPUT);
         String text = String.join("\n", blocks.getFirst());
         String move = String.join("", blocks.getLast());
@@ -61,17 +66,14 @@ public class Day15 {
         List<String> lines = text.lines().toList();
         int height = lines.size();
         int width = lines.getFirst().length();
-        if(height != width) {
-            System.out.printf("ERROR: Grid is not square (%d x %d)\n", width, height);
-            System.exit(-1);
-        }
-        grid_size = height;
+        //grid_sizes = new Vector2d(width,height);
+        grid_sizes = new Vector2d(height,width);
 
 
-        initial_grid = new char[grid_size][grid_size];
-        for(int y = 0; y < grid_size; y++) {
+        initial_grid = new char[width][height];
+        for(int y = 0; y < height; y++) {
             String line = lines.get(y);
-            for(int x = 0; x < grid_size; x++) {
+            for(int x = 0; x < width; x++) {
                 char ch = line.charAt(x);
                 initial_grid[x][y] = ch;
                 if(ch == '@') {
@@ -93,18 +95,21 @@ public class Day15 {
     }
 
     public static String getPart1() {
-        char[][] grid = initial_grid.clone();
+        int grid_size =-1;
+        if(grid_sizes.x == grid_sizes.y) {
+            grid_size = grid_sizes.x;
+        }
+        char[][] grid = new char[grid_size][grid_size];
+        for(int y=0; y < grid_size;y++) {
+            for(int x=0; x < grid_size; x++) {
+                grid[x][y] = initial_grid[x][y];
+            }
+        }
         Vector2d robot_loc = new Vector2d(robot_start);
-        out.printf("robot start: %s \n", robot_loc);
-        out.printf("robot moves: %d \n", move_list.length);
-        out.printf("\nInitial state:\n");
-        AoCUtils.printGridWithSpecial(grid,robot_loc,'@');
 
         for(int i=0; i < move_list.length; i++) {
-
             Vector2d move_direction = move_list[i].coordDelta();
             Vector2d step_target = robot_loc.plus(move_direction);
-            out.printf("\nMove (%d) %c: \n\t robot_loc: %s -->",i+1, move_list[i].toChar(), robot_loc );
             char ch = grid[step_target.x][step_target.y];
 
             switch (ch) {
@@ -135,13 +140,10 @@ public class Day15 {
                 }
 
             }
-            out.printf("\t robot_loc: %s \t step_target: %s\n",  robot_loc, step_target);
-            AoCUtils.printGridWithSpecial(grid,robot_loc,'@');
-
         }
-        out.println();
-        out.println("out of moves");
-        out.printf("robot end location: %s \n", robot_loc);
+
+        AoCUtils.printGridWithSpecial(grid,robot_loc,'@');
+        out.printf("\n----------------------------------------------------------------------\n");
         long gps_sum=0L;
         for(int y=0; y < grid_size; y++) {
             for(int x=0; x < grid_size; x++) {
@@ -158,10 +160,64 @@ public class Day15 {
     }
 
 
-    public static String getPart2() {
-        
+    public static String getPart2() throws IOException {
+        String part2_input = embiggenGrid(initial_grid);
+        parseInput(part2_input);
+        ///  everything here will be grid[y][x]   we don't question this.
+
+        for(int x=0; x< grid_sizes.x; x++) {
+            for (int y=0; y < grid_sizes.y; y++) {
+                if(robot_start.isEqual(y,x)) {
+                    out.print('@');
+                } else {
+                    out.print(initial_grid[y][x]);
+                }
+            }
+            out.println();
+        }
+
+
+
+
         long answer = -1;
         return String.valueOf(answer);
+    }
+
+    private static String embiggenGrid(char[][] initialGrid) {
+        int grid_size = -1;
+        if(grid_sizes.x == grid_sizes.y) {
+            grid_size = grid_sizes.x;
+        }
+        int grid_height = grid_size * 2;
+        int grid_width = grid_size ;
+        char[][] grid = new char[grid_width][grid_height];
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+
+        grid[robot_start.x][robot_start.y] = '@';
+        for(int y=0; y < grid_size; y++) {
+            for(int x=0; x < grid_size; x++) {
+                char ch = initialGrid[x][y];
+                if (robot_start.isEqual(x,y)) {
+                    ps.print('@');
+                    ps.print('.');
+                } else if(ch=='O') {
+                    ps.print('[');
+                    ps.print(']');
+                } else {
+                        ps.print(ch);
+                        ps.print(ch);
+                }
+            }
+            ps.println();
+        }
+        ps.println();
+        for(Compass c : move_list) {
+            ps.print(c.toChar());
+        }
+        ps.println();
+        ps.close();
+        return baos.toString();
     }
 
     private static long getGPS(int x, int y) {
