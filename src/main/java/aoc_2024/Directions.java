@@ -69,6 +69,24 @@ public class Directions {
             }
             throw new RuntimeException("This should be Unreachable");
         }
+
+        public static Compass fromChar(char ch) {
+            switch (ch) {
+                case '^' -> {
+                    return NORTH;
+                }
+                case '>' -> {
+                    return EAST;
+                }
+                case 'v' -> {
+                    return SOUTH;
+                }
+                case '<' -> {
+                    return WEST;
+                }
+            }
+            return null;
+        }
         public char toChar() {
             switch(this) {
                 case NORTH -> {

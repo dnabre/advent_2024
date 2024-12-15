@@ -40,6 +40,11 @@ public class Vector2d  {
     public Vector2d plus(Vector2d delta) {
         return new Vector2d(this.x + delta.x, this.y + delta.y);
     }
+    public Vector2d locationAfterStep(Directions.Compass dir) {
+        Vector2d new_loc = new Vector2d(this);
+        new_loc.plus(dir.coordDelta());
+        return new_loc;
+    }
 
 
     public boolean inside(int xMax, int yMax) {
