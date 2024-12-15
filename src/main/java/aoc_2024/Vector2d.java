@@ -17,6 +17,9 @@ public class Vector2d  {
         return Objects.hash(x, y);
     }
 
+    public boolean isEqual(int x, int y) {
+        return ((x== this.x) && (y == this.y));
+    }
     public int x;
     public int y;
     public Vector2d(Vector2d other) {
