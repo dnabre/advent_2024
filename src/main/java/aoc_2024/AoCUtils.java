@@ -3,6 +3,8 @@ package src.main.java.aoc_2024;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.System.out;
 
@@ -58,5 +60,20 @@ public class AoCUtils {
         }
         return grid;
     }
-
+    public static List<List<String>> breakDataByNewline(String data) {
+        List<List<String>> g_string = new ArrayList<>();
+        List<String> current = new ArrayList<>();
+        for (String line: data.lines().toList()) {
+            if(line.isBlank()) {
+                g_string.add(current);
+                current = new ArrayList<>();
+            } else {
+                current.add(line);
+            }
+        }
+        if(!current.isEmpty()) {
+            g_string.add(current);
+        }
+        return g_string;
+    }
 }

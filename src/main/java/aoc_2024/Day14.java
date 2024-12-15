@@ -92,7 +92,7 @@ getCountIn(0 until mapSize.x / 2, 0 until mapSize.y / 2),
     )
  */
 
-        int nw_quad = countInQuad(new_positions, )
+      //  int nw_quad = countInQuad(new_positions, )
 
 
         long answer = -1;
