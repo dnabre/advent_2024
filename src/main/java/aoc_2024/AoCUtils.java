@@ -19,35 +19,26 @@ public class AoCUtils {
     }
 
     public static void printGrid(char[][] grid) {
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[0].length; x++) {
-                System.out.print(grid[x][y]);
+        for(int y=0; y < grid[0].length; y++) {
+            for(int x=0; x < grid.length; x++) {
+                char ch = grid[x][y];
+                out.print(ch);
             }
-            System.out.println();
+            out.println();
         }
     }
+
 
     public static void printGridWithSpecial(char[][] grid, Vector2d special_loc, char special_tile) {
-        for (int x = 0; x < grid.length; x++) {
-            for (int y = 0; y < grid[0].length; y++) {
-                if( special_loc.isEqual(x,y)) {
-                     System.out.print(special_tile);
-                 } else {
-                     System.out.print(grid[x][y]);
-                 }
-            }
-            System.out.println();
-        }
-    }
-
-    public static void printGridTurnWithSpecial(char[][] grid, Vector2d special_loc, char special_tile) {
-        for (int x = 0; x < grid[0].length; x++) {
-            for (int y = 0; y < grid.length; y++) {
-                if (special_loc.isEqual(x, y)) {
-                    out.print('@');
+        for(int y=0; y < grid[0].length; y++) {
+            for(int x=0; x < grid.length; x++) {
+                char ch = grid[x][y];
+                if(special_loc.isEqual(x,y)) {
+                    out.print(special_tile);
                 } else {
-                    out.print(grid[y][x]);
+                    out.print(ch);
                 }
+
             }
             out.println();
         }
