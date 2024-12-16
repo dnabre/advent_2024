@@ -40,6 +40,21 @@ public class AoCUtils {
         }
     }
 
+    public static void printGridTurnWithSpecial(char[][] grid, Vector2d special_loc, char special_tile) {
+        for (int x = 0; x < grid[0].length; x++) {
+            for (int y = 0; y < grid.length; y++) {
+                if (special_loc.isEqual(x, y)) {
+                    out.print('@');
+                } else {
+                    out.print(grid[y][x]);
+                }
+            }
+            out.println();
+        }
+      }
+
+
+
 
     public static char[][] parseGrid(String filename) throws IOException {
         char[][] input_grid = Files.readAllLines(Path.of(filename)).stream().map(String::toCharArray).toList().toArray(new char[0][0]);

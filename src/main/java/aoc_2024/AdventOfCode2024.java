@@ -45,8 +45,8 @@ public class AdventOfCode2024 {
     };
 
 
-    public static final boolean TESTING = true;
-    public static final int TEST_IDX=3;
+    public static final boolean TESTING = false;
+    public static final int TEST_IDX=2;
     public static final boolean TIMING = true;
     public static void main(String[] args){
 

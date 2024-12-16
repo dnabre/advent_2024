@@ -17,6 +17,9 @@ public class Vector2d  {
         return Objects.hash(x, y);
     }
 
+    public Vector2d coordFlip() {
+        return new Vector2d(this.y,this.x);
+    }
     public boolean isEqual(int x, int y) {
         return ((x== this.x) && (y == this.y));
     }
