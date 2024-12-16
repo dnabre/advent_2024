@@ -1,13 +1,11 @@
 package src.main.java.aoc_2024;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import static java.lang.System.out;
 import static src.main.java.aoc_2024.Directions.Compass;
@@ -19,12 +17,10 @@ public class Day15 {
 
     private static char[][] initial_grid;
     private static Vector2d grid_sizes;
-   // private static int grid_size;
+
 
     private static Vector2d robot_start;
     private static Compass[] move_list;
-
-
 
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
@@ -40,7 +36,7 @@ public class Day15 {
 
         parseInput(INPUT);
         answers[0] = getPart1();
-        answers[1] = getPart2();
+        answers[1] = getPart2(INPUT);
 
         if (!AdventOfCode2024.TESTING) {
             if (!answers[0].equals(PART1_ANSWER)) {
@@ -55,11 +51,9 @@ public class Day15 {
     }
 
 
-
-
     public static void parseInput(String INPUT) throws IOException {
 
-        List<List<String>> blocks  = AoCUtils.breakDataByNewline(INPUT);
+        List<List<String>> blocks = AoCUtils.breakDataByNewline(INPUT);
         String text = String.join("\n", blocks.getFirst());
         String move = String.join("", blocks.getLast());
 
@@ -67,17 +61,17 @@ public class Day15 {
         int height = lines.size();
         int width = lines.getFirst().length();
         //grid_sizes = new Vector2d(width,height);
-        grid_sizes = new Vector2d(height,width);
+        grid_sizes = new Vector2d(height, width);
 
 
         initial_grid = new char[width][height];
-        for(int y = 0; y < height; y++) {
+        for (int y = 0; y < height; y++) {
             String line = lines.get(y);
-            for(int x = 0; x < width; x++) {
+            for (int x = 0; x < width; x++) {
                 char ch = line.charAt(x);
                 initial_grid[x][y] = ch;
-                if(ch == '@') {
-                    robot_start = new Vector2d(x,y);
+                if (ch == '@') {
+                    robot_start = new Vector2d(x, y);
                     initial_grid[x][y] = '.';
 
                 }
@@ -85,8 +79,8 @@ public class Day15 {
             }
         }
         move_list = new Compass[move.length()];
-        int idx =0;
-        for(char ch: move.toCharArray()) {
+        int idx = 0;
+        for (char ch : move.toCharArray()) {
             Compass dir = Compass.fromChar(ch);
             move_list[idx] = dir;
             idx++;
@@ -95,34 +89,32 @@ public class Day15 {
     }
 
     public static String getPart1() {
-        int grid_size =-1;
-        if(grid_sizes.x == grid_sizes.y) {
+        int grid_size = -1;
+        if (grid_sizes.x == grid_sizes.y) {
             grid_size = grid_sizes.x;
         }
         char[][] grid = new char[grid_size][grid_size];
-        for(int y=0; y < grid_size;y++) {
-            for(int x=0; x < grid_size; x++) {
+        for (int y = 0; y < grid_size; y++) {
+            for (int x = 0; x < grid_size; x++) {
                 grid[x][y] = initial_grid[x][y];
             }
         }
         Vector2d robot_loc = new Vector2d(robot_start);
 
-        for(int i=0; i < move_list.length; i++) {
-            Vector2d move_direction = move_list[i].coordDelta();
+        for (Compass compass : move_list) {
+            Vector2d move_direction = compass.coordDelta();
             Vector2d step_target = robot_loc.plus(move_direction);
             char ch = grid[step_target.x][step_target.y];
 
             switch (ch) {
-                case '.' -> {
-                    robot_loc.add(move_direction);
-                }
+                case '.' -> robot_loc.add(move_direction);
                 case '#' -> {
-                    // robot hits wall
+
                 }
                 case 'O' -> {
                     Vector2d start_box_push = robot_loc.plus(move_direction);
                     char u_box = grid[start_box_push.x][start_box_push.y];
-                    while(u_box == 'O') {
+                    while (u_box == 'O') {
                         start_box_push.add(move_direction);
                         u_box = grid[start_box_push.x][start_box_push.y];
                     }
@@ -142,14 +134,13 @@ public class Day15 {
             }
         }
 
-//        AoCUtils.printGridWithSpecial(grid,robot_loc,'@');
-//        out.printf("\n----------------------------------------------------------------------\n");
-        long gps_sum=0L;
-        for(int y=0; y < grid_size; y++) {
-            for(int x=0; x < grid_size; x++) {
+
+        long gps_sum = 0L;
+        for (int y = 0; y < grid_size; y++) {
+            for (int x = 0; x < grid_size; x++) {
                 char ch = grid[x][y];
                 if (ch == 'O') {
-                    gps_sum += getGPS(x,y);
+                    gps_sum += getGPS(x, y);
                 }
             }
         }
@@ -159,194 +150,90 @@ public class Day15 {
         return String.valueOf(answer);
     }
 
+    private static Vector2d maxes;
+    public static String getPart2(String INPUT) {
+        List<List<String>> blocks = AoCUtils.breakDataByNewline(INPUT);
+        ArrayList<Compass> moves = getMoves(blocks.get(1));
 
-    public static String getPart2() throws IOException {
-        String part2_input = embiggenGrid(initial_grid);
-        Compass[] new_move_list = new Compass[move_list.length];
+        List<String> grid_lines = blocks.get(0);
 
-
-        parseInput(part2_input);
-        Vector2d robot_loc = new Vector2d(robot_start);
-        robot_loc = robot_loc.coordFlip();
-        char[][] grid = initial_grid;
-        ///  everything here will be grid[y][x]   we don't question this.
-        out.println("Initial Grid");
-        AoCUtils.printGridTurnWithSpecial(grid, robot_start, '@');
+        char[][] grid = getExpandedGrid(grid_lines);
 
 
-        for(int i=0; i < move_list.length; i++) {
-            Vector2d move_direction = move_list[i].coordDelta().coordFlip();
-
-
-            Vector2d step_target = robot_loc.plus(move_direction);
-            char ch = grid[step_target.y][step_target.x];
-            out.printf("Move[%d] %c \n %s --> ", i, move_list[i].toChar(), robot_loc);
-            switch (ch) {
-                case '.':
-                    robot_loc.add(move_direction);
-                    break;
-                case '#':// robot hits wall
-                    break;
-                case '[': // left box
-                case ']': //right box
-                    if ((move_list[i] == Compass.EAST) || (move_list[i] == Compass.WEST)) {
-                        Vector2d start_box_push = robot_loc.plus(move_direction);
-                        char u_box = grid[start_box_push.y][start_box_push.x];
-                        while (u_box == '[' || u_box == ']') {
-                            start_box_push.add(move_direction);
-                            u_box = grid[start_box_push.y][start_box_push.x];
-                        }
-                        if (u_box == '.') {
-                            grid[start_box_push.y][start_box_push.x] = '[';
-                            grid[step_target.y][step_target.x] = '.';
-                            if(move_list[i] == Compass.EAST) {
-                                boolean left_box = true;
-                                for(int hx=step_target.y+1; hx < start_box_push.y+1; hx++) {
-                                    grid[hx][step_target.x] = left_box?'[':']';
-                                    left_box = !left_box;
-
-                                }
-                            } else { //Compass.WEST
-                                boolean left_box=false;
-                                for(int hx=start_box_push.y+1; hx < step_target.y; hx++) {
-                                    grid[hx][step_target.x] = left_box?'[':']';
-                                    left_box = ! left_box;
-
-                                }
-//                                grid[step_target.y][0]='*';
-//                                grid[0][step_target.x]='+';
-
-                                out.printf("step_target= %s, start_box_push= %s\n", step_target,start_box_push);
-                            }
-
-                            robot_loc = step_target;
-                        }
-                    } else {
-                        ch = grid[step_target.y][step_target.x];
-                        if(move_list[i] == Compass.NORTH) {
-                            Vector2d start_box_push = robot_loc.plus(move_direction);
-//                            out.printf("\nstep_target: %s, start_box_push: %s  ch=|%c|\n", step_target, start_box_push, ch);
-                            int box_factor = ch==']'? -1 : 1 ;
-                            char u_box =grid[start_box_push.y][start_box_push.x - 1];
-//                            out.printf("u_box |%c|\n", u_box);
-                            while(u_box == ch) {
-                                start_box_push.x--;
-                                u_box =grid[start_box_push.y][start_box_push.x - 1];
-//                                out.printf("u_box |%c|\n", u_box);
-                            }
-//                            out.printf("right of dot: |%c| (%d,%d)\n",grid[start_box_push.y+box_factor][start_box_push.x-1] , start_box_push.y+box_factor, start_box_push.x-1);
-
-                            if((u_box == '.') && (grid[start_box_push.y+box_factor][start_box_push.x-1] == '.')){
-                                // box can move
-//                                out.println("box can move");
-                                grid[step_target.y][step_target.x] = '.';
-                                grid[step_target.y+box_factor][step_target.x] ='.';
-                                robot_loc = step_target;
-
-                                grid[start_box_push.y][start_box_push.x - 1] = ch;
-                                grid[start_box_push.y + 1][start_box_push.x - 1] = opBox(ch);
-
-
-                            }
-                        } else { //South
-                            Vector2d start_box_push = robot_loc.plus(move_direction);
-//                            out.printf("\nstep_target: %s, start_box_push: %s  ch=|%c|\n", step_target, start_box_push, ch);
-                            int box_factor = ch==']'? -1 : 1 ;
-                            char u_box =grid[start_box_push.y][start_box_push.x + 1];
-//                            out.printf("u_box |%c|\n", u_box);
-                            while(u_box == ch) {
-                                start_box_push.x++;
-                                u_box =grid[start_box_push.y][start_box_push.x + 1];
-//                                out.printf("u_box |%c|\n", u_box);
-                            }
-//                            out.printf("right of dot: |%c| (%d,%d)\n",grid[start_box_push.y+box_factor][start_box_push.x-1] , start_box_push.y+box_factor, start_box_push.x-1);
-
-                            if((u_box == '.') && (grid[start_box_push.y+box_factor][start_box_push.x+1] == '.')){
-                                // box can move
-                                                            grid[step_target.y][step_target.x] = '.';
-                                grid[step_target.y+box_factor][step_target.x] ='.';
-                                robot_loc = step_target;
-                                grid[start_box_push.y][start_box_push.x + 1] = ch;
-                                grid[start_box_push.y + 1][start_box_push.x + 1] = opBox(ch);
-                            }
-                        }
-                    }
-                    // any other tile blocking the scan (wall, monkey, robot, elephant), we do nothing.
-                    break;
-                default:
-                    out.printf("robot is trying to step into unknown ('%c')\n", ch);
-                    System.exit(-1);
-            }
-            out.printf("%s   move_direct: %s\n",robot_loc, move_direction );
-            AoCUtils.printGridTurnWithSpecial(grid,robot_loc,'@');
-        }
-
-
-
-        long gps_sum=0L;
-        for(int x=0; x < grid_sizes.x; x++) {
-            for(int y=0; y < grid_sizes.y; y++) {
-                char ch = grid[y][x];
-                if (ch == '[') {
-                    gps_sum += getGPS(x,y);
-                }
-            }
-        }
-
-
-
-
-        long answer = gps_sum;
+        long answer = -1;
         return String.valueOf(answer);
     }
 
-    private static String embiggenGrid(char[][] initialGrid) {
-        int grid_size = -1;
-        if(grid_sizes.x == grid_sizes.y) {
-            grid_size = grid_sizes.x;
-        }
-        int grid_height = grid_size * 2;
-        int grid_width = grid_size ;
-        char[][] grid = new char[grid_width][grid_height];
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
-
-        grid[robot_start.x][robot_start.y] = '@';
-        for(int y=0; y < grid_size; y++) {
-            for(int x=0; x < grid_size; x++) {
-                char ch = initialGrid[x][y];
-                if (robot_start.isEqual(x,y)) {
-                    ps.print('@');
-                    ps.print('.');
-                } else if(ch=='O') {
-                    ps.print('[');
-                    ps.print(']');
-                } else {
-                        ps.print(ch);
-                        ps.print(ch);
-                }
+    private static char[][] getExpandedGrid(List<String> grid_lines) {
+        int line_count = 0;
+        List<String> expanded_lines = new ArrayList<>();
+        int max_line_length = Integer.MIN_VALUE;
+        for (String ln : grid_lines) {
+            String e_line = expand(ln);
+            if(max_line_length < e_line.length()) {
+                max_line_length = e_line.length();
             }
-            ps.println();
+            expanded_lines.add(e_line);
+            line_count++;
         }
-        ps.println();
-        for(Compass c : move_list) {
-            ps.print(c.toChar());
+
+        maxes = new Vector2d(max_line_length, line_count);
+        char[][] grid = new char[maxes.x][maxes.y];
+        for(int y=0; y < maxes.y; y++) {
+            for(int x=0; x < maxes.x; x++) {
+                char[] c_a = expanded_lines.get(y).toCharArray();
+
+                 if(c_a[x] == '@') {
+                     robot_start = new Vector2d(x,y);
+                     grid[x][y] = '.';
+                 } else {
+                     grid[x][y] = c_a[x];
+                 }
+            }
         }
-        ps.println();
-        ps.close();
-        return baos.toString();
+//        AoCUtils.printGrid(grid);
+//        AoCUtils.printGridWithSpecial(grid, robot_start, '@');
+        return grid;
     }
+
+    private static ArrayList<Compass> getMoves(List<String> other) {
+        ArrayList<Compass> moves = new ArrayList<>();
+        for(String ll: other) {
+            char[] cc = ll.toCharArray();
+            for(int i=0; i< cc.length; i++ ) {
+                moves.add(Compass.fromChar(cc[i]));
+            }
+        }
+        return moves;
+    }
+
 
     private static long getGPS(int x, int y) {
-        return (100 * y) +x;
+        return (100L * y) + x;
     }
-    private static char opBox(char d) {
-        if (d=='[') return ']';
-        if (d==']') return '[';
-        System.out.printf("box opposite of |%c| unknown \n", d);
-        System.exit(-1);
-        return '?';
+
+    private static String expand(String line) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '#') {
+                sb.append("##");
+            } else if (c == 'O') {
+                sb.append("[]");
+            } else if (c == '.') {
+                sb.append("..");
+            } else if (c == '@') {
+                sb.append("@.");
+            } else {
+                throw new IllegalArgumentException("invalid character: " + c);
+            }
+        }
+        return sb.toString();
     }
+
 }
+
+
+
 
 
