@@ -75,6 +75,8 @@ public class Day17 {
     public static String getPart2() {
         Computer comp = new Computer(start_state);
 
+        // Those mod 8's should give us a narrow search range if I can't figure out where to put it in.
+
         ArrayList<Long> prog = new ArrayList<Long>(Arrays.stream(comp.program).boxed().toList());
         out.println(comp.disssembleProgram());
 
