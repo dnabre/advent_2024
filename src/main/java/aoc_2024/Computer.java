@@ -160,6 +160,9 @@ public class Computer {
 
         public boolean runWithReplacedRegA(long new_a) {
             this.reg_a = new_a;
+            pc=0;
+            output=new ArrayList<>();
+
             ArrayList<Long> prog = new ArrayList<>(Arrays.stream(program).boxed().toList());
             boolean running = true;
             while (running) {
