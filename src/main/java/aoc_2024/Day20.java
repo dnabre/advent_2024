@@ -20,7 +20,7 @@ public class Day20 {
         out.println();
 
         String[] answers = {"", ""};
-        String INPUT = Files.readString(Path.of(inputString));
+
 
 
         answers[0] = getPart1();
