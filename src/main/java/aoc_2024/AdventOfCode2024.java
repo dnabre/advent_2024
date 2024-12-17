@@ -67,7 +67,7 @@ public class AdventOfCode2024 {
 
     public static void main(String[] args) {
 
-        int day_number = 14;
+        int day_number = 17;
 
 
         String input_string;
@@ -83,7 +83,7 @@ public class AdventOfCode2024 {
                 start = System.currentTimeMillis();
             }
 
-            String[] results = Day14.runDay(System.out, input_string);
+            String[] results = Day17.runDay(System.out, input_string);
 
             System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
             System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
