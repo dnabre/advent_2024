@@ -50,7 +50,12 @@ public class Computer {
         static OpCode asOpCode(long o) {
             return decode[(int) o];
         }
-
+        public void run(){
+            boolean running = true;
+            while (running) {
+                running = step();
+            }
+        }
         public boolean step() {
             if (this.halted || pc >= program.length) {
                 this.halted = true;
