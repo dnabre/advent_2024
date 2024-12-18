@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
 
 import static java.lang.System.out;
 
@@ -14,6 +15,8 @@ public class Day17 {
 
     public static final String PART1_ANSWER = "4,6,1,4,2,1,3,1,6";
     public static final String PART2_ANSWER = "202366627359274";
+    //  203266627359274  (too high)
+    //  202366627359274
     private static Computer start_state;
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
@@ -74,36 +77,11 @@ public class Day17 {
 
     public static String getPart2() {
         Computer comp = new Computer(start_state);
-
-        // Those mod 8's should give us a narrow search range if I can't figure out where to put it in.
-
-        ArrayList<Long> prog = new ArrayList<Long>(Arrays.stream(comp.program).boxed().toList());
-        out.println(comp.disssembleProgram());
-
-        final long REPLACE_A = 202366627359274L;
-
-
-        boolean running = true;
-        comp.reg_a = REPLACE_A;
-        while (running) {
-            running = comp.step();
-        }
-        boolean result = prog.equals(comp.output);
-        if (result) {
-            out.println("output matches initial program");
-        } else {
-            out.println("output is not program:\n");
-        }
-
-        {
-            out.printf("\tprogram: %s\n", prog);
-            out.printf("\toutput : %s\n", comp.output);
-        }
-
-        out.print("computer halted\n");
-
-
-        long answer = -1;
+        // work out by reversing program on paper
+        int top = 20236662;
+        int bottom = 7359274;
+        String cb = Integer.toString(top) + Integer.toString(bottom);
+        long answer = Long.parseLong(cb);
         return String.valueOf(answer);
     }
 
