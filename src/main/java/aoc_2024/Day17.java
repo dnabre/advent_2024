@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 
 import static java.lang.System.out;
 
@@ -15,8 +13,6 @@ public class Day17 {
 
     public static final String PART1_ANSWER = "4,6,1,4,2,1,3,1,6";
     public static final String PART2_ANSWER = "202366627359274";
-    //  203266627359274  (too high)
-    //  202366627359274
     private static Computer start_state;
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
@@ -62,26 +58,19 @@ public class Day17 {
 
     public static String getPart1() {
         Computer comp = new Computer(start_state);
-        out.println(comp);
         boolean running = true;
         while (running) {
             running = comp.step();
         }
-//        out.print("computer halted\noutput: ");
-//        out.println(comp.output);
-
-
         return comp.getFormatedOutput();
     }
 
-
     public static String getPart2() {
-        Computer comp = new Computer(start_state);
         // work out by reversing program on paper
         int top = 20236662;
         int bottom = 7359274;
-        String cb = Integer.toString(top) + Integer.toString(bottom);
-        long answer = Long.parseLong(cb);
+
+        long answer = Long.parseLong(top + Integer.toString(bottom));
         return String.valueOf(answer);
     }
 

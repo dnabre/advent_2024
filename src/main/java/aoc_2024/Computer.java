@@ -50,12 +50,7 @@ public class Computer {
         static OpCode asOpCode(long o) {
             return decode[(int) o];
         }
-        public void run(){
-            boolean running = true;
-            while (running) {
-                running = step();
-            }
-        }
+
         public boolean step() {
             if (this.halted || pc >= program.length) {
                 this.halted = true;
@@ -163,19 +158,6 @@ public class Computer {
             return sb.toString();
         }
 
-        public boolean runWithReplacedRegA(long new_a) {
-            this.reg_a = new_a;
-            pc=0;
-            output=new ArrayList<>();
-
-            ArrayList<Long> prog = new ArrayList<>(Arrays.stream(program).boxed().toList());
-            boolean running = true;
-            while (running) {
-                running = step();
-            }
-            return this.output.equals(prog);
-        }
-
         @Override
         public boolean equals(Object o) {
             if (o == null || getClass() != o.getClass()) return false;
@@ -186,58 +168,6 @@ public class Computer {
         @Override
         public int hashCode() {
             return Objects.hash(reg_a, reg_b, reg_c, output, Arrays.hashCode(program), pc);
-        }
-
-        public String disssembleProgram() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(Arrays.toString(this.program));
-            sb.append("\n");
-            for (int pc = 0; pc < program.length; pc += 2) {
-                OpCode ins = asOpCode(program[pc]);
-                long operand = program[pc + 1];
-
-                switch (ins) {
-                    case ADV -> {
-                        long denom = 2L << (getCombo(operand) - 1L);
-                        long com_one = (getCombo(operand) - 1L);
-
-                        sb.append(String.format("ADV\t R[A] / %d  ( 2^%d ) -> R[A]\n",denom, com_one));
-                    }
-                    case BXL -> {
-                        sb.append(String.format("BXC\t R[B] XOR %d -> R[B]\n", operand));
-
-                    }
-                    case BST -> {
-                        sb.append(String.format("BXC\t %d mod 8  -> R[B]\n", getCombo(operand)));
-
-                    }
-                    case JNZ -> {
-                        sb.append(String.format("JNZ\t R[A] to %d\n", operand));
-
-                    }
-                    case BXC -> {
-                        sb.append("BXC\t R[B] XOR R[C] -> R[B]\n");
-
-                    }
-                    case OUT -> {
-
-                        sb.append(String.format("OUT\t %d \n", getCombo(operand) % 8));
-
-                    }
-                    case BDV -> {
-                        long denom = 2L << (getCombo(operand) - 1L);
-                        long com_one = (getCombo(operand) - 1L);
-                        sb.append(String.format("BDV\t R[A] / %d  ( 2^%d ) -> R[B]\n",denom, com_one));
-                    }
-                    case CDV -> {long denom = 2L << (getCombo(operand) - 1L);
-                        long com_one = (getCombo(operand) - 1L);
-                        sb.append(String.format("CDV\t R[A] / %d  ( 2^%d ) -> R[C]\n",denom, com_one));
-                    }
-                }
-
-
-            }
-            return sb.toString();
         }
 
         enum OpCode {ADV, BXL, BST, JNZ, BXC, OUT, BDV, CDV}
