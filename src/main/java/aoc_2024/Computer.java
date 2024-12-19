@@ -8,8 +8,8 @@ import java.util.Objects;
 import static java.lang.System.out;
 
 public class Computer {
-
-        static OpCode[] decode = {OpCode.ADV, OpCode.BXL, OpCode.BST, OpCode.JNZ, OpCode.BXC, OpCode.OUT, OpCode.BDV, OpCode.CDV};
+        static public final  long[] two_powers = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+        static final OpCode[] decode = {OpCode.ADV, OpCode.BXL, OpCode.BST, OpCode.JNZ, OpCode.BXC, OpCode.OUT, OpCode.BDV, OpCode.CDV};
         public long reg_a;
         public long reg_b;
         public long reg_c;
@@ -62,7 +62,8 @@ public class Computer {
             switch (ins) {
                 case ADV -> {
                     long num = this.reg_a;
-                    long denom = AoCUtils.iPow(2, getCombo(operand));
+                    //long denom = AoCUtils.iPow(2, getCombo(operand));
+                    long denom =two_powers[Math.toIntExact(getCombo(operand))];
                     this.reg_a = num / denom;
                 }
                 case BXL -> {
@@ -85,12 +86,12 @@ public class Computer {
                 }
                 case BDV -> {
                     long num = this.reg_a;
-                    long denom = AoCUtils.iPow(2, getCombo(operand));
+                    long denom =two_powers[Math.toIntExact(getCombo(operand))];
                     this.reg_b = num / denom;
                 }
                 case CDV -> {
                     long num = this.reg_a;
-                    long denom = AoCUtils.iPow(2, getCombo(operand));
+                    long denom =two_powers[Math.toIntExact(getCombo(operand))];
                     this.reg_c = num / denom;
                 }
             }
@@ -167,18 +168,33 @@ public class Computer {
             return fresh.getFormatedOutput();
         }
         public String runToHaltWithA(long sub_a) {
-            long old_a = this.reg_a;
             this.reg_a = sub_a;
+            this.reg_b = 0;
+            this.reg_c=0;
+            this.pc =0;
+            this.halted = false;
+            this.output = new ArrayList<>();
             boolean running = true;
             while (running) {
                 running = step();
             }
-            this.reg_a = sub_a;
-            return getFormatedOutput();
+             return getFormatedOutput();
         }
 
 
-
+    public ArrayList<Long> runToHaltWithA2(long sub_a) {
+        this.reg_a = sub_a;
+        this.reg_b = 0;
+        this.reg_c=0;
+        this.pc =0;
+        this.halted = false;
+        this.output = new ArrayList<>();
+        boolean running = true;
+        while (running) {
+            running = step();
+        }
+        return output;
+    }
 
         @Override
         public boolean equals(Object o) {

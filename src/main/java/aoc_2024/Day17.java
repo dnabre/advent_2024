@@ -67,7 +67,21 @@ public class Day17 {
         }
         return answer;
     }
+    public static String getPart3() {
+        long[] p = new long[16];
+        for(int i=0; i < 16; i++) {
+            p[i] = AoCUtils.iPow(2L, i);
+            out.printf("2^[%d] = %d \n", i, p[i]);
+
+        }
+        out.println();
+        out.println(Arrays.toString(p));
+
+        return "";
+    }
     public static String getPart2() {
+        ArrayList<Long> last_a_for_digit = new ArrayList<>();
+
         // work out by reversing program on paper
         int top = 20236662;
         int bottom = 7359274;
@@ -75,7 +89,9 @@ public class Day17 {
         Computer device = new Computer(start_state);
         out.println("starting device\n");
         out.println(device);
-        long a =0;
+       // long a = AoCUtils.iPow(8L,15L) ;
+        long a= 0;
+
         ArrayList<String> targetOutput = new ArrayList<>();
         for(long num: device.program) {
             targetOutput.add(Long.toString(num));
@@ -83,15 +99,20 @@ public class Day17 {
         for( int i=targetOutput.size(); i >=0; i--) {
 
             String subTargetOutput = String.join(",", targetOutput.subList(i,targetOutput.size()));
-        //    System.out.printf("i: %d, a: %d, reg_a: %d, targetOutput: %s, subTarget: %s\n", i, a, device.reg_a,tightFormat(targetOutput) , subTargetOutput );
+            System.out.printf("i: %d, a: %d, reg_a: %d, targetOutput: %s, subTarget: %s\n", i, a, device.reg_a,tightFormat(targetOutput) , subTargetOutput );
             String output= "";
             while(!subTargetOutput.equals(output)){
-                device.reg_a =a;
-                output = Computer.runToHalt(device);
+
+                output = device.runToHaltWithA(a);
                 a++;
+
             }
+            last_a_for_digit.add(a-1);
+            out.println(last_a_for_digit);
+
             a >>= 3;
         }
+
         out.printf("\n\tfound required a: %d, or reg_a: %d\n", a, device.reg_a);
 
         //long answer = Long.parseLong(top + Integer.toString(bottom));
@@ -107,5 +128,7 @@ public class Day17 {
         sb.append(ls.getLast());
         return sb.toString();
     }
+
+
  }
 

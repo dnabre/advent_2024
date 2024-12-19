@@ -1,8 +1,7 @@
 package src.main.java.aoc_2024;
 
 
-import java.io.IOException;
-import java.lang.reflect.Method;
+
 
 public class AdventOfCode2024 {
     static final String[][] test_files = {
@@ -82,10 +81,6 @@ public class AdventOfCode2024 {
             }
 
 
-//            Class<?> clazz = Class.forName("src.main.java.aoc_2024.Day" + day_number);
-//            Method method = clazz.getMethod("runDay", String.class);
-//            Object result_object = method.invoke(null,input_string);
-//            String[] results = (String[]) result_object;
 
 
            String[] results = Day17.runDay( System.out,input_string);
