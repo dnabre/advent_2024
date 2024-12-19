@@ -88,7 +88,7 @@ public class AdventOfCode2024 {
 //            String[] results = (String[]) result_object;
 
 
-           String[] results = Day19.runDay( input_string);
+           String[] results = Day19.runDay( System.out,input_string);
 
             System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
             System.out.printf("\t\tpart2:\t\t%s\n", results[1]);

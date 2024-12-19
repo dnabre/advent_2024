@@ -1,13 +1,13 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static java.lang.System.out;
 
 public class Day19 {
 
@@ -20,7 +20,7 @@ public class Day19 {
     private static ArrayList<String> patterns;
     private static ArrayList<String> designs;
 
-    public static String[] runDay(String inputString) {
+    public static String[] runDay(PrintStream out, String inputString) {
         out.println("Advent of Code 2024");
         out.print("\tDay  19");
         if (AdventOfCode2024.TESTING) {

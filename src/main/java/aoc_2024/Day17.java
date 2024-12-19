@@ -72,6 +72,29 @@ public class Day17 {
 
         long answer = Long.parseLong(top + Integer.toString(bottom));
         return String.valueOf(answer);
+
+        /*
+         //Increment from 0 until digit produced matches last digit. Times by 8 then repeat
+        long a = 0;
+        final List<String> targetOutput = device.program
+                .stream()
+                .map(String::valueOf)
+                .toList();
+        for (int i = targetOutput.size(); i >= 0; i--) {
+            System.out.printf("i: %d, a: %d\n", i, a);
+            final String subTargetOutput = String.join(",", targetOutput.subList(i, targetOutput.size()));
+            String output = "";
+            while (!subTargetOutput.equals(output)) {
+                device.a = a;
+                output = part1(device);
+                a++;
+            }
+            a >>= 3;
+        }
+        return a;
+
+         */
+
     }
 
 }
