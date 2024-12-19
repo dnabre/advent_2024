@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static java.lang.System.out;
@@ -43,17 +44,16 @@ public class AoCUtils {
             out.println();
         }
     }
-
-    public static long iPow(long base, long to_the) {
-        long result = (to_the & 1L) != 0L ? base : 1L;
-        while (to_the > 1L) {
-            base = base * base;
-            to_the >>= 1L;
-            if ((to_the & 1L) != 0L) {
-                result *= base;
+    public static long iPow(long a, long b) {
+        long re = 1;
+        while (b > 0) {
+            if ((b & 1) == 1) {
+                re *= a;
             }
+            b >>= 1;
+            a *= a;
         }
-        return result;
+        return re;
     }
 
 
