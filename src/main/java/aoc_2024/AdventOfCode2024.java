@@ -2,6 +2,7 @@ package src.main.java.aoc_2024;
 
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 public class AdventOfCode2024 {
     static final String[][] test_files = {
@@ -60,16 +61,14 @@ public class AdventOfCode2024 {
             "inputs/2024/day_25_input_01.txt",
     };
 
-
+    public static final int DAY = 19;
     public static final boolean TESTING = false;
-    public static final int TEST_IDX = 2;
+    public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;
 
-    public static void main(String[] args) {
+    public static void main() throws Exception {
 
-        int day_number = 17;
-
-
+        int day_number = DAY;
         String input_string;
         if (TESTING) {
             input_string = test_files[day_number - 1][TEST_IDX - 1];
@@ -77,13 +76,19 @@ public class AdventOfCode2024 {
             input_string = input_files[day_number - 1];
         }
 
-        try {
             long start, end;
             if (TIMING) {
                 start = System.currentTimeMillis();
             }
 
-            String[] results = Day17.runDay(System.out, input_string);
+
+//            Class<?> clazz = Class.forName("src.main.java.aoc_2024.Day" + day_number);
+//            Method method = clazz.getMethod("runDay", String.class);
+//            Object result_object = method.invoke(null,input_string);
+//            String[] results = (String[]) result_object;
+
+
+           String[] results = Day19.runDay( input_string);
 
             System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
             System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
@@ -93,9 +98,7 @@ public class AdventOfCode2024 {
             }
 
 
-        } catch (IOException e) {
-            throw new RuntimeException("error opening file " + input_string + " " + e);
-        }
+
 
     }
 }
