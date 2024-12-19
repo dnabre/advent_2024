@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,45 +58,54 @@ public class Day17 {
 
 
     public static String getPart1() {
-        Computer comp = new Computer(start_state);
-        boolean running = true;
-        while (running) {
-            running = comp.step();
-        }
-        return comp.getFormatedOutput();
-    }
+        String answer = Computer.runToHalt(start_state);
 
+        out.printf("Part 1 answer: %s\n", answer);
+        if((!AdventOfCode2024.TESTING) &&  (!answer.equals(PART1_ANSWER))){
+            out.print("******************   WRONG ANSWER   ******************\n\t");
+            out.printf("got: %s, expected %s\n", answer, PART1_ANSWER);
+        }
+        return answer;
+    }
     public static String getPart2() {
         // work out by reversing program on paper
         int top = 20236662;
         int bottom = 7359274;
+        long substitute_a = -1;
+        Computer device = new Computer(start_state);
+        out.println("starting device\n");
+        out.println(device);
+        long a =0;
+        ArrayList<String> targetOutput = new ArrayList<>();
+        for(long num: device.program) {
+            targetOutput.add(Long.toString(num));
+        }
+        for( int i=targetOutput.size(); i >=0; i--) {
 
-        long answer = Long.parseLong(top + Integer.toString(bottom));
-        return String.valueOf(answer);
-
-        /*
-         //Increment from 0 until digit produced matches last digit. Times by 8 then repeat
-        long a = 0;
-        final List<String> targetOutput = device.program
-                .stream()
-                .map(String::valueOf)
-                .toList();
-        for (int i = targetOutput.size(); i >= 0; i--) {
-            System.out.printf("i: %d, a: %d\n", i, a);
-            final String subTargetOutput = String.join(",", targetOutput.subList(i, targetOutput.size()));
-            String output = "";
-            while (!subTargetOutput.equals(output)) {
-                device.a = a;
-                output = part1(device);
+            String subTargetOutput = String.join(",", targetOutput.subList(i,targetOutput.size()));
+        //    System.out.printf("i: %d, a: %d, reg_a: %d, targetOutput: %s, subTarget: %s\n", i, a, device.reg_a,tightFormat(targetOutput) , subTargetOutput );
+            String output= "";
+            while(!subTargetOutput.equals(output)){
+                device.reg_a =a;
+                output = Computer.runToHalt(device);
                 a++;
             }
             a >>= 3;
         }
-        return a;
+        out.printf("\n\tfound required a: %d, or reg_a: %d\n", a, device.reg_a);
 
-         */
-
+        //long answer = Long.parseLong(top + Integer.toString(bottom));
+        long answer = a;
+        return String.valueOf(answer);
     }
-
-}
+    public static String tightFormat(ArrayList<String> ls) {
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i< ls.size() -1; i++) {
+            sb.append(ls.get(i));
+            sb.append(',');
+        }
+        sb.append(ls.getLast());
+        return sb.toString();
+    }
+ }
 

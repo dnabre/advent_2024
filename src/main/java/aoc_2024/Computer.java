@@ -97,22 +97,22 @@ public class Computer {
             return true;
         }
 
-        public long getCombo(long literal) {
-            Long mm = literal;
-            switch (mm) {
-                case 0L, 1L, 2L, 3L -> {
+        public long getCombo(long lit) {
+            int literal = Math.toIntExact(lit);
+            switch(literal) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
                     return literal;
-                }
-                case 4L -> {
+                case 4:
                     return this.reg_a;
-                }
-                case 5L -> {
+                case 5:
                     return this.reg_b;
-                }
-                case 6L -> {
+                case 6:
                     return this.reg_c;
-                }
-                default -> throw new IllegalArgumentException();
+                default:
+                    throw new IllegalArgumentException();
             }
         }
 
@@ -150,8 +150,8 @@ public class Computer {
                 return "no output";
             }
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < output.size() - 1; i++) {
-                sb.append(output.get(i));
+            for (int i = 0; i < this.output.size() - 1; i++) {
+                sb.append(this.output.get(i));
                 sb.append(',');
             }
             sb.append(output.getLast());

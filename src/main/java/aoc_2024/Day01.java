@@ -49,7 +49,7 @@ public class Day01 {
             left[i] = Integer.parseInt(parts[0]);
             int r = Integer.parseInt(parts[1]);
             if (right.containsKey(r)) {
-                right.computeIfPresent(r, (_, count) -> count + 1);
+                right.computeIfPresent(r, (unused, count) -> count + 1);
             } else {
                 right.put(r, 1);
             }
