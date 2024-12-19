@@ -62,7 +62,7 @@ public class Computer {
             switch (ins) {
                 case ADV -> {
                     long num = this.reg_a;
-                    long denom = 2L << (getCombo(operand) - 1L);
+                    long denom = AoCUtils.iPow(2, getCombo(operand));
                     this.reg_a = num / denom;
                 }
                 case BXL -> {
@@ -85,12 +85,12 @@ public class Computer {
                 }
                 case BDV -> {
                     long num = this.reg_a;
-                    long denom = 2L << (getCombo(operand) - 1L);
+                    long denom = AoCUtils.iPow(2, getCombo(operand));
                     this.reg_b = num / denom;
                 }
                 case CDV -> {
                     long num = this.reg_a;
-                    long denom = 2L << (getCombo(operand) - 1L);
+                    long denom = AoCUtils.iPow(2, getCombo(operand));
                     this.reg_c = num / denom;
                 }
             }
@@ -157,6 +157,28 @@ public class Computer {
             sb.append(output.getLast());
             return sb.toString();
         }
+
+        public static String runToHalt(Computer other) {
+            Computer fresh = new Computer(other);
+            boolean running = true;
+            while (running) {
+                running = fresh.step();
+            }
+            return fresh.getFormatedOutput();
+        }
+        public String runToHaltWithA(long sub_a) {
+            long old_a = this.reg_a;
+            this.reg_a = sub_a;
+            boolean running = true;
+            while (running) {
+                running = step();
+            }
+            this.reg_a = sub_a;
+            return getFormatedOutput();
+        }
+
+
+
 
         @Override
         public boolean equals(Object o) {
