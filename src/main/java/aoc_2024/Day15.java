@@ -160,6 +160,13 @@ public class Day15 {
         char[][] grid = getExpandedGrid(grid_lines);
 
 
+        // scan through boxes until we hit wall or empty space
+        // if wall, we can't move -- done
+        // if free, update our position and put correct box half in empty space
+        // remember location of empty space
+        // do a sweep through boxes on row moved happened (2 if cols) fixing any box whose
+        //      halves don't line up.
+
         long answer = -1;
         return String.valueOf(answer);
     }
