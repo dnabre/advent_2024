@@ -2,17 +2,43 @@ package src.main.java.aoc_2024;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+
+import static java.lang.System.out;
 
 
 public class Day07 {
-    public static final String PART1_ANSWER = "737";
+    public static final String PART1_ANSWER = "267566105056";
     public static final String PART2_ANSWER = "1619";
-    private static final int MAX_HEIGHT = 9;
-    private static char[][] grid;
+    private static ArrayList<Equation> equations = new ArrayList<>();
+    enum Operators {Add, Multiply}
+    enum Operators2 {Add, Multiply, Concat}
+
+    record State(List<Operators> ops) {
+    }
+
+    record State2(List<Operators2> ops) {
+    }
+
+    record Equation(long value, long[] terms) {
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Equation[value=");
+            sb.append(value);
+            sb.append(", terms=");
+            sb.append(Arrays.toString(terms));
+            sb.append("]");
+            return sb.toString();
+        }
+
+    }
+
+
+
+
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -36,132 +62,134 @@ public class Day07 {
     }
 
     public static void parseInput(String filename) throws IOException {
-        grid = AoCUtils.parseGrid(filename);
+        String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
+        for (String ln : lines) {
+            String[] parts = ln.split(":");
+            long value = Long.parseLong(parts[0].trim());
+            String[] s_terms = parts[1].trim().split(AoCUtils.WHITESPACE_RE);
+            long[] terms = new long[s_terms.length];
+            for (int i = 0; i < s_terms.length; i++) {
+                terms[i] = Long.parseLong(s_terms[i].trim());
+            }
+            Equation eq = new Equation(value, terms);
+            equations.add(eq);
+
+        }
+
     }
 
     public static String getPart1() {
-        List<Vector2d> starts = getStartingPositions();
-        List<Vector2d> targets = getTargetPositions();
-        int path_total = 0;
-        for (Vector2d start : starts) {
-            int found_paths = FindPathStartToPeaks(start, targets);
-            path_total += found_paths;
+        long total = 0L;
+        for (Equation eq : equations) {
+            boolean sat = canEquationBeSatisfied(eq.value, eq.terms);
+            if (sat) {
+                total += eq.value;
+            }
         }
-        long answer = path_total;
+
+
+        long answer = total;
         return String.valueOf(answer);
     }
 
     public static String getPart2() {
-        List<Vector2d> starts = getStartingPositions();
-        List<Vector2d> targets = getTargetPositions();
-        int path_total = 0;
-        for (Vector2d start : starts) {
-            int found_paths = FindDistinctPathStartToPeaks(start, targets);
-            path_total += found_paths;
+        long total = 0L;
+        for (Equation eq : equations) {
+            boolean sat = canEquationBeSatisfied2(eq.value, eq.terms);
+            if (sat) {
+                total += eq.value;
+            }
         }
-        long answer = path_total;
+
+
+        long answer = total;
         return String.valueOf(answer);
     }
-    private static int FindPathStartToPeaks(Vector2d start_point, List<Vector2d> targets) {
-        HashSet<Vector2d> peaks_pathed_to = new HashSet<>();
-        int min_idx = 0;
-        int max_idx = grid.length - 1;
-        HashSet<State> seen = new HashSet<>();
-        State start = new State(start_point);
-        ArrayDeque<State> work_queue = new ArrayDeque<>();
-        work_queue.addLast(start);
+
+    private static boolean canEquationBeSatisfied(long goal, long[] terms) {
+        State start = new State(new ArrayList<>());
+        Deque<State> work_queue = new ArrayDeque<>();
+        work_queue.add(start);
         while (!work_queue.isEmpty()) {
-            State c = work_queue.removeFirst();
-            if (targets.contains(c.current)) {
-                peaks_pathed_to.add(c.current);
-            }
-            List<Vector2d> neighs = Directions.Compass.getNeighborsClamped(c.current, min_idx, max_idx);
-            for (Vector2d vv : neighs) {
-                if (Character.getNumericValue(grid[vv.x][vv.y]) == c.height() + 1) {
-                    State new_state = new State(vv);
-                    if (!seen.contains(new_state)) {
-                        seen.add(new_state);
-                        work_queue.add(new_state);
+            State current = work_queue.poll();
+            if (current.ops.size() == terms.length - 1) {
+                long total = terms[0];
+                for (int i = 1; i < terms.length; i++) {
+                    Operators op = current.ops.removeFirst();
+                    long next_term = terms[i];
+                    switch (op) {
+                        case Add -> {
+                            total += next_term;
+                        }
+                        case Multiply -> {
+                            total *= next_term;
+                        }
                     }
                 }
+                if (total == goal) {
+                    return true;
+                }
+            } else {
+                List<Operators> a_list = new ArrayList<>(current.ops);
+                a_list.add(Operators.Add);
+                State new_a = new State(a_list);
+                work_queue.add(new_a);
+                List<Operators> m_list = new ArrayList<>(current.ops);
+                m_list.add(Operators.Multiply);
+                State new_m = new State(m_list);
+                work_queue.add(new_m);
             }
+
+
         }
-        return peaks_pathed_to.size();
+        return false;
     }
 
-    private static int FindDistinctPathStartToPeaks(Vector2d start_point, List<Vector2d> targets) {
-        HashSet<ArrayList<Vector2d>> unique_paths = new HashSet<>();
-        int min_idx = 0;
-        int max_idx = grid.length - 1;
-        HashSet<State2> seen = new HashSet<>();
-        State2 start = new State2(start_point, new ArrayList<Vector2d>(10));
-        start.path.add(start_point);
-        ArrayDeque<State2> work_queue = new ArrayDeque<>();
-        work_queue.addLast(start);
+    private static boolean canEquationBeSatisfied2(long goal, long[] terms) {
+        State2 start = new State2(new ArrayList<>());
+        Deque<State2> work_queue = new ArrayDeque<>();
+        work_queue.add(start);
         while (!work_queue.isEmpty()) {
-            State2 c = work_queue.removeFirst();
-            if (targets.contains(c.current)) {
-                unique_paths.add(c.path);
-            }
-            List<Vector2d> neighs = Directions.Compass.getNeighborsClamped(c.current, min_idx, max_idx);
-            for (Vector2d vv : neighs) {
-                if (Character.getNumericValue(grid[vv.x][vv.y]) == c.height() + 1) {
-                    ArrayList<Vector2d> path = new ArrayList<>(c.path);
-                    path.add(vv);
-                    State2 new_state = new State2(vv, path);
-                    if (!seen.contains(new_state)) {
-                        seen.add(new_state);
-                        work_queue.add(new_state);
+            State2 current = work_queue.poll();
+            if (current.ops.size() == terms.length - 1) {
+                long total = terms[0];
+                for (int i = 1; i < terms.length; i++) {
+                    Operators2 op = current.ops.removeFirst();
+                    long next_term = terms[i];
+                    switch (op) {
+                        case Add -> {
+                            total += next_term;
+                        }
+                        case Multiply -> {
+                            total *= next_term;
+                        }
+                        case Concat -> {
+                            total = Long.parseLong(Long.toString(total) + Long.toString(next_term));
+
+                        }
                     }
                 }
-            }
-        }
-        return unique_paths.size();
-    }
 
-    private static List<Vector2d> getStartingPositions() {
-        List<Vector2d> pos = new ArrayList<>();
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[0].length; x++) {
-                char ch = grid[x][y];
-                if (ch == '0') {
-                    pos.add(new Vector2d(x, y));
+                if (total == goal) {
+                    return true;
                 }
+            } else {
+                List<Operators2> a_list = new ArrayList<>(current.ops);
+                a_list.add(Operators2.Add);
+                State2 new_a = new State2(a_list);
+                work_queue.add(new_a);
+
+                List<Operators2> m_list = new ArrayList<>(current.ops);
+                m_list.add(Operators2.Multiply);
+                State2 new_m = new State2(m_list);
+                work_queue.add(new_m);
+
+                List<Operators2> c_list =new ArrayList<>(current.ops);
+                c_list.add(Operators2.Concat);
+                State2 new_c = new State2(c_list);
+                work_queue.add(new_c);
             }
         }
-        return pos;
-    }
-
-    private static List<Vector2d> getTargetPositions() {
-        List<Vector2d> pos = new ArrayList<>();
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[0].length; x++) {
-                char ch = grid[x][y];
-                if (ch == '9') {
-                    pos.add(new Vector2d(x, y));
-                }
-            }
-        }
-        return pos;
-    }
-
-    record State(Vector2d current) {
-        public int height() {
-            return Character.getNumericValue(grid[current.x][current().y]);
-        }
-        @Override
-        public String toString() {
-            return String.format("@%s, height: %d", this.current, this.height());
-        }
-    }
-
-    record State2(Vector2d current, ArrayList<Vector2d> path) {
-        public int height() {
-            return Character.getNumericValue(grid[current.x][current().y]);
-        }
-        @Override
-        public String toString() {
-            return String.format("@%s, height: %d (S2)", this.current, this.height());
-        }
+        return false;
     }
 }

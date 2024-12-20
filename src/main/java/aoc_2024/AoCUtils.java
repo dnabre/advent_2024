@@ -10,6 +10,8 @@ import java.util.List;
 import static java.lang.System.out;
 
 public class AoCUtils {
+    public static final String WHITESPACE_RE = "\\s+";
+
     public static int[] WhitespaceDelimitedLineToIntegers(String ln) {
         String[] parts = ln.split("\\s+");
         int[] result = new int[parts.length];
