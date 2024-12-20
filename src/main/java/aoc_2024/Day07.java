@@ -6,39 +6,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static java.lang.System.out;
-
 
 public class Day07 {
     public static final String PART1_ANSWER = "267566105056";
-    public static final String PART2_ANSWER = "1619";
-    private static ArrayList<Equation> equations = new ArrayList<>();
-    enum Operators {Add, Multiply}
-    enum Operators2 {Add, Multiply, Concat}
-
-    record State(List<Operators> ops) {
-    }
-
-    record State2(List<Operators2> ops) {
-    }
-
-    record Equation(long value, long[] terms) {
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Equation[value=");
-            sb.append(value);
-            sb.append(", terms=");
-            sb.append(Arrays.toString(terms));
-            sb.append("]");
-            return sb.toString();
-        }
-
-    }
-
-
-
-
+    public static final String PART2_ANSWER = "116094961956019";
+    private static final ArrayList<Equation> equations = new ArrayList<>();
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -81,13 +53,11 @@ public class Day07 {
     public static String getPart1() {
         long total = 0L;
         for (Equation eq : equations) {
-            boolean sat = canEquationBeSatisfied(eq.value, eq.terms);
+            boolean sat = canEquationBeSatisfied(eq.value, eq.terms,false);
             if (sat) {
                 total += eq.value;
             }
         }
-
-
         long answer = total;
         return String.valueOf(answer);
     }
@@ -95,101 +65,57 @@ public class Day07 {
     public static String getPart2() {
         long total = 0L;
         for (Equation eq : equations) {
-            boolean sat = canEquationBeSatisfied2(eq.value, eq.terms);
+            boolean sat = canEquationBeSatisfied(eq.value, eq.terms,true);
             if (sat) {
                 total += eq.value;
             }
         }
-
-
         long answer = total;
         return String.valueOf(answer);
     }
 
-    private static boolean canEquationBeSatisfied(long goal, long[] terms) {
-        State start = new State(new ArrayList<>());
+
+    private static boolean canEquationBeSatisfied(long goal, long[] terms, boolean use_concat) {
+        State start = new State(terms[0], 1);
         Deque<State> work_queue = new ArrayDeque<>();
         work_queue.add(start);
         while (!work_queue.isEmpty()) {
             State current = work_queue.poll();
-            if (current.ops.size() == terms.length - 1) {
-                long total = terms[0];
-                for (int i = 1; i < terms.length; i++) {
-                    Operators op = current.ops.removeFirst();
-                    long next_term = terms[i];
-                    switch (op) {
-                        case Add -> {
-                            total += next_term;
-                        }
-                        case Multiply -> {
-                            total *= next_term;
-                        }
-                    }
-                }
-                if (total == goal) {
+            if (current.to_term == terms.length) {
+                if (current.running == goal) {
                     return true;
                 }
             } else {
-                List<Operators> a_list = new ArrayList<>(current.ops);
-                a_list.add(Operators.Add);
-                State new_a = new State(a_list);
-                work_queue.add(new_a);
-                List<Operators> m_list = new ArrayList<>(current.ops);
-                m_list.add(Operators.Multiply);
-                State new_m = new State(m_list);
-                work_queue.add(new_m);
+                long a_run = current.running + terms[current.to_term];
+                if (a_run <= goal) {
+                    State new_a = new State(a_run, current.to_term + 1);
+                    work_queue.add(new_a);
+                }
+
+                long m_run = current.running * terms[current.to_term];
+                if (m_run <= goal) {
+                    State new_m = new State(m_run, current.to_term + 1);
+                    work_queue.add(new_m);
+                }
+                if(use_concat) {
+                    long c_run = concat(current.running, terms[current.to_term]);
+                    if (c_run <= goal) {
+                        State new_c = new State(c_run, current.to_term + 1);
+                        work_queue.add(new_c);
+                    }
+                }
             }
-
-
         }
         return false;
     }
 
-    private static boolean canEquationBeSatisfied2(long goal, long[] terms) {
-        State2 start = new State2(new ArrayList<>());
-        Deque<State2> work_queue = new ArrayDeque<>();
-        work_queue.add(start);
-        while (!work_queue.isEmpty()) {
-            State2 current = work_queue.poll();
-            if (current.ops.size() == terms.length - 1) {
-                long total = terms[0];
-                for (int i = 1; i < terms.length; i++) {
-                    Operators2 op = current.ops.removeFirst();
-                    long next_term = terms[i];
-                    switch (op) {
-                        case Add -> {
-                            total += next_term;
-                        }
-                        case Multiply -> {
-                            total *= next_term;
-                        }
-                        case Concat -> {
-                            total = Long.parseLong(Long.toString(total) + Long.toString(next_term));
+    public static long concat(long total, long next_term) {
+        return Long.parseLong(total + Long.toString(next_term));
+    }
 
-                        }
-                    }
-                }
+    record State(long running, int to_term) {
+    }
 
-                if (total == goal) {
-                    return true;
-                }
-            } else {
-                List<Operators2> a_list = new ArrayList<>(current.ops);
-                a_list.add(Operators2.Add);
-                State2 new_a = new State2(a_list);
-                work_queue.add(new_a);
-
-                List<Operators2> m_list = new ArrayList<>(current.ops);
-                m_list.add(Operators2.Multiply);
-                State2 new_m = new State2(m_list);
-                work_queue.add(new_m);
-
-                List<Operators2> c_list =new ArrayList<>(current.ops);
-                c_list.add(Operators2.Concat);
-                State2 new_c = new State2(c_list);
-                work_queue.add(new_c);
-            }
-        }
-        return false;
+    record Equation(long value, long[] terms) {
     }
 }

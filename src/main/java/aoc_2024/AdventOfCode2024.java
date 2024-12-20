@@ -77,7 +77,7 @@ public class AdventOfCode2024 {
 
             long start, end;
             if (TIMING) {
-                start = System.currentTimeMillis();
+                start = System.nanoTime();
             }
 
 
@@ -88,8 +88,8 @@ public class AdventOfCode2024 {
             System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
             System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
             if (TIMING) {
-                end = System.currentTimeMillis();
-                System.out.printf("\n total time: %d ms\n", end - start);
+                end = System.nanoTime();
+                System.out.printf("\n total time: %.1f ms\n", (end - start) / 1000000f);
             }
 
 
