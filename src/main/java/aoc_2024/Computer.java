@@ -105,19 +105,19 @@ public class Computer {
     public long getCombo(long lit) {
         int literal = Math.toIntExact(lit);
         switch (literal) {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
+            case 0, 1, 2, 3 -> {
                 return literal;
-            case 4:
+            }
+            case 4 -> {
                 return this.reg_a;
-            case 5:
+            }
+            case 5 -> {
                 return this.reg_b;
-            case 6:
+            }
+            case 6 -> {
                 return this.reg_c;
-            default:
-                throw new IllegalArgumentException();
+            }
+            default -> throw new IllegalArgumentException();
         }
     }
 
