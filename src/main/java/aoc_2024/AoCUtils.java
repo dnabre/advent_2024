@@ -107,4 +107,12 @@ public class AoCUtils {
         }
         return g_string;
     }
+
+    public static ArrayList<Long> arrayToArrayList(long[] program) {
+        ArrayList<Long> r = new ArrayList<>();
+        for(long ll: program) {
+            r.add(ll);
+        }
+        return r;
+    }
 }

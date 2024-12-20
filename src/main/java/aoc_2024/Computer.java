@@ -2,7 +2,6 @@ package src.main.java.aoc_2024;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import static java.lang.System.out;
@@ -31,7 +30,7 @@ public class Computer {
             this.verbose_outputs = other.verbose_outputs;
         }
 
-        public Computer(long ra, long rb, long rc, List<Long> prog) {
+        public Computer(long ra, long rb, long rc, ArrayList<Long> prog) {
             reg_a = ra;
             reg_b = rb;
             reg_c = rc;
