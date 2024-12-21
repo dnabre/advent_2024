@@ -1,5 +1,7 @@
 package src.main.java.aoc_2024;
 
+import jdk.jshell.spi.SPIResolutionException;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
@@ -8,8 +10,8 @@ import static java.lang.System.out;
 
 public class Day20 {
 
-    public static final String PART1_ANSWER = "-1";
-    public static final String PART2_ANSWER = "-1";
+    public static final String PART1_ANSWER = "1441";
+    public static final String PART2_ANSWER = "1021490";
     private static final long STEP_COST = 1;
     private static final long PART1_TIME_LIMIT = 100;
     private static final char WALL = '#';
@@ -86,37 +88,62 @@ public class Day20 {
         }
         out.printf("start: %s\n", MAP_START);
         out.printf("end  : %s\n", MAP_END);
-        long picos = findFastestBetween(MAP_START, MAP_END).time;
+        State no_cheats =findFastestBetween(MAP_START, MAP_END);
+        if(no_cheats == null) {
+            out.println("initial search failed");
+            System.exit(-1);
+        }
+        long picos = no_cheats.time;
         NO_CHEAT_TIME = picos;
 
         out.printf("Shortest path from %s to %s takes %d\n", MAP_START, MAP_END, picos);
+        ArrayList<Vector2d> shortest_path = new ArrayList<>();
+        State ptr=no_cheats;
+        HashSet<Vector2d> short_locs = new HashSet<>();
+        while(ptr!=null) {
+            if(ptr.pos != MAP_START) {
+                shortest_path.add(ptr.pos);
+                short_locs.add(ptr.pos);
+            }
+            ptr = ptr.previous;
+        }
+        out.printf("recursive path length: %d \n", shortest_path.size());
+
+
+
 
         HashSet<Vector2d> open_spots = getAllOpenSpots();
         out.printf("open spots: %d\n", open_spots.size());
+        out.printf("nocheat path: %d\n", shortest_path.size());
         HashSet<Cheat> possible_cheats = findPossibleCheats(open_spots);
+        //HashSet<Cheat> possible_cheats = findPossibleCheats(short_locs);
 
         out.printf("found %d distinct possible cheats\n", possible_cheats.size());
 
         HashMap<Long, List<Cheat>> time_to_cheats = new HashMap<>();
 
+        long pre_cheat_time;
+        long post_cheat_time;
 
         for (Cheat cheat : possible_cheats) {
-
-            long pre_cheat_time =  findFastestBetween(MAP_START, cheat.start).time;
-
-            if (pre_cheat_time < 0) {
+            State ch_ptr = findFastestBetween(MAP_START, cheat.start);
+            if((ch_ptr == null) || (ch_ptr.time >= NO_CHEAT_TIME)){
                 continue;
             }
-            long post_cheat_time =  findFastestBetween(cheat.end, MAP_END).time;
-            if (post_cheat_time < 0) {
+            pre_cheat_time = ch_ptr.time;
+            ch_ptr = findFastestBetween(MAP_START, cheat.start);
+            if((ch_ptr == null) || (ch_ptr.time >= NO_CHEAT_TIME)){
                 continue;
             }
-            long cheat_total_time = pre_cheat_time + post_cheat_time + 2;
+            post_cheat_time = ch_ptr.time;
+
+            long cheat_total_time = pre_cheat_time + post_cheat_time;
+            if(cheat_total_time >= NO_CHEAT_TIME) {continue;}
+            //out.printf("cheat %s pre: %d, post: %d, tot: %d \n", cheat,pre_cheat_time,post_cheat_time,cheat_total_time);
             List<Cheat> cheat_for_time_list = time_to_cheats.getOrDefault(cheat_total_time, new ArrayList<>());
             cheat_for_time_list.add(cheat);
             time_to_cheats.put(cheat_total_time, cheat_for_time_list);
         }
-
 
         List<Long> cheat_times = new ArrayList<>(time_to_cheats.keySet().stream().toList());
         Collections.sort(cheat_times, Collections.reverseOrder());
@@ -142,31 +169,27 @@ public class Day20 {
     }
 
     private static HashSet<Cheat> findPossibleCheats(HashSet<Vector2d> openSpots) {
+        out.printf("searching for cheats from %d possible starts\n", openSpots.size());
         HashSet<Cheat> possible_cheats = new HashSet<>();
         for (Vector2d open_spot : openSpots) {
             List<Vector2d> adj_tiles = Directions.Compass.getNeighbors(open_spot);
             for (Vector2d adj : adj_tiles) {
                 if (grid[adj.y][adj.x] == WALL) {
-                    MAP_START = new Vector2d(adj.x, adj.y); // Wall space next to open space
-
+                    //MAP_START = new Vector2d(adj.x, adj.y); // Wall space next to open space
+                    Vector2d start_wall = new Vector2d(adj.x, adj.y);
                     for (Vector2d possible_end : Directions.Compass.getNeighbors(MAP_START)) {
                         // open_spot (.) -> start wall (#) -> end (.)
                         // Cheat open_spot -> end
-                        MAP_END = possible_end;
-                        //The three parts should be distinct, not all may be possible at this point,
-                        // but check to be safe
-                        if (MAP_END.equals(adj)) {
-                            continue;
-                        }
-                        if (MAP_END.equals(MAP_START)) {
-                            continue;
-                        }
+                        if(grid[possible_end.y][possible_end.x] == WALL){ continue;}
 
-                        if (grid[MAP_END.y][MAP_END.x] != WALL) {
-                            // adj Open -> start Wall -> end Open
-                            Cheat n_cheat = new Cheat(open_spot, MAP_END);
+                        //The three parts should be distinct, not all may be possible at this point,
+                        if ((!open_spot.equals(start_wall)) &&
+                                (!start_wall.equals(possible_end)) &&
+                                (!possible_end.equals(open_spot))) {
+                            Cheat n_cheat = new Cheat(open_spot, possible_end);
                             possible_cheats.add(n_cheat);
                         }
+
                     }
                 }
             }
@@ -190,25 +213,22 @@ public class Day20 {
     }
 
 
-    private static HashMap<Pair<Vector2d, Vector2d>, State> fastest_path_cache = new HashMap<>();
+
+ //   public record State(Vector2d pos, long time, HashSet<Vector2d> path) { }
+    public record State(Vector2d pos, long time, State previous) { }
+
     private static State findFastestBetween(Vector2d start_pos, Vector2d end_pos) {
-        Pair<Vector2d,Vector2d> input = new Pair<>(start_pos,end_pos);
-        if (fastest_path_cache.containsKey(input)) {
-            return fastest_path_cache.get(input);
-        }
-        State start = new State(start_pos, 0, new HashSet<>());
-        start.path.add(start_pos);
+
+
+        State start = new State(start_pos, 0, null);
         ArrayDeque<State> work_queue = new ArrayDeque<>();
         work_queue.add(start);
         while (!work_queue.isEmpty()) {
             State current = work_queue.removeFirst();
             if ((NO_CHEAT_TIME > 0) && (current.time > NO_CHEAT_TIME)) {
-                State bad = new State(current.pos, -1, current.path);
-                fastest_path_cache.put(input, bad );
-                return bad;
+                return null;
             }
             if (current.pos.equals(end_pos)) {
-                fastest_path_cache.put(input,current);
                 return current;
             }
 
@@ -218,17 +238,35 @@ public class Day20 {
                 if (ch == '#') {
                     continue;
                 }
-                if (current.path.contains(step)) {
-                    continue;
+
+
+                // check if were there
+                if(current.previous != null ) {
+                    boolean found_on_path = false;
+                    Vector2d looking_for =current.pos;
+                    State ptr = current.previous;
+                    while (ptr != null) {
+                        Vector2d loc = ptr.pos;
+                        if(loc.equals(looking_for)) {
+                            //found loop
+                            found_on_path = true;
+                            break;
+                        }
+                        ptr = ptr.previous;
+                    }
+                    if (found_on_path) {
+                    //    out.printf("\t discarding %s because it hits our previous path\n", step);
+                        continue;
+                    }
                 }
-                State new_state = new State(step, current.time + STEP_COST, new HashSet<>(current.path));
-                new_state.path.add(step);
-                work_queue.addLast(new_state);
+                State new_state = new State(step, current.time + STEP_COST, current);
+
+                work_queue.addFirst(new_state);
             }
         }
 
-        fastest_path_cache.put(input,new State(new Vector2d(-1,-1), -1, new HashSet<>()));
-        return new State(new Vector2d(-1,-1), -1, new HashSet<>());
+        //out.println("search failed. work queue empty");
+        return null;
     }
 
     public static String getPart2() {
@@ -236,8 +274,6 @@ public class Day20 {
         return String.valueOf(answer);
     }
 
-    public record State(Vector2d pos, long time, HashSet<Vector2d> path) {
-    }
 
     public record Cheat(Vector2d start, Vector2d end) {
         // open spots on either end of one wall cheat
