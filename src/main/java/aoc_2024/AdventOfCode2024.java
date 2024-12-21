@@ -61,7 +61,7 @@ public class AdventOfCode2024 {
     };
 
     public static final int DAY = 20;
-    public static final boolean TESTING = false;
+    public static final boolean TESTING = true;
     public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;
 

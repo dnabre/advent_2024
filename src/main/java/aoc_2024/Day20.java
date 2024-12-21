@@ -53,30 +53,23 @@ public class Day20 {
     public static void parseInput(String filename) throws IOException {
         grid = AoCUtils.parseGrid(filename);
 
-        char[][] new_grid = new char[grid.length + 2][grid[0].length + 2];
-        for (int y = 0; y < new_grid.length; y++) {
-            for (int x = 0; x < new_grid[0].length; x++) {
-                new_grid[y][x] = '#';
-            }
-        }
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[0].length; x++) {
-                new_grid[y + 1][x + 1] = grid[y][x];
-            }
-        }
-        grid = new_grid;
-        max = new Vector2d(grid[0].length, grid.length);
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[0].length; x++) {
+
+        for(int y=0; y < grid.length; y++) {
+            for(int x=0; x < grid[0].length; x++) {
                 char ch = grid[y][x];
-                if (ch == 'S') {
-                    MAP_START = new Vector2d(x, y);
+                if( ch == 'S') {
+                    MAP_START = new Vector2d(x,y);
+                    grid[y][x] = '.';
                 }
                 if (ch == 'E') {
-                    MAP_END = new Vector2d(x, y);
+                    MAP_END = new Vector2d(x,y);
+                    grid[y][x] = '.';
                 }
-            }
+            }out.println();
         }
+        max = new Vector2d(grid[0].length, grid.length);
+
+
     }
 
     public static String getPart1() {
@@ -88,80 +81,26 @@ public class Day20 {
         }
         out.printf("start: %s\n", MAP_START);
         out.printf("end  : %s\n", MAP_END);
-        State no_cheats =findFastestBetween(MAP_START, MAP_END);
-        if(no_cheats == null) {
-            out.println("initial search failed");
-            System.exit(-1);
+
+        int[][] d_grid = new int[grid.length][grid[0].length];
+        for (int y = 0; y < d_grid.length; y++) {
+            for (int x = 0; x < d_grid[0].length; x++) {
+                char ch = grid[y][x];
+                if(ch=='.') {
+                    d_grid[y][x] = 0;
+                }
+                if(ch==WALL) {
+                    d_grid[y][x] = -1;
+                }
+            }
         }
-        long picos = no_cheats.time;
-        NO_CHEAT_TIME = picos;
-
-        out.printf("Shortest path from %s to %s takes %d\n", MAP_START, MAP_END, picos);
-        ArrayList<Vector2d> shortest_path = new ArrayList<>();
-        State ptr=no_cheats;
-        HashSet<Vector2d> short_locs = new HashSet<>();
-        while(ptr!=null) {
-            if(ptr.pos != MAP_START) {
-                shortest_path.add(ptr.pos);
-                short_locs.add(ptr.pos);
-            }
-            ptr = ptr.previous;
-        }
-        out.printf("recursive path length: %d \n", shortest_path.size());
+        //do full distanst from all points to end. then fill the paths with their distance from end.
 
 
+        // do path search from start->end, label distance to end on path grid. the look at every point on path
+        // see if jumping 2-grid distance would land on a distance to end that is better than current + 2;
 
 
-        HashSet<Vector2d> open_spots = getAllOpenSpots();
-        out.printf("open spots: %d\n", open_spots.size());
-        out.printf("nocheat path: %d\n", shortest_path.size());
-        HashSet<Cheat> possible_cheats = findPossibleCheats(open_spots);
-        //HashSet<Cheat> possible_cheats = findPossibleCheats(short_locs);
-
-        out.printf("found %d distinct possible cheats\n", possible_cheats.size());
-
-        HashMap<Long, List<Cheat>> time_to_cheats = new HashMap<>();
-
-        long pre_cheat_time;
-        long post_cheat_time;
-
-        for (Cheat cheat : possible_cheats) {
-            State ch_ptr = findFastestBetween(MAP_START, cheat.start);
-            if((ch_ptr == null) || (ch_ptr.time >= NO_CHEAT_TIME)){
-                continue;
-            }
-            pre_cheat_time = ch_ptr.time;
-            ch_ptr = findFastestBetween(MAP_START, cheat.start);
-            if((ch_ptr == null) || (ch_ptr.time >= NO_CHEAT_TIME)){
-                continue;
-            }
-            post_cheat_time = ch_ptr.time;
-
-            long cheat_total_time = pre_cheat_time + post_cheat_time;
-            if(cheat_total_time >= NO_CHEAT_TIME) {continue;}
-            //out.printf("cheat %s pre: %d, post: %d, tot: %d \n", cheat,pre_cheat_time,post_cheat_time,cheat_total_time);
-            List<Cheat> cheat_for_time_list = time_to_cheats.getOrDefault(cheat_total_time, new ArrayList<>());
-            cheat_for_time_list.add(cheat);
-            time_to_cheats.put(cheat_total_time, cheat_for_time_list);
-        }
-
-        List<Long> cheat_times = new ArrayList<>(time_to_cheats.keySet().stream().toList());
-        Collections.sort(cheat_times, Collections.reverseOrder());
-
-        int good_cheat_count = 0;
-        for (long time : cheat_times) {
-            if (time >= NO_CHEAT_TIME) {
-                continue;
-            }
-            List<Cheat> cheats = time_to_cheats.get(time);
-            if (NO_CHEAT_TIME - time <= PART1_TIME_LIMIT) {
-                good_cheat_count += cheats.size();
-            }
-            out.printf("%d cheats saves %d time (total %d)\n", cheats.size(), NO_CHEAT_TIME - time, time);
-        }
-
-
-        out.printf("\nnumber of cheats that would save %d or more picoseconds: %d\n", PART1_TIME_LIMIT, good_cheat_count);
 
 
         long answer = -1;
