@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.List;
 
 import static java.lang.System.out;
 
@@ -14,7 +17,7 @@ public class Day20 {
     private static char[][] grid;
     private static Vector2d start;
     private static Vector2d end;
-
+    private static final long STEP_COST = 1;
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -71,6 +74,8 @@ public class Day20 {
         }
     }
 
+    public record State(Vector2d pos, long time, HashSet<Vector2d> path) {}
+
     public static String getPart1() {
         for(int y=0; y< grid.length; y++) {
             for(int x=0; x < grid[0].length; x++) {
@@ -81,8 +86,38 @@ public class Day20 {
         out.printf("start: %s\n", start);
         out.printf("end  : %s\n", end);
 
+        long picos = findFastestBetween(start,end);
+
+        out.printf("Shortest path from %s to %s too %d\n", start,end,picos);
+
+
         long answer = -1;
         return String.valueOf(answer);
+    }
+
+    private static long findFastestBetween(Vector2d start_pos, Vector2d end_pos) {
+        State start = new State(start_pos, 0, new HashSet<>());
+        start.path.add(start_pos);
+        ArrayDeque<State> work_queue = new ArrayDeque<>();
+        work_queue.add(start);
+        while(!work_queue.isEmpty()) {
+            State current = work_queue.removeFirst();
+
+            if(current.pos.equals(end_pos)) {
+                return current.time;
+            }
+
+            List<Vector2d> next_to = Directions.Compass.getNeighbors(current.pos);
+            for(Vector2d step: next_to) {
+                char ch = grid[step.y][step.x];
+                if(ch == '#') { continue; }
+                if(current.path.contains(step)) { continue; }
+                State new_state = new State(step,current.time + STEP_COST,new HashSet<>(current.path) );
+                new_state.path.add(step);
+                work_queue.addLast(new_state);
+            }
+        }
+        return -1L;
     }
 
 
