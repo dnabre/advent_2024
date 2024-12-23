@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static java.lang.System.out;
+
 public class Day23 {
 
     public static final String PART1_ANSWER = "1064";
@@ -27,7 +29,7 @@ public class Day23 {
 
         parseInput(inputString);
         answers[0] = getPart1();
-//        answers[1] = getPart2();
+        answers[1] = getPart2();
 
         if (!AdventOfCode2024.TESTING) {
             if (!answers[0].equals(PART1_ANSWER)) {
@@ -80,6 +82,8 @@ public class Day23 {
         host_to_node = getHostToNode();
     }
 
+
+
     public static String getPart1() {
         HashSet<HashSet<String>> triangles = new HashSet<>();
         for (Node a_node : node_list) {
@@ -94,15 +98,15 @@ public class Day23 {
                         tri[0] = a_node.name;
                         tri[1] = b_node.name;
                         tri[2] = c_node.name;
-                        AddTri(tri, triangles);
+                        addTripleToSet(tri, triangles);
                     }
                 }
             }
         }
 
-        int count =0;
+        int count = 0;
         for (HashSet<String> tri : triangles) {
-           for (String h : tri) {
+            for (String h : tri) {
                 if (h.charAt(0) == 't') {
                     count++;
                     break;
@@ -114,7 +118,33 @@ public class Day23 {
         return String.valueOf(answer);
     }
 
-    private static void AddTri(String[] tri, HashSet<HashSet<String>> triangles) {
+    public static String getPart2() {
+        HashMap<String, HashSet<String>> graph = new HashMap<>();
+        for (LinkPair lp : linkPairs) {
+            HashSet<String> a_set = graph.getOrDefault(lp.left, new HashSet<>());
+            a_set.add(lp.right);
+            HashSet<String> b_set = graph.getOrDefault(lp.right, new HashSet<>());
+            b_set.add(lp.left);
+            graph.put(lp.left, a_set);
+            graph.put(lp.right, b_set);
+        }
+
+        ArrayList<HashSet<String>> cliques = doBronKerbosch(graph, new HashSet<>(graph.keySet()), new HashSet<>(), new HashSet<>());
+
+
+        HashSet<String> max = cliques.getFirst();
+        for (var c : cliques) {
+            if (c.size() > max.size()) {
+                max = c;
+            }
+        }
+        String[] pass = max.toArray(new String[0]);
+        Arrays.sort(pass);
+
+        return String.join(",", pass);
+    }
+
+    private static void addTripleToSet(String[] tri, HashSet<HashSet<String>> triangles) {
         HashSet<String> set = new HashSet<>();
         set.add(tri[0]);
         set.add(tri[1]);
@@ -125,19 +155,15 @@ public class Day23 {
         triangles.add(set);
     }
 
-    static public ArrayList<HashSet<String>> doBronKerbosch(
-            HashMap<String, HashSet<String>> graph,
-            HashSet<String> to_explore,
-            HashSet<String> seen,
-            HashSet<String> explored) {
-        if(to_explore.isEmpty() && seen.isEmpty()) {
+    static public ArrayList<HashSet<String>> doBronKerbosch(HashMap<String, HashSet<String>> graph, HashSet<String> to_explore, HashSet<String> seen, HashSet<String> explored) {
+        if (to_explore.isEmpty() && seen.isEmpty()) {
             ArrayList<HashSet<String>> e_result = new ArrayList<>();
             e_result.add(explored);
             return e_result;
         }
         ArrayList<HashSet<String>> cliques = new ArrayList<>();
-        while(!to_explore.isEmpty()) {
-            String v =to_explore.iterator().next();
+        while (!to_explore.isEmpty()) {
+            String v = to_explore.iterator().next();
             to_explore.remove(v);
 
             HashSet<String> new_to_explore = new HashSet<>(to_explore);
@@ -148,52 +174,26 @@ public class Day23 {
             HashSet<String> new_explored = new HashSet<>(explored);
             new_explored.add(v);
 
-            cliques.addAll(doBronKerbosch(graph, new_to_explore,new_seen,new_explored));
+            cliques.addAll(doBronKerbosch(graph, new_to_explore, new_seen, new_explored));
 
             seen.add(v);
         }
         return cliques;
     }
 
-    public static String getPart2() {
-        HashMap<String,HashSet<String>> graph =new HashMap<>();
-        for(LinkPair lp: linkPairs) {
-            HashSet<String> a_set = graph.getOrDefault(lp.left, new HashSet<>());
-            a_set.add(lp.right);
-
-            HashSet<String> b_set = graph.getOrDefault(lp.right, new HashSet<>());
-            b_set.add(lp.left);
-            graph.put(lp.left, a_set);
-            graph.put(lp.right, b_set);
-        }
-
-        ArrayList<HashSet<String>> cliques =
-                doBronKerbosch(    graph, new HashSet<>(graph.keySet()), new HashSet<>(), new HashSet<>());
-
-
-        HashSet<String> max = cliques.getFirst();
-        for(var c: cliques) {
-            if(c.size() > max.size()){
-                max = c;
-            }
-        }
-        String[] pass = max.toArray(new String[0]);
-        Arrays.sort(pass);
-
-        return String.join(",", pass);
-    }
 
     record Node(String name, HashSet<String> adjacent) {
     }
 
     record LinkPair(String left, String right) {
-        @Override
-        public String toString() {
-            return String.format("<%s-%s>", left, right);
-        }
         static LinkPair fromStringPair(String s) {
             String[] part = s.split("-");
             return new LinkPair(part[0].trim(), part[1].trim());
+        }
+
+        @Override
+        public String toString() {
+            return String.format("<%s-%s>", left, right);
         }
 
     }
