@@ -13,10 +13,9 @@ public class Day23 {
     public static final String PART1_ANSWER = "1064";
     public static final String PART2_ANSWER = "aq,cc,ea,gc,jo,od,pa,rg,rv,ub,ul,vr,yy";
     private static LinkPair[] linkPairs;
-    private static Host[] hosts;
     private static HashMap<Host, Node> host_to_node;
     private static List<Node> node_list;
-    private static String[] part1_test_output;
+
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -44,22 +43,7 @@ public class Day23 {
         return answers;
     }
 
-     record Host(String name)  {
-        static Host[] fromStringPair(String s) {
-            Host[] ha = new Host[2];
-            String[] part = s.split("-");
-            ha[0] = new Host(part[0].trim());
-            ha[1] = new Host(part[1].trim());
-            return ha;
-        }
-
-    }
-
-    record Node(Host name, HashSet<Host> adjacent) {
-    }
-
-
-     static HashMap<Host, Node> getHostToNode() {
+    static HashMap<Host, Node> getHostToNode() {
 
         HashSet<Node> node_set = new HashSet<>();
         HashMap<Host, Node> node_map = new HashMap<>();
@@ -86,32 +70,17 @@ public class Day23 {
         return node_map;
     }
 
-    record LinkPair(Host left, Host right) {
-        @Override
-        public String toString() {
-            return String.format("<%s-%s>", left, right);
-        }
-    }
-
-
-
-
-
     public static void parseInput(String filename) throws IOException {
         String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
-        HashSet<Host> h_set = new HashSet<>();
         linkPairs = new LinkPair[lines.length];
         for (int i = 0; i < lines.length; i++) {
             Host[] pair = Host.fromStringPair(lines[i]);
             LinkPair lp = new LinkPair(pair[0], pair[1]);
-            h_set.add(lp.left);
-            h_set.add(lp.right);
             linkPairs[i] = lp;
         }
-        hosts = h_set.toArray(new Host[0]);
-         host_to_node= getHostToNode();
-    }
 
+        host_to_node = getHostToNode();
+    }
 
     public static String getPart1() {
         HashSet<HashSet<Host>> triangles = new HashSet<>();
@@ -133,35 +102,17 @@ public class Day23 {
             }
         }
 
-        String[] stringles = new String[triangles.size()];
-        boolean[] tness = new boolean[triangles.size()];
-        int idx = 0;
+        int count =0;
         for (HashSet<Host> tri : triangles) {
-            tness[idx]=false;
-            String t = "";
-            for(Host h: tri) {
-                if(h.name.charAt(0)== 't') {
-                    tness[idx] = true;
+           for (Host h : tri) {
+                if (h.name.charAt(0) == 't') {
+                    count++;
+                    break;
                 }
-                t =t+ h.name + ",";
             }
-            stringles[idx] = t.substring(0,t.length()-1);
-            idx++;
-        }
-        int t_count =0;
-        Arrays.sort(stringles);
-        for(int i=0;i < stringles.length; i++) {
-            if(tness[i]) t_count++;
-  //          out.printf("%3d\t %s\t%b\n", i+1, stringles[i], tness[i]);
-
         }
 
-
-
-
-
-
-        long answer = t_count;
+        long answer = count;
         return String.valueOf(answer);
     }
 
@@ -176,10 +127,90 @@ public class Day23 {
         triangles.add(set);
     }
 
+    static public ArrayList<HashSet<String>> b_k (
+            HashMap<String, HashSet<String>> graph,
+            HashSet<String> to_explore,
+            HashSet<String> seen,
+            HashSet<String> explored) {
+        if(to_explore.isEmpty() && seen.isEmpty()) {
+            ArrayList<HashSet<String>> e_result = new ArrayList<>();
+            e_result.add(explored);
+            return e_result;
+        }
+        ArrayList<HashSet<String>> cliques = new ArrayList<>();
+        while(!to_explore.isEmpty()) {
+            String v =to_explore.iterator().next();
+            to_explore.remove(v);
+
+            HashSet<String> new_to_explore = new HashSet<>(to_explore);
+            new_to_explore.retainAll(graph.get(v));
+
+            HashSet<String> new_seen = new HashSet<>(seen);
+            new_seen.retainAll(graph.get(v));
+            HashSet<String> new_explored = new HashSet<>(explored);
+            new_explored.add(v);
+
+            cliques.addAll(b_k(graph, new_to_explore,new_seen,new_explored));
+
+            seen.add(v);
+        }
+        return cliques;
+    }
 
     public static String getPart2() {
-        long answer = -1;
+        HashMap<String,HashSet<String>> data =new HashMap<>();
+        for(LinkPair lp: linkPairs) {
+            HashSet<String> a_set = data.getOrDefault(lp.left.name, new HashSet<>());
+            a_set.add(lp.right.name);
+
+            HashSet<String> b_set = data.getOrDefault(lp.right.name, new HashSet<>());
+            b_set.add(lp.left.name);
+            data.put(lp.left.name, a_set);
+            data.put(lp.right.name, b_set);
+        }
+
+        var cliques =
+                b_k(    data, new HashSet<>(data.keySet()), new HashSet<>(), new HashSet<>());
+        for(var c: cliques) {
+//            out.println(c);
+        }
+
+        HashSet<String> max = cliques.getFirst();
+        for(var c: cliques) {
+            if(c.size() > max.size()){
+                max = c;
+            }
+        }
+        String[] pass = max.toArray(new String[0]);
+        Arrays.sort(pass);
+        String answer = String.join(",", pass);
+
+
+
         return String.valueOf(answer);
+    }
+
+
+
+    record Host(String name) {
+        static Host[] fromStringPair(String s) {
+            Host[] ha = new Host[2];
+            String[] part = s.split("-");
+            ha[0] = new Host(part[0].trim());
+            ha[1] = new Host(part[1].trim());
+            return ha;
+        }
+
+    }
+
+    record Node(Host name, HashSet<Host> adjacent) {
+    }
+
+    record LinkPair(Host left, Host right) {
+        @Override
+        public String toString() {
+            return String.format("<%s-%s>", left, right);
+        }
     }
 
 }
