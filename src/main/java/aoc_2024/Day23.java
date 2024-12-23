@@ -110,20 +110,55 @@ public class Day23 {
         }
         hosts = h_set.toArray(new Host[0]);
          host_to_node= getHostToNode();
-
-
     }
 
 
     public static String getPart1() {
-        out.printf("LinkPairs: %d \n", linkPairs.length);
-        out.printf("Hosts    : %d \n", hosts.length);
+        HashSet<HashSet<Host>> triangles = new HashSet<>();
+        for (Node a_node : node_list) {
+            HashSet<Host> a_adj = a_node.adjacent;
+            for (Host adj_node : a_adj) {
+                Node b_node = host_to_node.get(adj_node);
+                HashSet<Host> b_adj = b_node.adjacent;
+                for (Host b_adj_node : b_adj) {
+                    Node c_node = host_to_node.get(b_adj_node);
+                    if (c_node.adjacent.contains(a_node.name)) {
+                        Host[] tri = new Host[3];
+                        tri[0] = a_node.name;
+                        tri[1] = b_node.name;
+                        tri[2] = c_node.name;
+                        AddTri(tri, triangles);
+                    }
+                }
+            }
+        }
+        out.printf("found %d triangles\n", triangles.size());
+        String[] stringles = new String[triangles.size()];
+        boolean[] tness = new boolean[triangles.size()];
+        int idx = 0;
+        for (HashSet<Host> tri : triangles) {
+            tness[idx]=false;
+            String t = "";
+            for(Host h: tri) {
+                if(h.name.charAt(0)== 't') {
+                    tness[idx] = true;
+                }
+                t =t+ h.name + ",";
+            }
+            stringles[idx] = t.substring(0,t.length()-1);
+            idx++;
+        }
+        int t_count =0;
+        Arrays.sort(stringles);
+        for(int i=0;i < stringles.length; i++) {
+            if(tness[i]) t_count++;
+  //          out.printf("%3d\t %s\t%b\n", i+1, stringles[i], tness[i]);
 
-        for(Node node: node_list) {
-            out.println(node);
         }
 
 
+
+        out.println(t_count);
 
 
         long answer = -1;
