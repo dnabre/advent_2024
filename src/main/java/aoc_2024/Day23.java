@@ -132,7 +132,7 @@ public class Day23 {
                 }
             }
         }
-        out.printf("found %d triangles\n", triangles.size());
+
         String[] stringles = new String[triangles.size()];
         boolean[] tness = new boolean[triangles.size()];
         int idx = 0;
@@ -158,10 +158,10 @@ public class Day23 {
 
 
 
-        out.println(t_count);
 
 
-        long answer = -1;
+
+        long answer = t_count;
         return String.valueOf(answer);
     }
 
