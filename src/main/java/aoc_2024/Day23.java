@@ -6,14 +6,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static java.lang.System.out;
-
 public class Day23 {
 
     public static final String PART1_ANSWER = "1064";
     public static final String PART2_ANSWER = "aq,cc,ea,gc,jo,od,pa,rg,rv,ub,ul,vr,yy";
     private static LinkPair[] linkPairs;
-    private static HashMap<Host, Node> host_to_node;
+    private static HashMap<String, Node> host_to_node;
     private static List<Node> node_list;
 
 
@@ -29,7 +27,7 @@ public class Day23 {
 
         parseInput(inputString);
         answers[0] = getPart1();
-        answers[1] = getPart2();
+//        answers[1] = getPart2();
 
         if (!AdventOfCode2024.TESTING) {
             if (!answers[0].equals(PART1_ANSWER)) {
@@ -43,10 +41,9 @@ public class Day23 {
         return answers;
     }
 
-    static HashMap<Host, Node> getHostToNode() {
-
+    static HashMap<String, Node> getHostToNode() {
         HashSet<Node> node_set = new HashSet<>();
-        HashMap<Host, Node> node_map = new HashMap<>();
+        HashMap<String, Node> node_map = new HashMap<>();
         for (LinkPair lp : linkPairs) {
             Node node1, node2;
             if (node_map.containsKey(lp.left)) {
@@ -74,8 +71,9 @@ public class Day23 {
         String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
         linkPairs = new LinkPair[lines.length];
         for (int i = 0; i < lines.length; i++) {
-            Host[] pair = Host.fromStringPair(lines[i]);
-            LinkPair lp = new LinkPair(pair[0], pair[1]);
+            //Host[] pair = Host.fromStringPair(lines[i]);
+            LinkPair lp = LinkPair.fromStringPair(lines[i]);
+            //LinkPair lp = new LinkPair(pair[0], pair[1]);
             linkPairs[i] = lp;
         }
 
@@ -83,16 +81,16 @@ public class Day23 {
     }
 
     public static String getPart1() {
-        HashSet<HashSet<Host>> triangles = new HashSet<>();
+        HashSet<HashSet<String>> triangles = new HashSet<>();
         for (Node a_node : node_list) {
-            HashSet<Host> a_adj = a_node.adjacent;
-            for (Host adj_node : a_adj) {
+            HashSet<String> a_adj = a_node.adjacent;
+            for (String adj_node : a_adj) {
                 Node b_node = host_to_node.get(adj_node);
-                HashSet<Host> b_adj = b_node.adjacent;
-                for (Host b_adj_node : b_adj) {
+                HashSet<String> b_adj = b_node.adjacent;
+                for (String b_adj_node : b_adj) {
                     Node c_node = host_to_node.get(b_adj_node);
                     if (c_node.adjacent.contains(a_node.name)) {
-                        Host[] tri = new Host[3];
+                        String[] tri = new String[3];
                         tri[0] = a_node.name;
                         tri[1] = b_node.name;
                         tri[2] = c_node.name;
@@ -103,9 +101,9 @@ public class Day23 {
         }
 
         int count =0;
-        for (HashSet<Host> tri : triangles) {
-           for (Host h : tri) {
-                if (h.name.charAt(0) == 't') {
+        for (HashSet<String> tri : triangles) {
+           for (String h : tri) {
+                if (h.charAt(0) == 't') {
                     count++;
                     break;
                 }
@@ -116,8 +114,8 @@ public class Day23 {
         return String.valueOf(answer);
     }
 
-    private static void AddTri(Host[] tri, HashSet<HashSet<Host>> triangles) {
-        HashSet<Host> set = new HashSet<>();
+    private static void AddTri(String[] tri, HashSet<HashSet<String>> triangles) {
+        HashSet<String> set = new HashSet<>();
         set.add(tri[0]);
         set.add(tri[1]);
         set.add(tri[2]);
@@ -127,7 +125,7 @@ public class Day23 {
         triangles.add(set);
     }
 
-    static public ArrayList<HashSet<String>> b_k (
+    static public ArrayList<HashSet<String>> doBronKerbosch(
             HashMap<String, HashSet<String>> graph,
             HashSet<String> to_explore,
             HashSet<String> seen,
@@ -150,7 +148,7 @@ public class Day23 {
             HashSet<String> new_explored = new HashSet<>(explored);
             new_explored.add(v);
 
-            cliques.addAll(b_k(graph, new_to_explore,new_seen,new_explored));
+            cliques.addAll(doBronKerbosch(graph, new_to_explore,new_seen,new_explored));
 
             seen.add(v);
         }
@@ -158,22 +156,20 @@ public class Day23 {
     }
 
     public static String getPart2() {
-        HashMap<String,HashSet<String>> data =new HashMap<>();
+        HashMap<String,HashSet<String>> graph =new HashMap<>();
         for(LinkPair lp: linkPairs) {
-            HashSet<String> a_set = data.getOrDefault(lp.left.name, new HashSet<>());
-            a_set.add(lp.right.name);
+            HashSet<String> a_set = graph.getOrDefault(lp.left, new HashSet<>());
+            a_set.add(lp.right);
 
-            HashSet<String> b_set = data.getOrDefault(lp.right.name, new HashSet<>());
-            b_set.add(lp.left.name);
-            data.put(lp.left.name, a_set);
-            data.put(lp.right.name, b_set);
+            HashSet<String> b_set = graph.getOrDefault(lp.right, new HashSet<>());
+            b_set.add(lp.left);
+            graph.put(lp.left, a_set);
+            graph.put(lp.right, b_set);
         }
 
-        var cliques =
-                b_k(    data, new HashSet<>(data.keySet()), new HashSet<>(), new HashSet<>());
-        for(var c: cliques) {
-//            out.println(c);
-        }
+        ArrayList<HashSet<String>> cliques =
+                doBronKerbosch(    graph, new HashSet<>(graph.keySet()), new HashSet<>(), new HashSet<>());
+
 
         HashSet<String> max = cliques.getFirst();
         for(var c: cliques) {
@@ -183,34 +179,23 @@ public class Day23 {
         }
         String[] pass = max.toArray(new String[0]);
         Arrays.sort(pass);
-        String answer = String.join(",", pass);
 
-
-
-        return String.valueOf(answer);
+        return String.join(",", pass);
     }
 
-
-
-    record Host(String name) {
-        static Host[] fromStringPair(String s) {
-            Host[] ha = new Host[2];
-            String[] part = s.split("-");
-            ha[0] = new Host(part[0].trim());
-            ha[1] = new Host(part[1].trim());
-            return ha;
-        }
-
+    record Node(String name, HashSet<String> adjacent) {
     }
 
-    record Node(Host name, HashSet<Host> adjacent) {
-    }
-
-    record LinkPair(Host left, Host right) {
+    record LinkPair(String left, String right) {
         @Override
         public String toString() {
             return String.format("<%s-%s>", left, right);
         }
+        static LinkPair fromStringPair(String s) {
+            String[] part = s.split("-");
+            return new LinkPair(part[0].trim(), part[1].trim());
+        }
+
     }
 
 }

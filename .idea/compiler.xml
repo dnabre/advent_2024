@@ -5,6 +5,7 @@
     <bytecodeTargetLevel target="23" />
   </component>
   <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_STRING" value="-Xlint:preview" />
+    <option name="DEBUGGING_INFO" value="false" />
+    <option name="DEPRECATION" value="false" />
   </component>
 </project>
