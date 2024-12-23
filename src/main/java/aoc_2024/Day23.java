@@ -6,8 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static java.lang.System.out;
-
 public class Day23 {
 
     public static final String PART1_ANSWER = "1064";
@@ -83,7 +81,6 @@ public class Day23 {
     }
 
 
-
     public static String getPart1() {
         HashSet<HashSet<String>> triangles = new HashSet<>();
         for (Node a_node : node_list) {
@@ -94,16 +91,17 @@ public class Day23 {
                 for (String b_adj_node : b_adj) {
                     Node c_node = host_to_node.get(b_adj_node);
                     if (c_node.adjacent.contains(a_node.name)) {
-                        String[] tri = new String[3];
-                        tri[0] = a_node.name;
-                        tri[1] = b_node.name;
-                        tri[2] = c_node.name;
-                        addTripleToSet(tri, triangles);
+                        if ((a_node.name.charAt(0) == 't') || (b_node.name.charAt(0) == 't') || (c_node.name.charAt(0) == 't')) {
+                            String[] tri = new String[3];
+                            tri[0] = a_node.name;
+                            tri[1] = b_node.name;
+                            tri[2] = c_node.name;
+                            addTripleToSet(tri, triangles);
+                        }
                     }
                 }
             }
         }
-
         int count = 0;
         for (HashSet<String> tri : triangles) {
             for (String h : tri) {
