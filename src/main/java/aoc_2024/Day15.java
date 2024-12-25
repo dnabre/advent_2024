@@ -5,6 +5,8 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import static java.lang.System.out;
@@ -60,7 +62,7 @@ public class Day15 {
         List<String> lines = text.lines().toList();
         int height = lines.size();
         int width = lines.getFirst().length();
-        //grid_sizes = new Vector2d(width,height);
+
         grid_sizes = new Vector2d(height, width);
 
 
@@ -151,6 +153,80 @@ public class Day15 {
     }
 
     private static Vector2d maxes;
+    record Box(Vector2d left, Vector2d right){
+        boolean doesBoxHitBox(Box box, Compass dir) {
+            Vector2d b_left = box.left.plus(dir.coordDelta());
+            Vector2d b_right = box.right.plus(dir.coordDelta());
+            return (b_left.equals(left) || b_left.equals(right)) || ((b_right.equals(left) || b_right.equals(right)));
+        }
+        boolean canMove(Compass dir) {
+            out.printf("Box.canMove on (%s)\n", this);
+
+            Vector2d target_loc_left = left.plus(dir.coordDelta());
+            Vector2d target_loc_right = right.plus(dir.coordDelta());
+
+            if(walls.contains(target_loc_left) || walls.contains(target_loc_right)) {
+                // hit wall
+                return false;
+            }
+
+
+            Box left_hit = null;
+            Box right_hit = null;
+            switch (dir) {
+                case NORTH -> {
+                    if(box_map.containsKey(target_loc_left)) {
+                      left_hit = box_map.get(target_loc_left);
+                    }
+                    if(box_map.containsKey(target_loc_right)) {
+                        right_hit = box_map.get(target_loc_right);
+                    }
+                    assert(left_hit != this);
+                    assert(right_hit != this);
+                    if((left_hit == null) && (right_hit==null)){
+                        return true;
+                    }
+                    if(left_hit==null) {
+                        return right_hit.canMove(dir);
+                    }
+                    if(right_hit ==null){
+                        return left_hit.canMove(dir);
+                    }
+
+                    // both aren't null
+                    if(left_hit.equals(right_hit)) {
+                        return left_hit.canMove(dir);
+                    } else {
+                        return left_hit.canMove(dir) && right_hit.canMove(dir);
+                    }
+
+
+
+                }
+                case EAST -> {
+                }
+                case SOUTH -> {
+                }
+                case WEST -> {
+                }
+            }
+
+
+
+
+            return true;
+
+        }
+
+
+        public void doMove(Compass dir) {
+        }
+    }
+    private static char[][] grid;
+    private static ArrayList<Box> box_list;
+    private static HashSet<Vector2d> walls;
+    private static HashMap<Vector2d,Box> box_map;
+
     public static String getPart2(String INPUT) {
         List<List<String>> blocks = AoCUtils.breakDataByNewline(INPUT);
         ArrayList<Compass> moves = getMoves(blocks.get(1));
@@ -159,6 +235,65 @@ public class Day15 {
 
         char[][] grid = getExpandedGrid(grid_lines);
 
+        maxes.x = grid.length;
+        maxes.y = grid[0].length;
+        out.printf("maxes: %s\n", maxes);
+
+        box_list =new ArrayList<>();
+        walls = new HashSet<>();
+        box_map= new HashMap<>();
+
+
+
+        for(int y=0; y < maxes.y; y++) {
+            for(int x=0; x < maxes.x; x++) {
+                char ch = grid[x][y];
+                if (ch == '#') {
+                    walls.add(new Vector2d(x,y));
+                }
+                if(ch =='[') {
+                    Box b = new Box(new Vector2d(x,y), new Vector2d(x+1,y));
+                    box_list.add(b);
+                    box_map.put(b.left,b);
+                    box_map.put(b.right,b);
+                }
+                out.print(grid[x][y]);
+            }
+            out.println();
+        }
+// -----------------------------------------------------------------------------------------
+
+
+        Vector2d robot_current = robot_start;
+        for(Compass dir: moves) {
+            boolean robot_move_good = true;
+            Vector2d robot_target = robot_start.plus(dir.coordDelta());
+
+
+            if(walls.contains(robot_target)){
+                robot_move_good = false;
+            }
+
+            if(box_map.containsKey(robot_target)) {
+               // push box
+               Box b = box_map.get(robot_target);
+               if(b.canMove(dir)){
+                   b.doMove(dir);
+               } else {
+                   robot_move_good = false;
+               }
+            }
+            if(robot_move_good) {
+                robot_current = robot_target;
+            }
+
+            break;
+        }
+
+
+
+
+
 
         // scan through boxes until we hit wall or empty space
         // if wall, we can't move -- done
@@ -166,6 +301,8 @@ public class Day15 {
         // remember location of empty space
         // do a sweep through boxes on row moved happened (2 if cols) fixing any box whose
         //      halves don't line up.
+
+
 
         long answer = -1;
         return String.valueOf(answer);
