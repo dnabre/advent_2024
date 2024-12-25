@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import static java.lang.System.out;
 
 public class AoCUtils {
     public static final String WHITESPACE_RE = "\\s+";
+    public static final String[] ORDINALS = {"zeroth","first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"};
 
     public static int[] WhitespaceDelimitedLineToIntegers(String ln) {
         String[] parts = ln.split("\\s+");
@@ -46,6 +46,7 @@ public class AoCUtils {
             out.println();
         }
     }
+
     public static long iPow(long a, long b) {
         long re = 1;
         while (b > 0) {
@@ -112,7 +113,7 @@ public class AoCUtils {
 
     public static ArrayList<Long> arrayToArrayList(long[] program) {
         ArrayList<Long> r = new ArrayList<>();
-        for(long ll: program) {
+        for (long ll : program) {
             r.add(ll);
         }
         return r;
