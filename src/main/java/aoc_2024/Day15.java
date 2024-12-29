@@ -204,9 +204,9 @@ public class Day15 {
         List<String> grid_lines = blocks.get(0);
         char[][] o_expanded_grid = getExpandedGrid(grid_lines);
         char[][] grid = o_expanded_grid;
-        out.println("expanded grid:");
-        AoCUtils.printGrid(grid);
-        out.println("----------------------------------");
+//        out.println("expanded grid:");
+//        AoCUtils.printGrid(grid);
+//        out.println("----------------------------------");
         int box_count = getBoxCount(grid);
 
 
@@ -219,14 +219,14 @@ public class Day15 {
 
 
             new_box_locations = new ArrayList<>();
-            out.printf("\n move[%d]\t pre-move robot: %s, next_move: %s",i, robot_current, dir);
-            printSpecialGrid(grid, walls, box_map, robot_current);
+//            out.printf("\n move[%d]\t pre-move robot: %s, next_move: %s",i, robot_current, dir);
+//            printSpecialGrid(grid, walls, box_map, robot_current);
             boolean robot_move_good = true;
             Vector2d robot_target = robot_current.plus(dir.coordDelta());
 
             if (walls.contains(robot_target)) {
 
-                out.println(" wall");
+//                out.println(" wall");
 
                 continue;
             }
@@ -235,16 +235,16 @@ public class Day15 {
                 // push box
                 Box b = box_map.get(robot_target);
                 CheckReturn r = null;
-                out.printf("checking if box @ %s can move to free %s for move from %s on box %s\n",
-                        robot_target,  robot_target, robot_current, b);
+//                out.printf("checking if box @ %s can move to free %s for move from %s on box %s\n",
+//                        robot_target,  robot_target, robot_current, b);
                 r = b.canMove(dir);
                 if (r.isMoveGood()) {
-                    out.printf("moving of box: %s in %s, approved\n", b, dir);
+//                    out.printf("moving of box: %s in %s, approved\n", b, dir);
                     b.doMove(dir);
                     assert(box_count==box_list.size());
                     assert(box_count == box_map.size()/2);
                 } else {
-                    out.printf(" box can't move, blocked by wall at %s\n",r.getBlocker() );
+//                    out.printf(" box can't move, blocked by wall at %s\n",r.getBlocker() );
 
                     continue;
 
@@ -253,22 +253,20 @@ public class Day15 {
 
 
             robot_current = robot_target;
-            out.printf(" -> %sgood move\n", robot_current);
+//          out.printf(" -> %sgood move\n", robot_current);
 
 
         }
         out.println("\n all moves done \n");
         printSpecialGrid(grid, walls, box_map, robot_current);
-
-        // scan through boxes until we hit wall or empty space
-        // if wall, we can't move -- done
-        // if free, update our position and put correct box half in empty space
-        // remember location of empty space
-        // do a sweep through boxes on row moved happened (2 if cols) fixing any box whose
-        //      halves don't line up.
+        long total =0;
+        for(Box b: box_list) {
+            total += b.getGPS();
+        }
 
 
-        long answer = -1;
+
+        long answer = total;
         return String.valueOf(answer);
     }
 
@@ -404,6 +402,12 @@ public class Day15 {
             assert(!left.equals(right));
         }
 
+        public long getGPS() {
+            int x = left.x;
+            int y = left.y;
+            return (100L * y) + x;
+        }
+
         public static void debug(int boxCount, HashSet<Box> boxList, HashMap<Vector2d, Box> boxMap) {
             out.printf("[BOX.DEBUG] box_count: %d, box_list size: %d, box_map size: %d\n",
                     boxCount, boxList.size(), boxMap.size());
@@ -430,17 +434,17 @@ public class Day15 {
             Vector2d target_loc_left = left.plus(dir.coordDelta());
             Vector2d target_loc_right = right.plus(dir.coordDelta());
             Box new_box_loc = new Box(target_loc_left, target_loc_right);
-            out.printf("Box.canMove(%s) on (%s) to %s \n", dir, this, new_box_loc);
+//            out.printf("Box.canMove(%s) on (%s) to %s \n", dir, this, new_box_loc);
 
 
             if (walls.contains(target_loc_left))
             {
-                out.printf("\t fail on WALL HIT (left) @ %s\n", target_loc_left);
+//                out.printf("\t fail on WALL HIT (left) @ %s\n", target_loc_left);
                 return new Wall(target_loc_left);
             }
             if(walls.contains(target_loc_right)) {
                 // hit wall
-                out.printf("\t fail on WALL HIT (right) @ %s\n", target_loc_right);
+//                out.printf("\t fail on WALL HIT (right) @ %s\n", target_loc_right);
                 return new Wall(target_loc_right);
             }
 
@@ -452,14 +456,14 @@ public class Day15 {
             switch (dir) {
                 case NORTH, SOUTH -> {
                     if(box_map.containsKey(target_loc_left) || box_map.containsKey(target_loc_right)){
-                        out.printf("box %s on %s-> %s\n", dir==Compass.NORTH?"above":"below",dir,
-                                box_map.getOrDefault(target_loc_left, box_map.get(target_loc_right)));
+//                        out.printf("box %s on %s-> %s\n", dir==Compass.NORTH?"above":"below",dir,
+//                                box_map.getOrDefault(target_loc_left, box_map.get(target_loc_right)));
                     }
                     if (box_map.containsKey(target_loc_left)) {
                         left_hit = box_map.get(target_loc_left);
                         left_ok = left_hit.canMove(dir);
                         if(!left_ok.isMoveGood()) {
-                            out.printf("\t fail can't move Box(%s) %s \n",left_hit, dir);
+//                            out.printf("\t fail can't move Box(%s) %s \n",left_hit, dir);
                         }
                     }
                     if (box_map.containsKey(target_loc_right)) {
@@ -470,7 +474,7 @@ public class Day15 {
                         } else {
                             right_ok = right_hit.canMove(dir);
                             if(!right_ok.isMoveGood()) {
-                                out.printf("\t fail can't move Box(%s) %s \n",left_hit, dir);
+//                                out.printf("\t fail can't move Box(%s) %s \n",left_hit, dir);
                             }
                         }
                     }
@@ -490,19 +494,19 @@ public class Day15 {
                     }
                 }
             }
-            out.printf("\n2can move OK, fall through to final return (box: %s, dir %s) \n\t\t\t*left_hit: %s, right_hit: %s\n", this,dir, left_hit, right_hit);
+//            out.printf("\n2can move OK, fall through to final return (box: %s, dir %s) \n\t\t\t*left_hit: %s, right_hit: %s\n", this,dir, left_hit, right_hit);
 
-            out.printf("\t\t2 left_ok: %s, right_ok %s", left_ok,right_ok);
+//            out.printf("\t\t2 left_ok: %s, right_ok %s", left_ok,right_ok);
             if((left_ok==null) && (right_ok==null) ){
-                out.printf("\n\t\t\t3 nothing %s of us, return Ok\n",dir );
+//                out.printf("\n\t\t\t3 nothing %s of us, return Ok\n",dir );
                 return new Ok();
             }
             if(left_ok==null) {
-                out.printf("\n\t\t\t3 nothing left-%s of us, right-%s: %s\n",dir, dir, right_ok );
+//                out.printf("\n\t\t\t3 nothing left-%s of us, right-%s: %s\n",dir, dir, right_ok );
                 return right_ok;
             }
             if(right_ok==null) {
-                out.printf("\n\t\t\t nothing right-%s of us, left-%s: %s\n",dir, dir, left_ok );
+//                out.printf("\n\t\t\t nothing right-%s of us, left-%s: %s\n",dir, dir, left_ok );
                 return left_ok;
             }
 
@@ -521,7 +525,7 @@ public class Day15 {
             Vector2d target_loc_left = left.plus(dir.coordDelta());
             Vector2d target_loc_right = right.plus(dir.coordDelta());
             Box new_box = new Box(target_loc_left, target_loc_right);
-            out.printf("Box.canMove(%s) on (%s) to %s \n", dir, this, new_box);
+//            out.printf("Box.canMove(%s) on (%s) to %s \n", dir, this, new_box);
 
             Box left_hit = null;
             Box right_hit;
@@ -561,7 +565,7 @@ public class Day15 {
             box_list.add(new_box);
             box_map.put(new_box.left, new_box);
             box_map.put(new_box.right, new_box);
-            out.printf("Box.doMove(%s) on (%s) -> %s\n", dir, this, new_box);
+//            out.printf("Box.doMove(%s) on (%s) -> %s\n", dir, this, new_box);
 
         }
     }
