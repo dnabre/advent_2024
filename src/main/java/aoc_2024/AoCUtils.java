@@ -32,6 +32,15 @@ public class AoCUtils {
         }
     }
 
+    public static void printGridT(char[][] grid) {
+        for (int y = 0; y < grid[0].length; y++) {
+            for (int x = 0; x < grid.length; x++) {
+                char ch = grid[y][x];
+                out.print(ch);
+            }
+            out.println();
+        }
+    }
 
     public static void printGridWithSpecial(char[][] grid, Vector2d special_loc, char special_tile) {
         for (int y = 0; y < grid[0].length; y++) {
@@ -71,7 +80,6 @@ public class AoCUtils {
         for (int y = 0; y < input_grid.length; y++) {
             for (int x = 0; x < input_grid[y].length; x++) {
                 char ch = input_grid[y][x];
-                //          grid[x][y] = ch;
                 grid[y][x] = ch;
             }
         }

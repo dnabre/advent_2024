@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-public class Vector2d  {
+public class Vector2d implements Comparable<Vector2d> {
 
     public boolean equals(Object o) {
         if (!(o instanceof Vector2d vector2d)) return false;
@@ -83,5 +83,14 @@ public class Vector2d  {
         Vector2d[] wrap_around = {ls.getLast(), ls.getFirst()};
         result.add(wrap_around);
         return result;
+    }
+
+    @Override
+    public int compareTo(Vector2d o) {
+       if(this.y != o.y) {
+           return Integer.compare(this.y,o.y);
+       } else {
+           return Integer.compare(this.x,o.x);
+       }
     }
 }

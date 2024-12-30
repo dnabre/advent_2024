@@ -65,47 +65,97 @@ public class Day20 {
                     MAP_END = new Vector2d(x,y);
                     grid[y][x] = '.';
                 }
-            }out.println();
-        }
-        max = new Vector2d(grid[0].length, grid.length);
-
-
-    }
-
-    public static String getPart1() {
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[0].length; x++) {
-                out.print(grid[y][x]);
+                out.print(ch);
             }
             out.println();
         }
-        out.printf("start: %s\n", MAP_START);
-        out.printf("end  : %s\n", MAP_END);
+        max = new Vector2d(grid[0].length, grid.length);
+        grid[MAP_START.y][MAP_START.x] = '.';
+        grid[MAP_END.y][MAP_END.x] = '.';
 
-        int[][] d_grid = new int[grid.length][grid[0].length];
-        for (int y = 0; y < d_grid.length; y++) {
-            for (int x = 0; x < d_grid[0].length; x++) {
-                char ch = grid[y][x];
-                if(ch=='.') {
-                    d_grid[y][x] = 0;
-                }
-                if(ch==WALL) {
-                    d_grid[y][x] = -1;
-                }
-            }
+    }
+
+    record Cheat(Vector2d from, Vector2d to, int saved){}
+
+    public static String getPart1() {
+        out.println("\nAoCUtils.printGridT():\n");
+        AoCUtils.printGridT(grid);
+        out.printf("maxes: %s\n", max);
+
+
+
+        HashMap<Vector2d, Integer> from_start = findDistanceFromStartToEverywhere(grid,MAP_START);
+        HashMap<Vector2d, Integer> to_end = findDistanceFromStartToEverywhere(grid, MAP_END);
+
+
+        out.printf("distance from start to end: %d\n", to_end.get(MAP_START));
+        ArrayList<Vector2d> path = new ArrayList<>();
+        Vector2d current = MAP_START;
+        while(!current.equals(MAP_END)) {
+            current = bestNextStep(current,to_end);
+            path.add(current);
         }
-        //do full distanst from all points to end. then fill the paths with their distance from end.
+        out.printf("path from start to end (%s -> %s) is %d long\n", MAP_START, MAP_END, path.size());
+        ArrayList<Cheat> cheat_list =  getAllCheatsFromPAth(path, from_start, to_end);
 
-
-        // do path search from start->end, label distance to end on path grid. the look at every point on path
-        // see if jumping 2-grid distance would land on a distance to end that is better than current + 2;
 
 
 
 
         long answer = -1;
         return String.valueOf(answer);
+
+
     }
+
+    private static ArrayList<Cheat> getAllCheatsFromPAth(ArrayList<Vector2d> path,
+                                    HashMap<Vector2d, Integer> fromStart, HashMap<Vector2d, Integer> toEnd) {
+        ArrayList<Cheat> cheats = new ArrayList<>();
+        for(Vector2d p : path) {
+
+
+        }
+
+        return cheats;
+    }
+
+    private static Vector2d bestNextStep(Vector2d current, HashMap<Vector2d, Integer> toEnd) {
+        int current_dist = toEnd.get(current);
+
+        for(Vector2d n:Directions.Compass.getNeighbors(current)) {
+            if(toEnd.getOrDefault(n, -1) == current_dist -1) {
+                return n;
+            }
+        }
+        return null;
+    }
+
+
+    static private HashMap<Vector2d, Integer> findDistanceFromStartToEverywhere(char[][] grid, Vector2d start) {
+        PriorityQueue<Vector2d> queue = new PriorityQueue<>();
+        queue.offer(start);
+        HashMap<Vector2d, Integer> distances= new HashMap<>();
+        distances.put(start,0);
+        while(!queue.isEmpty()) {
+            Vector2d current = queue.poll();
+            int dist = distances.get(current);
+            List<Vector2d> neighbors = Directions.Compass.getNeighborsClamped(current, 0, max.x -1);
+            for(Vector2d v: neighbors) {
+                if(grid[v.y][v.x] == '.') {
+                    int new_dist = dist + 1;
+                    if (new_dist < distances.getOrDefault(v, Integer.MAX_VALUE)) {
+                        distances.put(v, new_dist);
+                        queue.add(v);
+                    }
+                }
+            }
+        }
+        return distances;
+    }
+
+
+
+
 
     private static HashSet<Cheat> findPossibleCheats(HashSet<Vector2d> openSpots) {
         out.printf("searching for cheats from %d possible starts\n", openSpots.size());
