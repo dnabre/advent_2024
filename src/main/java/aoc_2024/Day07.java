@@ -14,7 +14,7 @@ public class Day07 {
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
-        out.println("\tDay  10");
+        out.println("\tDay  07");
 
         String[] answers = {"", ""};
         parseInput(inputString);
