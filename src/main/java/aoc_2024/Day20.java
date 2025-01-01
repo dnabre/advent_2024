@@ -1,7 +1,5 @@
 package src.main.java.aoc_2024;
 
-import jdk.jshell.spi.SPIResolutionException;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
@@ -91,13 +89,31 @@ public class Day20 {
         out.printf("distance from start to end: %d\n", to_end.get(MAP_START));
         ArrayList<Vector2d> path = new ArrayList<>();
         Vector2d current = MAP_START;
-        while(!current.equals(MAP_END)) {
-            current = bestNextStep(current,to_end);
-            path.add(current);
-        }
-        out.printf("path from start to end (%s -> %s) is %d long\n", MAP_START, MAP_END, path.size());
-        ArrayList<Cheat> cheat_list =  getAllCheatsFromPAth(path, from_start, to_end);
 
+        do {
+            path.add(current);
+            current = bestNextStep(current,to_end);
+        } while(!current.equals(MAP_END));
+
+
+
+        out.printf("path from start to end (%s -> %s) is %d long\n", MAP_START, MAP_END, path.size());
+        ArrayList<Cheat> cheat_list =  getAllCheatsFromPath(grid,path, from_start, to_end);
+
+        HashMap<Integer,Integer> count_saved = new HashMap<>();
+        for(Cheat c: cheat_list) {
+            int current_count = count_saved.getOrDefault(c.saved,0);
+            current_count++;
+            count_saved.put(c.saved,current_count);
+        }
+        int[] savings = count_saved.keySet().stream().mapToInt(c->c).toArray();
+
+        Arrays.sort(savings);
+        for(int i=0; i < savings.length; i++) {
+                int k = savings[i];
+                out.printf("There are %d cheats that save %d picoseconds.\n", count_saved.get(k), k);
+
+        }
 
 
 
@@ -108,14 +124,34 @@ public class Day20 {
 
     }
 
-    private static ArrayList<Cheat> getAllCheatsFromPAth(ArrayList<Vector2d> path,
-                                    HashMap<Vector2d, Integer> fromStart, HashMap<Vector2d, Integer> toEnd) {
+
+    private static ArrayList<Cheat> getAllCheatsFromPath(char[][] grid, ArrayList<Vector2d> path,
+                                                         HashMap<Vector2d, Integer> fromStart, HashMap<Vector2d, Integer> toEnd) {
+        HashSet<Vector2d> path_set = new HashSet<>(path);
         ArrayList<Cheat> cheats = new ArrayList<>();
+        ArrayList<Vector2d> offsets = L1Offsets(2);
         for(Vector2d p : path) {
+            int no_cheat_distance =  toEnd.get(p);
+            for(Vector2d jump_through : Directions.Compass.getNeighbors(p)) {
+                if(grid[jump_through.y][jump_through.x] == '#') {
+                    for(Vector2d landing: Directions.Compass.getNeighbors(jump_through)) {
+                        if(landing.equals(p)) {
+                            continue;
+                        }
+                        if(path_set.contains(landing)) {
+                            int cheat_distance = 2 + toEnd.get(landing);
+                            int saved = no_cheat_distance - cheat_distance;
+                            if(saved > 0 ) {
+                                Cheat new_cheat = new Cheat(p, landing, saved);
+                                cheats.add(new_cheat);
+                            }
+                        }
+                    }
+                }
+            }
 
 
         }
-
         return cheats;
     }
 
@@ -154,7 +190,17 @@ public class Day20 {
     }
 
 
-
+    private static ArrayList<Vector2d> L1Offsets(int r) {
+        ArrayList<Vector2d> offsets = new ArrayList<>();
+        for(int offset=0; offset < r; offset++) {
+            int inv_offset = r -offset;
+            offsets.add(new Vector2d(offset,inv_offset));
+            offsets.add(new Vector2d(offset,-inv_offset));
+            offsets.add(new Vector2d(-offset,inv_offset));
+            offsets.add(new Vector2d(-offset,-inv_offset));
+        }
+        return offsets;
+    }
 
 
     public static String getPart2() {
