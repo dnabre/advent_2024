@@ -25,9 +25,9 @@ public class AoCUtils {
 
 
     public static void printGrid(char[][] grid) {
-        for (int y = 0; y < grid[0].length; y++) {
-            for (int x = 0; x < grid.length; x++) {
-                char ch = grid[x][y];
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[0].length; x++) {
+                char ch = grid[y][x];
                 out.print(ch);
             }
             out.println();
