@@ -6,7 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+import static java.lang.System.out;
 /***
  * Note: prototyped in python, some oddities in a direct translation
  *
@@ -101,13 +104,14 @@ public class Day22 {
             diff2[i] = not_b;
         }
     }
-
+    private static final int QUAD_MAP_SIZE =65536;
+    private static final int ADDED_SET_SIZE = 2048;
     public static String getPart2() {
 
-        HashMap<Quad, Long> daily = new HashMap<>();
+        HashMap<Quad, Long> daily = new HashMap<>(QUAD_MAP_SIZE);
         for (long init : start_numbers) {
             getDiffs(init);
-            HashSet<Quad> added = new HashSet<>();
+            HashSet<Quad> added = new HashSet<>(ADDED_SET_SIZE);
             for (int j = 0; j < STEPS - 4; j++) {
 
                 Quad each_day = new Quad(diff[j], diff[j + 1], diff[j + 2], diff[j + 3]);
@@ -120,6 +124,7 @@ public class Day22 {
                 }
             }
         }
+
 
         long max = Long.MIN_VALUE;
         for (long t : daily.values()) {

@@ -1,7 +1,7 @@
 package src.main.java.aoc_2024;
 
 
-
+import java.io.PrintStream;
 
 public class AdventOfCode2024 {
     static final String[][] test_files = {
@@ -60,7 +60,7 @@ public class AdventOfCode2024 {
             "inputs/2024/day_25_input_01.txt",
     };
 
-    public static final int DAY = 20;
+    public static final int DAY = 22;
     public static final boolean TESTING = false;
     public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;
@@ -83,7 +83,7 @@ public class AdventOfCode2024 {
 
 
 
-           String[] results = Day20.runDay( System.out,input_string);
+           String[] results = Day22.runDay( System.out,input_string);
 
             System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
             System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
@@ -92,6 +92,14 @@ public class AdventOfCode2024 {
                 System.out.printf("\n total time: %.1f ms\n", (end - start) / 1000000f);
             }
 
+    }
+    private static String[] runDay(int day, PrintStream out, String input_string) {
+        String[] results = new String[2];
+        switch(day){
+
+        }
+
+        return results;
     }
 }
 
