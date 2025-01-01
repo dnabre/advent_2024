@@ -48,8 +48,7 @@ public class Vector2d implements Comparable<Vector2d> {
     }
     public Vector2d locationAfterStep(Directions.Compass dir) {
         Vector2d new_loc = new Vector2d(this);
-        new_loc.plus(dir.coordDelta());
-        return new_loc;
+        return new_loc.plus(dir.coordDelta());
     }
 
 

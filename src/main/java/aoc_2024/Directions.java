@@ -60,7 +60,23 @@ public class Directions {
             }
             throw new RuntimeException("This should be Unreachable");
         }
-
+        public Compass turnLeft() {
+            switch(this) {
+                case NORTH -> {
+                    return WEST;
+                }
+                case EAST -> {
+                    return NORTH;
+                }
+                case SOUTH -> {
+                    return EAST;
+                }
+                case WEST -> {
+                    return SOUTH;
+                }
+            }
+            throw new RuntimeException("This should be Unreachable");
+        }
 
         public Compass reverse() {
             switch(this) {
