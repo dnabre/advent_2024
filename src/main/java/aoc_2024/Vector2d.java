@@ -65,7 +65,9 @@ public class Vector2d implements Comparable<Vector2d> {
          return String.format("(%d, %d)", this.x, this.y);
     }
 
-
+    public int manhattan(Vector2d other) {
+        return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);
+    }
     public static List<Vector2d[]> getAllAdjacentPairs(List<Vector2d> ls) {
         List<Vector2d[]> result = new ArrayList<>();
 
