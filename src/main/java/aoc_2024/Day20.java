@@ -63,9 +63,9 @@ public class Day20 {
                     MAP_END = new Vector2d(x,y);
                     grid[y][x] = '.';
                 }
-                out.print(ch);
+              //  out.print(ch);
             }
-            out.println();
+            //out.println();
         }
         max = new Vector2d(grid[0].length, grid.length);
         grid[MAP_START.y][MAP_START.x] = '.';
@@ -77,7 +77,7 @@ public class Day20 {
 
     public static String getPart1() {
         out.println("\nAoCUtils.printGridT():\n");
-        AoCUtils.printGridT(grid);
+     //   AoCUtils.printGridT(grid);
         out.printf("maxes: %s\n", max);
 
 
@@ -89,12 +89,11 @@ public class Day20 {
         out.printf("distance from start to end: %d\n", to_end.get(MAP_START));
         ArrayList<Vector2d> path = new ArrayList<>();
         Vector2d current = MAP_START;
-
         do {
             path.add(current);
             current = bestNextStep(current,to_end);
         } while(!current.equals(MAP_END));
-
+        path.add(MAP_END);
 
 
         out.printf("path from start to end (%s -> %s) is %d long\n", MAP_START, MAP_END, path.size());
@@ -106,42 +105,38 @@ public class Day20 {
             current_count++;
             count_saved.put(c.saved,current_count);
         }
-        int[] savings = count_saved.keySet().stream().mapToInt(c->c).toArray();
-
-        Arrays.sort(savings);
-        for(int i=0; i < savings.length; i++) {
-                int k = savings[i];
-                out.printf("There are %d cheats that save %d picoseconds.\n", count_saved.get(k), k);
-
-        }
-
-
+//        int[] savings = count_saved.keySet().stream().mapToInt(c->c).toArray();
+//
+//        Arrays.sort(savings);
+////        for(int i=0; i < savings.length; i++) {
+//                int k = savings[i];
+//                out.printf("There are %d cheats that save %d picoseconds.\n", count_saved.get(k), k);
+//
+//        }
 
 
-        long answer = -1;
+
+
+        long answer = cheat_list.size();
         return String.valueOf(answer);
 
 
     }
 
-
+    private static final int PART1_THRESHOLD =100;
     private static ArrayList<Cheat> getAllCheatsFromPath(char[][] grid, ArrayList<Vector2d> path,
                                                          HashMap<Vector2d, Integer> fromStart, HashMap<Vector2d, Integer> toEnd) {
         HashSet<Vector2d> path_set = new HashSet<>(path);
         ArrayList<Cheat> cheats = new ArrayList<>();
-        ArrayList<Vector2d> offsets = L1Offsets(2);
         for(Vector2d p : path) {
             int no_cheat_distance =  toEnd.get(p);
             for(Vector2d jump_through : Directions.Compass.getNeighbors(p)) {
                 if(grid[jump_through.y][jump_through.x] == '#') {
                     for(Vector2d landing: Directions.Compass.getNeighbors(jump_through)) {
-                        if(landing.equals(p)) {
-                            continue;
-                        }
-                        if(path_set.contains(landing)) {
+                        if(path_set.contains(landing) && !landing.equals(p)) {
                             int cheat_distance = 2 + toEnd.get(landing);
                             int saved = no_cheat_distance - cheat_distance;
-                            if(saved > 0 ) {
+                            if(saved >= PART1_THRESHOLD ) {
                                 Cheat new_cheat = new Cheat(p, landing, saved);
                                 cheats.add(new_cheat);
                             }
@@ -149,8 +144,6 @@ public class Day20 {
                     }
                 }
             }
-
-
         }
         return cheats;
     }
