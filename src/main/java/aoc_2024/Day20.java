@@ -4,82 +4,26 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 
-import static java.lang.System.out;
-
 public class Day20 {
 
     public static final String PART1_ANSWER = "1441";
     public static final String PART2_ANSWER = "1021490";
     private static Vector2d MAP_END;
     private static Vector2d MAP_START;
+    private static HashMap<Vector2d, Integer> ToEnd;
     private static char[][] grid;
     private static Vector2d max;
+    private static Vector2d[] path;
+    private static HashSet<Vector2d> path_set;
 
     public static String getPart1() {
-        HashMap<Vector2d, Integer> to_end = findDistanceFromStartToEverywhere(grid, MAP_END);
-
-        HashSet<Vector2d> path = new HashSet<>();
-        Vector2d current = MAP_START;
-        do {
-            path.add(current);
-            current = bestNextStep(current, to_end);
-        } while (!Objects.requireNonNull(current).equals(MAP_END));
-        path.add(MAP_END);
-
-
-        HashSet<Cheat> cheat_list = getAllCheatsFromPath(grid, path, to_end);
-
-        HashMap<Integer, Integer> count_saved = new HashMap<>();
-        for (Cheat c : cheat_list) {
-            int current_count = count_saved.getOrDefault(c.saved, 0);
-            current_count++;
-            count_saved.put(c.saved, current_count);
-        }
-
-
-        long answer = cheat_list.size();
+        long answer = getAllCheatsFromPath();
         return String.valueOf(answer);
-
-
     }
 
     public static String getPart2() {
-        HashMap<Vector2d, Integer> to_end = findDistanceFromStartToEverywhere(grid, MAP_END);
-
-        HashSet<Vector2d> path_set = new HashSet<>();
-        Vector2d current = MAP_START;
-        do {
-            path_set.add(current);
-            current = bestNextStep(current, to_end);
-        } while (!Objects.requireNonNull(current).equals(MAP_END));
-        path_set.add(MAP_END);
-
-
-//        HashSet<Cheat> cheat_list = getAllCheatsFromPath(grid, path, to_end);
-        HashSet<Cheat> cheat_list = getAllCheatWithMax(20, to_end,path_set);
-        HashMap<Integer, Integer> count_saved = new HashMap<>();
-        for (Cheat c : cheat_list) {
-            int current_count = count_saved.getOrDefault(c.saved, 0);
-            current_count++;
-            count_saved.put(c.saved, current_count);
-        }
-        int[] save_array = count_saved.keySet().stream().mapToInt(c->c).toArray();
-        Arrays.sort(save_array);
-        int count =0;
-        for(int saved: save_array) {
-            if(saved >= PART1_THRESHOLD) {
-                count += count_saved.get(saved);
-//                out.printf("There are %d cheats that save %d picoseonds.\n", count_saved.get(saved), saved);
-            }
-        }
-
-
-
-
-        long answer = count;
+        int answer = getAllCheatWithMax();
         return String.valueOf(answer);
-
-
     }
 
     public static void parseInput(String filename) throws IOException {
@@ -103,6 +47,9 @@ public class Day20 {
         max = new Vector2d(grid[0].length, grid.length);
         grid[MAP_START.y][MAP_START.x] = '.';
         grid[MAP_END.y][MAP_END.x] = '.';
+
+        ToEnd = AoCUtils.findDistanceFromStartToEverywhere(grid, MAP_END);
+        build_path();
 
     }
 
@@ -132,12 +79,14 @@ public class Day20 {
         }
         return answers;
     }
+
     private static final char WALL = '#';
     private static final int PART1_THRESHOLD = 100;
+    private static final int PART2_MAX_DISTANCE = 20;
+    private static final int PART1_JUMP_SIZE = 2;
 
     record Cheat(Vector2d from, Vector2d to, int saved) {
     }
-
 
     private static Vector2d bestNextStep(Vector2d current, HashMap<Vector2d, Integer> toEnd) {
         int current_dist = toEnd.get(current);
@@ -150,71 +99,60 @@ public class Day20 {
         return null;
     }
 
-    static private HashMap<Vector2d, Integer> findDistanceFromStartToEverywhere(char[][] grid, Vector2d start) {
-        PriorityQueue<Vector2d> queue = new PriorityQueue<>();
-        queue.offer(start);
-        HashMap<Vector2d, Integer> distances = new HashMap<>();
-        distances.put(start, 0);
-        while (!queue.isEmpty()) {
-            Vector2d current = queue.poll();
-            int dist = distances.get(current);
-            List<Vector2d> neighbors = Directions.Compass.getNeighborsClamped(current, 0, max.x - 1);
-            for (Vector2d v : neighbors) {
-                if (grid[v.y][v.x] == '.') {
-                    int new_dist = dist + 1;
-                    if (new_dist < distances.getOrDefault(v, Integer.MAX_VALUE)) {
-                        distances.put(v, new_dist);
-                        queue.add(v);
+    private static void build_path() {
+        ArrayList<Vector2d> path_list = new ArrayList<>();
+
+        Vector2d current = MAP_START;
+        do {
+            path_list.add(current);
+            current = bestNextStep(current, ToEnd);
+        } while (!current.equals(MAP_END));
+        path_list.add(MAP_END);
+        path = path_list.toArray(new Vector2d[0]);
+        path_set = new HashSet<>(path_list);
+
+    }
+
+    private static int getAllCheatWithMax() {
+        int good_cheats = 0;
+        for (int i = 0; i < path.length; i++) {
+            Vector2d start = path[i];
+            int no_cheat_to_end = ToEnd.get(start);
+            for (int j = i + 1; j < path.length; j++) {
+                Vector2d landing = path[j];
+                int l1 = start.manhattan(landing);
+                if ((0 < l1) && (l1 <= PART2_MAX_DISTANCE)) {
+                    int cheat_distance = l1 + ToEnd.get(landing);
+                    int saved = no_cheat_to_end - cheat_distance;
+                    if (saved >= PART1_THRESHOLD) {
+                        good_cheats++;
                     }
                 }
             }
         }
-        return distances;
+        return good_cheats;
     }
 
-    private static HashSet<Cheat> getAllCheatsFromPath(char[][] grid, HashSet<Vector2d> path_set, HashMap<Vector2d, Integer> toEnd) {
-
-        HashSet<Cheat> cheats = new HashSet<>();
-        for (Vector2d p : path_set) {
-            int no_cheat_distance = toEnd.get(p);
-            for (Vector2d jump_through : Directions.Compass.getNeighbors(p)) {
-                if (grid[jump_through.y][jump_through.x] == WALL) {
-                    for (Vector2d landing : Directions.Compass.getNeighbors(jump_through)) {
-                        if (path_set.contains(landing) && !landing.equals(p)) {
-                            int cheat_distance = 2 + toEnd.get(landing);
-                            int saved = no_cheat_distance - cheat_distance;
-                            if (saved >= PART1_THRESHOLD) {
-                                Cheat new_cheat = new Cheat(p, landing, saved);
-                                cheats.add(new_cheat);
+    private static int getAllCheatsFromPath() {
+        int good_cheat_count = 0;
+        for (Vector2d p : path) {
+            int no_cheat_distance = ToEnd.get(p);
+            if (no_cheat_distance > PART1_THRESHOLD) {
+                for (Vector2d jump_through : Directions.Compass.getNeighbors(p)) {
+                    if (grid[jump_through.y][jump_through.x] == WALL) {
+                        for (Vector2d landing : Directions.Compass.getNeighbors(jump_through)) {
+                            if (path_set.contains(landing) && !landing.equals(p)) {
+                                int cheat_distance = PART1_JUMP_SIZE + ToEnd.get(landing);
+                                int saved = no_cheat_distance - cheat_distance;
+                                if (saved >= PART1_THRESHOLD) {
+                                    good_cheat_count++;
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        return cheats;
-    }
-
-    private static HashSet<Cheat> getAllCheatWithMax(int maxDistance, HashMap<Vector2d, Integer> toEnd,
-                                                          HashSet<Vector2d> path_set) {
-        HashSet<Cheat> cheats = new HashSet<>();
-        for (Vector2d start : path_set) {
-            int no_cheat_to_end = toEnd.get(start);
-            for (Vector2d landing : path_set) {
-                int l1 = start.manhattan(landing);
-                if((0 < l1) && (l1 <= maxDistance)) {
-                    int cheat_distance = l1 + toEnd.get(landing);
-                    int saved = no_cheat_to_end - cheat_distance;
-
-                    Cheat new_cheat = new Cheat(start,landing,saved);
-                    cheats.add(new_cheat);
-                }
-
-
-
-            }
-
-        }
-        return cheats;
+        return good_cheat_count;
     }
 }

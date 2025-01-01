@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.PriorityQueue;
 
 import static java.lang.System.out;
 
@@ -126,5 +128,28 @@ public class AoCUtils {
             r.add(ll);
         }
         return r;
+    }
+
+    static HashMap<Vector2d, Integer> findDistanceFromStartToEverywhere(char[][] grid, Vector2d start) {
+        PriorityQueue<Vector2d> queue = new PriorityQueue<>();
+        queue.offer(start);
+        HashMap<Vector2d, Integer> distances = new HashMap<>();
+        distances.put(start, 0);
+        while (!queue.isEmpty()) {
+            Vector2d current = queue.poll();
+            int dist = distances.get(current);
+            List<Vector2d> neighbors =
+                    Directions.Compass.getNeighborsClamped(current, 0, grid[0].length - 1);
+            for (Vector2d v : neighbors) {
+                if (grid[v.y][v.x] == '.') {
+                    int new_dist = dist + 1;
+                    if (new_dist < distances.getOrDefault(v, Integer.MAX_VALUE)) {
+                        distances.put(v, new_dist);
+                        queue.add(v);
+                    }
+                }
+            }
+        }
+        return distances;
     }
 }

@@ -6,11 +6,12 @@ import java.util.List;
 public class Directions {
     public  enum Compass {
         NORTH,EAST,SOUTH,WEST;
-        public static List<Vector2d> getNeighbors(Vector2d pos) {
-            List<Vector2d> results = new LinkedList<>();
-            for(Compass d:Compass.values()) {
+        public static Vector2d[] getNeighbors(Vector2d pos) {
+            Vector2d[] results = new Vector2d[Compass.values().length];
+            for(int i=0; i < Compass.values().length; i++) {
+                Compass d = Compass.values()[i];
                 Vector2d delta = pos.plus(d.coordDelta());
-                results.add(delta);
+                results[i] = delta;
             }
             return results;
         }
