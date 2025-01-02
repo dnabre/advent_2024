@@ -60,9 +60,9 @@ public class AdventOfCode2024 {
             "inputs/2024/day_25_input_01.txt",
     };
 
-    public static final int DAY = 16;
-    public static final boolean TESTING = false;
-    public static final int TEST_IDX = 2;
+    public static final int DAY = 18;
+    public static final boolean TESTING = true;
+    public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;
 
     public static void main(String[] args) throws Exception {
@@ -81,7 +81,7 @@ public class AdventOfCode2024 {
             }
 
 
-           String[] results = Day16.runDay( System.out,input_string);
+           String[] results = Day18.runDay( System.out,input_string);
 
             System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
             System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
