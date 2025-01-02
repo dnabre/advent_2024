@@ -16,25 +16,6 @@ public class Directions {
             return results;
         }
 
-        public static final Compass[] HORIZONTAL = {Compass.EAST, Compass.WEST};
-        public static final Compass[] VERTICAL = {Compass.NORTH, Compass.SOUTH};
-
-        public Compass[] getAxis() {
-            if (this== HORIZONTAL[0] || this == HORIZONTAL[1]) {
-                return HORIZONTAL;
-            } else {
-                return VERTICAL;
-            }
-        }
-
-        public  Compass[] switchAxis() {
-            if (this== HORIZONTAL[0] || this == HORIZONTAL[1]) {
-                return VERTICAL;
-            } else {
-                return HORIZONTAL;
-            }
-        }
-
 
         public static List<Vector2d> getNeighborsClamped(Vector2d pos, int min_idx, int max_idx) {
             List<Vector2d> results = new LinkedList<>();

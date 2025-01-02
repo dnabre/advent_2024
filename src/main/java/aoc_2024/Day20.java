@@ -12,7 +12,6 @@ public class Day20 {
     private static Vector2d MAP_START;
     private static HashMap<Vector2d, Integer> ToEnd;
     private static char[][] grid;
-    private static Vector2d max;
     private static Vector2d[] path;
     private static HashSet<Vector2d> path_set;
 
@@ -44,7 +43,7 @@ public class Day20 {
 
             }
         }
-        max = new Vector2d(grid[0].length, grid.length);
+
         grid[MAP_START.y][MAP_START.x] = '.';
         grid[MAP_END.y][MAP_END.x] = '.';
 
@@ -85,8 +84,6 @@ public class Day20 {
     private static final int PART2_MAX_DISTANCE = 20;
     private static final int PART1_JUMP_SIZE = 2;
 
-    record Cheat(Vector2d from, Vector2d to, int saved) {
-    }
 
     private static Vector2d bestNextStep(Vector2d current, HashMap<Vector2d, Integer> toEnd) {
         int current_dist = toEnd.get(current);
@@ -106,7 +103,7 @@ public class Day20 {
         do {
             path_list.add(current);
             current = bestNextStep(current, ToEnd);
-        } while (!current.equals(MAP_END));
+        } while ((current!= null)&&(!current.equals(MAP_END)));
         path_list.add(MAP_END);
         path = path_list.toArray(new Vector2d[0]);
         path_set = new HashSet<>(path_list);

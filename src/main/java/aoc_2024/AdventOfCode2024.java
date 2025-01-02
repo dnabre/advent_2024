@@ -62,7 +62,7 @@ public class AdventOfCode2024 {
 
     public static final int DAY = 16;
     public static final boolean TESTING = false;
-    public static final int TEST_IDX = 1;
+    public static final int TEST_IDX = 2;
     public static final boolean TIMING = true;
 
     public static void main(String[] args) throws Exception {
@@ -79,8 +79,6 @@ public class AdventOfCode2024 {
             if (TIMING) {
                 start = System.nanoTime();
             }
-
-
 
 
            String[] results = Day16.runDay( System.out,input_string);
