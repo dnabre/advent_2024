@@ -2,17 +2,39 @@ package src.main.java.aoc_2024;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.PriorityQueue;
 
 import static java.lang.System.out;
+import static src.main.java.aoc_2024.Directions.Compass;
+
 public class Day16 {
 
     public static final String PART1_ANSWER = "102460";
     public static final String PART2_ANSWER = "527";
     private static Vector2d MAP_END;
     private static Vector2d MAP_START;
+    private static char[][] grid;
+    private static Vector2d max;
+    private static ArrayList<Position> positions;
+
+    public static String getPart1() {
+        Position start = new Position(MAP_START, Compass.EAST);
+        HashMap<Position, Integer> distance_from_start = getAllDistancesStartingFrom(start);
+        int cost = Integer.MAX_VALUE;
+        for (Compass d : Compass.values()) {
+            int dist = distance_from_start.get(new Position(MAP_END, d));
+            cost = Math.min(cost, dist);
+        }
+        long answer = cost;
+        return String.valueOf(answer);
+    }
+
+    public static String getPart2() {
+        long answer = -1;
+        return String.valueOf(answer);
+    }
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -23,7 +45,7 @@ public class Day16 {
         out.println();
 
         String[] answers = {"", ""};
-        String INPUT = Files.readString(Path.of(inputString));
+
 
         parseInput(inputString);
         answers[0] = getPart1();
@@ -40,112 +62,80 @@ public class Day16 {
         }
         return answers;
     }
-    private static char[][] grid;
-    private static Vector2d max;
+
+    static private final int PART1_TURN_PRICE = 1000;
+    static private final int PART1_STEP_PRICE = 1;
+
+    public record Position(Vector2d pos, Compass direction) implements Comparable<Position> {
+        @Override
+        public int compareTo(final Position other) {
+            if (this.pos.y != other.pos.y) {
+                return Integer.compare(this.pos.y, other.pos.y);
+            } else {
+                return Integer.compare(this.pos.x, other.pos.x);
+            }
+        }
+
+
+    }
+
+
+    private static HashMap<Position, Integer> getAllDistancesStartingFrom(Position start) {
+        PriorityQueue<Position> work_queue = new PriorityQueue<>();
+        work_queue.offer(start);
+        HashMap<Position, Integer> distances = new HashMap<>();
+        distances.put(start, 0);
+        while (!work_queue.isEmpty()) {
+            Position current = work_queue.poll();
+            int dist = distances.get(current);
+
+            Vector2d step_forward = current.pos.locationAfterStep(current.direction);
+            if (grid[step_forward.y][step_forward.x] == '.') {
+                Position in_front_of = new Position(step_forward, current.direction);
+                int n_dist = dist + PART1_STEP_PRICE;
+                if (n_dist < distances.getOrDefault(in_front_of, Integer.MAX_VALUE)) {
+                    distances.put(in_front_of, n_dist);
+                    work_queue.offer(in_front_of);
+                }
+            }
+            Position left_turn = new Position(current.pos, current.direction.turnLeft());
+            Position right_turn = new Position(current.pos, current.direction.turnRight());
+
+            int turn_dist = dist + PART1_TURN_PRICE;
+            if( turn_dist < distances.getOrDefault(left_turn, Integer.MAX_VALUE)) {
+                distances.put(left_turn, turn_dist);
+                work_queue.offer(left_turn);
+            }
+            if( turn_dist < distances.getOrDefault(right_turn, Integer.MAX_VALUE)) {
+                distances.put(right_turn, turn_dist);
+                work_queue.offer(right_turn);
+            }
+        }
+        return distances;
+    }
+
+
     private static void parseInput(String filename) throws IOException {
         char[][] input_grid = AoCUtils.parseGrid(filename);
-
-        max = new Vector2d(input_grid[0].length,input_grid.length);
+        max = new Vector2d(input_grid[0].length, input_grid.length);
         grid = new char[max.y][max.x];
-
+        positions = new ArrayList<>();
         for (int y = 0; y < max.y; y++) {
             for (int x = 0; x < max.x; x++) {
+                Vector2d pos = new Vector2d(x, y);
+                for (Compass d : Compass.values()) {
+                    positions.add(new Position(pos, d));
+                }
                 char ch = input_grid[y][x];
-                out.print(ch);
-                if(ch=='S') {
-                    MAP_START = new Vector2d(x,y);
+                if (ch == 'S') {
+                    MAP_START = pos;
                     ch = '.';
-                } else if (ch =='E') {
-                    MAP_END = new Vector2d(x,y);
+                } else if (ch == 'E') {
+                    MAP_END = pos;
                     ch = '.';
                 }
                 grid[y][x] = ch;
             }
-            out.println();
         }
-    }
-
-    static private final int PART1_TURN_PRICE = 1000;
-    static private final int PART1_STEP_PRICE = 1;
-    record State(Reindeer deer, int price, HashSet<Reindeer> path_set){
-        static Comparator<State> PRICE_COMPARATOR = Comparator.comparing(State::price);
-    }
-    record Reindeer(Vector2d loc, Directions.Compass heading) {}
-    public static String getPart1() {
-        HashSet<State> seen = new HashSet<>();
-        Reindeer initial = new Reindeer(MAP_START, Directions.Compass.EAST);
-        State start = new State(initial, 0, new HashSet<>());
-        //start.path_set.add(initial);
-        PriorityQueue<State> work_queue = new PriorityQueue<>(State.PRICE_COMPARATOR);
-        work_queue.offer(start);
-        State current = null;
-        while(!work_queue.isEmpty()) {
-            current = work_queue.poll();
-            out.printf("current: %s\n", current);
-
-//            if(seen.contains(current)) {
-//                continue;
-//            } else {
-//                seen.add(current);
-//            }
-            if(current.deer.loc.equals(MAP_END)) {
-                break;
-            }
-            Vector2d step = current.deer.loc.locationAfterStep(current.deer.heading);
-
-
-            current.path_set.add(current.deer);
-
-            if (grid[step.y][step.x] !='#') {
-                Reindeer n_deer = new Reindeer(step, current.deer.heading);
-                if(!current.path_set.contains(n_deer)) {
-                    State new_state = new State(n_deer,  current.price()+PART1_STEP_PRICE,
-                            new HashSet<>(current.path_set));
-                    new_state.path_set.add(n_deer);
-
-                }
-            }
-
-
-            Vector2d left_and_step = current.deer.loc.locationAfterStep(current.deer.heading.turnLeft());
-            if(grid[left_and_step.y][left_and_step.x] != '#') {
-                Reindeer n_deer = new Reindeer(left_and_step, current.deer.heading.turnLeft());
-                if(!current.path_set.contains(n_deer)) {
-                    State new_state = new State(n_deer, current.price() + PART1_TURN_PRICE+PART1_STEP_PRICE,
-                            new HashSet<>(current.path_set));
-                    new_state.path_set.add(n_deer);
-                    work_queue.offer(new_state);
-                }
-            }
-
-
-
-            Vector2d right_and_step = current.deer.loc.locationAfterStep(current.deer.heading.turnRight());
-            if(grid[right_and_step.y][right_and_step.x] != '#') {
-                Reindeer n_deer = new Reindeer(left_and_step, current.deer.heading.turnRight());
-                if(!current.path_set.contains(n_deer)) {
-                    State new_state = new State(n_deer, current.price() + PART1_TURN_PRICE + PART1_STEP_PRICE,
-                            new HashSet<>(current.path_set));
-                    new_state.path_set.add(n_deer);
-                    work_queue.offer(new_state);
-                }
-            }
-        }
-
-
-
-
-
-        out.println(current);
-
-
-        long answer = current.price;
-        return String.valueOf(answer);
-    }
-
-
-    public static String getPart2() {
-        long answer = -1;
-        return String.valueOf(answer);
     }
 }
