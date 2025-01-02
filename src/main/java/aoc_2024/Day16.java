@@ -16,13 +16,13 @@ public class Day16 {
     private static Position MAP_START;
     private static char[][] grid;
     private static Vector2d max;
-    private static ArrayList<Position> positions;
+    private static final ArrayList<Position> positions = new ArrayList<>();
 
     public static String getPart1() {
         distance_from_start = getAllDistancesStartingFrom(MAP_START);
-        int cost = Integer.MAX_VALUE;
+         int cost = Integer.MAX_VALUE;
         for (Compass d : Compass.values()) {
-            int dist = distance_from_start.get(new Position(MAP_END, d));
+            final int dist = distance_from_start.get(new Position(MAP_END, d));
             cost = Math.min(cost, dist);
         }
         long answer = cost;
@@ -32,29 +32,18 @@ public class Day16 {
     public static String getPart2() {
         distance_from_start = getAllDistancesStartingFrom(MAP_START);
 
-
-//        final List<Position> ends = getEnds(grid);
-        ArrayList<Position> ends = new ArrayList<>(4);
+        final ArrayList<Position> ends = new ArrayList<>(4);
         for(Compass d: Compass.values()) {
             ends.add(new Position(MAP_END, d));
         }
 
 
-        final int min = ends.stream().mapToInt(e -> distance_from_start.get(e)).min().getAsInt();
-        final Position realEnd = distance_from_start.entrySet().stream().filter(e -> e.getValue().equals(min)).map(Map.Entry::getKey)
+         final int min = ends.stream().mapToInt(e -> distance_from_start.get(e)).min().getAsInt();
+         final Position realEnd = distance_from_start.entrySet().stream().filter(e -> e.getValue().equals(min)).map(Map.Entry::getKey)
                 .findFirst().get();
-        final Set<Vector2d> paths = new HashSet<>();
-        findCoordinatesOnShortestPaths(realEnd, MAP_START, realEnd, distance_from_start,
-                grid, paths);
+         final HashSet<Vector2d> paths = new HashSet<>();
+         findCoordinatesOnShortestPaths(realEnd, MAP_START, realEnd, distance_from_start, paths);
         return String.valueOf(paths.size());
-
-
-
-
-
-
-
-
     }
     public static String getPart2b() {
         best_seats = new HashSet<>();
@@ -79,7 +68,7 @@ public class Day16 {
 
 
         parseInput(inputString);
-//        answers[0] = getPart1();
+        answers[0] = getPart1();
         answers[1] = getPart2();
 
         if (!AdventOfCode2024.TESTING) {
@@ -210,10 +199,9 @@ public class Day16 {
         char[][] input_grid = AoCUtils.parseGrid(filename);
         max = new Vector2d(input_grid[0].length, input_grid.length);
         grid = new char[max.y][max.x];
-        positions = new ArrayList<>();
         for (int y = 0; y < max.y; y++) {
             for (int x = 0; x < max.x; x++) {
-                Vector2d pos = new Vector2d(x, y);
+                final Vector2d pos = new Vector2d(x, y);
                 for (Compass d : Compass.values()) {
                     positions.add(new Position(pos, d));
                 }
@@ -242,8 +230,8 @@ public class Day16 {
     }
     private static final HashMap<Position, Integer> reindeerPrice = new HashMap<>();
     private static int search() {
-        PriorityQueue<State> work_queue = new PriorityQueue<>(State.PRICE_COMPARATOR);
-        State start= new State(MAP_START, 0, new HashSet<>(List.of(MAP_START.pos)));
+        final PriorityQueue<State> work_queue = new PriorityQueue<>(State.PRICE_COMPARATOR);
+        final State start= new State(MAP_START, 0, new HashSet<>(List.of(MAP_START.pos)));
         work_queue.offer(start);
         reindeerPrice.put(MAP_START, 0);
         int minPrice = Integer.MAX_VALUE;
@@ -365,31 +353,31 @@ public class Day16 {
     }
 
 
-    private static void findCoordinatesOnShortestPaths(final Position current, final Position start, final Position end,
-                                                final Map<Position, Integer> distances, final char[][] grid, final Set<Vector2d> coordinates) {
-        final Vector2d c = new Vector2d(current.pos.x, current.pos.y);
+    private static void findCoordinatesOnShortestPaths( Position current,  Position start,  Position end,
+                                                 HashMap<Position, Integer> distances,   HashSet<Vector2d> coordinates) {
+         Vector2d c = new Vector2d(current.pos.x, current.pos.y);
         coordinates.add(c);
-        final int distanceToStart = distances.get(current);
+         int distanceToStart = distances.get(current);
         if (current.equals(start)) {
             return;
         } else {
-            final Optional<Position> opNeighbour = current.getNeighbourReversed(grid);
-            final List<Position> nextPositions = new ArrayList<>();
+             Optional<Position> opNeighbour = current.getNeighbourReversed(grid);
+             List<Position> nextPositions = new ArrayList<>();
             if (opNeighbour.isPresent() && distances.get(opNeighbour.get()) < distanceToStart) {
                 nextPositions.add(opNeighbour.get());
             }
 
-            final List<Position> turns = current.getTurns();
+             List<Position> turns = current.getTurns();
 
-            final int distance1 = distances.get(turns.get(0));
-            final int distance2 = distances.get(turns.get(1));
+             int distance1 = distances.get(turns.get(0));
+             int distance2 = distances.get(turns.get(1));
             if (distance1 < distance2 && distance1 < distanceToStart) {
                 nextPositions.add(turns.get(0));
             } else if (distance2 < distanceToStart) {
                 nextPositions.add(turns.get(1));
             }
-            for (final Position p : nextPositions) {
-                findCoordinatesOnShortestPaths(p, start, end, distances, grid, coordinates);
+            for ( Position p : nextPositions) {
+                findCoordinatesOnShortestPaths(p, start, end, distances, coordinates);
             }
         }
     }
