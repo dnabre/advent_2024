@@ -7,8 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static java.lang.System.out;
-
 public class Day18 {
 
     public static final String PART1_ANSWER = "438";
@@ -58,32 +56,26 @@ public class Day18 {
     }
 
     protected static String getPart2() {
-        HashSet<Vector2d> corrupted_points = new HashSet<>();
-        HashMap<Vector2d, Integer> distances_to_end = getAllDistancesStartingFromWithBadSet(MAP_END, corrupted_points);
-        HashSet<Vector2d> path_set = getPathSet(MAP_START, MAP_END, distances_to_end);
-        Vector2d last_drop_point = null;
-
-        for (int i = 0; i < drops.length; i++) {
-            Vector2d drop_point = drops[i];
-            corrupted_points.add(drop_point);
-            if (path_set.contains(drop_point)) {
-                distances_to_end = getAllDistancesStartingFromWithBadSet(MAP_END, corrupted_points);
-                if (!distances_to_end.containsKey(MAP_START)) {
-                    last_drop_point = drop_point;
-                    break;
-                } else {
-                    path_set = getPathSet(MAP_START, MAP_END, distances_to_end);
-                }
+        // binary search for highest m that has a path
+        int low = 0;
+        int high = drops.length - 1;
+        int mid = -1;
+        while (low <= high) {
+            mid = low + (high - low) / 2;
+            HashMap<Vector2d, Integer> distances_to_end = getAllDistancesStartingDropList(MAP_END, mid);
+            if (!distances_to_end.containsKey(MAP_START)) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
             }
         }
-
+        Vector2d last_drop_point = drops[mid - 1];
         String answer = String.format("%d,%d", last_drop_point.x, last_drop_point.y);
         return answer;
     }
 
     protected static void parseInput(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Path.of(filename));
-        out.printf("read %d lines from %s\n", lines.size(), filename);
         drops = new Vector2d[lines.size()];
         int idx = 0;
         max = new Vector2d(Integer.MIN_VALUE, Integer.MIN_VALUE);
@@ -96,10 +88,39 @@ public class Day18 {
             max.y = Math.max(max.y, y);
             idx++;
         }
+    }
+
+    private static HashMap<Vector2d, Integer> getAllDistancesStartingDropList(Vector2d start, int drop_count) {
+        HashSet<Vector2d> bad_spots = new HashSet<>();
+        if (drop_count >= drops.length) {
+            throw new IllegalArgumentException(String.format("told to drops %d from array of length %d", drop_count, drops.length));
+        }
+        for (int i = 0; i < drop_count; i++) {
+            bad_spots.add(drops[i]);
+        }
 
 
-        out.println(max);
-        out.printf("grid size: %s\n", GRID_SIZE);
+        PriorityQueue<Vector2d> work_queue = new PriorityQueue<>();
+        work_queue.offer(start);
+        HashMap<Vector2d, Integer> distances = new HashMap<>();
+        distances.put(start, 0);
+        assert (GRID_SIZE.x == GRID_SIZE.y);
+        while (!work_queue.isEmpty()) {
+            Vector2d current = work_queue.poll();
+            int dist = distances.get(current);
+            List<Vector2d> neighbors = Directions.Compass.getNeighborsClamped(current, 0, GRID_SIZE.x - 1);
+            for (Vector2d v : neighbors) {
+
+                if (!bad_spots.contains(v)) {
+                    int n_dist = dist + 1;
+                    if (n_dist < distances.getOrDefault(v, Integer.MAX_VALUE)) {
+                        distances.put(v, n_dist);
+                        work_queue.offer(v);
+                    }
+                }
+            }
+        }
+        return distances;
     }
 
     private static HashMap<Vector2d, Integer> getAllDistancesStartingFrom(Vector2d start, char[][] grid) {
