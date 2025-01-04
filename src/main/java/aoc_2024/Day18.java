@@ -13,10 +13,12 @@ public class Day18 {
 
     public static final String PART1_ANSWER = "438";
     public static final String PART2_ANSWER = "26,22";
-    private static final Vector2d GRID_SIZE =
-            AdventOfCode2024.TESTING?new Vector2d(7,7):new Vector2d(71,71);
-private static final Vector2d MAP_START = new Vector2d(0,0);
-private static final Vector2d MAP_END = new Vector2d(GRID_SIZE.x-1, GRID_SIZE.y-1);
+    private static Vector2d[] drops;
+    private static Vector2d max;
+    private static final Vector2d GRID_SIZE = AdventOfCode2024.TESTING ? new Vector2d(7, 7) : new Vector2d(71, 71);
+    private static final Vector2d MAP_START = new Vector2d(0, 0);
+    private static final Vector2d MAP_END = new Vector2d(GRID_SIZE.x - 1, GRID_SIZE.y - 1);
+    private static final int PART1_NUMBER_OF_BYTES = AdventOfCode2024.TESTING ? 12 : 1024;
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -43,21 +45,53 @@ private static final Vector2d MAP_END = new Vector2d(GRID_SIZE.x-1, GRID_SIZE.y-
         }
         return answers;
     }
-    private static  Vector2d[] drops;
-    private static Vector2d max;
 
-    private static final int PART1_NUMBER_OF_BYTES = AdventOfCode2024.TESTING?12:1024;
-    public static void parseInput(String filename) throws IOException {
+    protected static String getPart1() {
+
+
+        HashSet<Vector2d> corrupted_points = new HashSet<>();
+        corrupted_points.addAll(Arrays.asList(drops).subList(0, PART1_NUMBER_OF_BYTES));
+        HashMap<Vector2d, Integer> distances_to_end = getAllDistancesStartingFromWithBadSet(MAP_END, corrupted_points);
+
+        long answer = distances_to_end.get(MAP_START);
+        return String.valueOf(answer);
+    }
+
+    protected static String getPart2() {
+        HashSet<Vector2d> corrupted_points = new HashSet<>();
+        HashMap<Vector2d, Integer> distances_to_end = getAllDistancesStartingFromWithBadSet(MAP_END, corrupted_points);
+        HashSet<Vector2d> path_set = getPathSet(MAP_START, MAP_END, distances_to_end);
+        Vector2d last_drop_point = null;
+
+        for (int i = 0; i < drops.length; i++) {
+            Vector2d drop_point = drops[i];
+            corrupted_points.add(drop_point);
+            if (path_set.contains(drop_point)) {
+                distances_to_end = getAllDistancesStartingFromWithBadSet(MAP_END, corrupted_points);
+                if (!distances_to_end.containsKey(MAP_START)) {
+                    last_drop_point = drop_point;
+                    break;
+                } else {
+                    path_set = getPathSet(MAP_START, MAP_END, distances_to_end);
+                }
+            }
+        }
+
+        String answer = String.format("%d,%d", last_drop_point.x, last_drop_point.y);
+        return answer;
+    }
+
+    protected static void parseInput(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Path.of(filename));
         out.printf("read %d lines from %s\n", lines.size(), filename);
         drops = new Vector2d[lines.size()];
-        int idx=0;
+        int idx = 0;
         max = new Vector2d(Integer.MIN_VALUE, Integer.MIN_VALUE);
-        for(String ln: lines) {
+        for (String ln : lines) {
             String[] parts = ln.trim().split(",");
             int x = Integer.valueOf(parts[0]);
-            int y =Integer.valueOf(parts[1]);
-            drops[idx] = new Vector2d(x,y);
+            int y = Integer.valueOf(parts[1]);
+            drops[idx] = new Vector2d(x, y);
             max.x = Math.max(max.x, x);
             max.y = Math.max(max.y, y);
             idx++;
@@ -68,61 +102,22 @@ private static final Vector2d MAP_END = new Vector2d(GRID_SIZE.x-1, GRID_SIZE.y-
         out.printf("grid size: %s\n", GRID_SIZE);
     }
 
-    public static String getPart1() {
-
-
-        HashSet<Vector2d> corrupted_points = new HashSet<>();
-        for(int i=0; i < PART1_NUMBER_OF_BYTES; i++) {
-            corrupted_points.add(drops[i]);
-        }
-        HashMap<Vector2d, Integer> distances_to_end = getAllDistancesStartingFromWithBadSet(MAP_END, corrupted_points);
-        int dist_end = distances_to_end.get(MAP_START);
-
-
-        long answer = dist_end;
-        return String.valueOf(answer);
-    }
-
-
-    public static String getPart2() {
-        long answer = -1;
-        return String.valueOf(answer);
-    }
-
-    private static HashSet<Vector2d> getPathSet(Vector2d current, Vector2d goal, HashMap<Vector2d,Integer> distance_to_end) {
-        HashSet<Vector2d> path_set = new HashSet<>();
-        path_set.add(current);
-        while(!current.equals(goal)){
-            for(Vector2d v: Directions.Compass.getNeighborsClamped(current,0, GRID_SIZE.x-1)) {
-                if(distance_to_end.getOrDefault(v, Integer.MAX_VALUE) == 1) {
-                    path_set.add(current);
-                    current = v;
-                    break;
-                }
-            }
-
-        }
-
-        return path_set;
-    }
-
-
     private static HashMap<Vector2d, Integer> getAllDistancesStartingFrom(Vector2d start, char[][] grid) {
         PriorityQueue<Vector2d> work_queue = new PriorityQueue<>();
         work_queue.offer(start);
         HashMap<Vector2d, Integer> distances = new HashMap<>();
         distances.put(start, 0);
-        assert(GRID_SIZE.x == GRID_SIZE.y);
+        assert (GRID_SIZE.x == GRID_SIZE.y);
         while (!work_queue.isEmpty()) {
             Vector2d current = work_queue.poll();
             int dist = distances.get(current);
-            List<Vector2d> neighbors = Directions.Compass.getNeighborsClamped(current, 0, GRID_SIZE.x-1);
-            for(Vector2d v: neighbors) {
+            List<Vector2d> neighbors = Directions.Compass.getNeighborsClamped(current, 0, GRID_SIZE.x - 1);
+            for (Vector2d v : neighbors) {
                 char ch = grid[v.y][v.x];
-                if(ch == '.') {
+                if (ch == '.') {
                     int n_dist = dist + 1;
-                    if(n_dist < distances.getOrDefault(v, Integer.MAX_VALUE)) {
-                        distances.put(v,n_dist);
+                    if (n_dist < distances.getOrDefault(v, Integer.MAX_VALUE)) {
+                        distances.put(v, n_dist);
                         work_queue.offer(v);
                     }
                 }
@@ -136,17 +131,17 @@ private static final Vector2d MAP_END = new Vector2d(GRID_SIZE.x-1, GRID_SIZE.y-
         work_queue.offer(start);
         HashMap<Vector2d, Integer> distances = new HashMap<>();
         distances.put(start, 0);
-        assert(GRID_SIZE.x == GRID_SIZE.y);
+        assert (GRID_SIZE.x == GRID_SIZE.y);
         while (!work_queue.isEmpty()) {
             Vector2d current = work_queue.poll();
             int dist = distances.get(current);
-            List<Vector2d> neighbors = Directions.Compass.getNeighborsClamped(current, 0, GRID_SIZE.x-1);
-            for(Vector2d v: neighbors) {
+            List<Vector2d> neighbors = Directions.Compass.getNeighborsClamped(current, 0, GRID_SIZE.x - 1);
+            for (Vector2d v : neighbors) {
 
-                if(!bad_points.contains(v)) {
+                if (!bad_points.contains(v)) {
                     int n_dist = dist + 1;
-                    if(n_dist < distances.getOrDefault(v, Integer.MAX_VALUE)) {
-                        distances.put(v,n_dist);
+                    if (n_dist < distances.getOrDefault(v, Integer.MAX_VALUE)) {
+                        distances.put(v, n_dist);
                         work_queue.offer(v);
                     }
                 }
@@ -155,6 +150,22 @@ private static final Vector2d MAP_END = new Vector2d(GRID_SIZE.x-1, GRID_SIZE.y-
         return distances;
     }
 
+    private static HashSet<Vector2d> getPathSet(Vector2d current, Vector2d goal, HashMap<Vector2d, Integer> distance_to_end) {
+        HashSet<Vector2d> path_set = new HashSet<>();
+        path_set.add(current);
+        int last_step_distance = distance_to_end.get(current);
+        while (!current.equals(goal)) {
+            for (Vector2d v : Directions.Compass.getNeighborsClamped(current, 0, GRID_SIZE.x - 1)) {
+                if (distance_to_end.getOrDefault(v, Integer.MAX_VALUE) == last_step_distance - 1) {
+                    path_set.add(current);
+                    current = v;
+                    break;
+                }
+            }
+            last_step_distance = distance_to_end.get(current);
+        }
+        return path_set;
+    }
 
 
 }
