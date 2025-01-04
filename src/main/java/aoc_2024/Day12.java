@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 
 public class Day12 {
@@ -24,6 +23,7 @@ public class Day12 {
 
         String[] answers = {"", ""};
 
+        parseInput(inputString);
         answers[0] = getPart1();
         answers[1] = getPart2();
 
@@ -39,15 +39,18 @@ public class Day12 {
         return answers;
     }
 
-    public static String getPart1() {
+    protected static String getPart1() {
         long answer = -1;
         return String.valueOf(answer);
     }
 
-
-    public static String getPart2() {
-        long answer = -2;
+    protected static String getPart2() {
+        long answer = -1;
         return String.valueOf(answer);
+    }
+
+    protected static void parseInput(String filename) throws IOException {
+
     }
 
 }
