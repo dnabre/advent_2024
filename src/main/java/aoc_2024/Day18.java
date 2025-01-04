@@ -1,9 +1,13 @@
 package src.main.java.aoc_2024;
 
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+
+import static java.lang.System.out;
 
 public class Day18 {
 
@@ -20,9 +24,8 @@ public class Day18 {
         out.println();
 
         String[] answers = {"", ""};
-        String INPUT = Files.readString(Path.of(inputString));
 
-
+        parseInput(inputString);
         answers[0] = getPart1();
         answers[1] = getPart2();
 
@@ -37,7 +40,20 @@ public class Day18 {
         }
         return answers;
     }
+    private static final Vector2d[] drops;
+    public static void parseInput(String filename) throws IOException {
+        List<String> lines = Files.readAllLines(Path.of(filename));
+        out.printf("read %d lines from %s\n", lines.size(), filename);
+        drops = new Vector2d[lines.size()];
+        int idx=0;
+        for(String ln: lines) {
+            String[] ln = ln.
 
+            idx++;
+        }
+
+
+    }
 
     public static String getPart1() {
         long answer = -1;
