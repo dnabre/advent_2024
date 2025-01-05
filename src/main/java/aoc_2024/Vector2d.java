@@ -64,6 +64,18 @@ public class Vector2d implements Comparable<Vector2d> {
          return String.format("(%d, %d)", this.x, this.y);
     }
 
+    public boolean nextTo(Vector2d other) {
+      if((other.x == this.x) && ((other.y+1 == this.y) || (other.y == this.y+1))) {
+          return true;
+
+      }
+      if((other.y == this.y) && ((other.x+1 == this.x) || (other.x == this.x+1))){
+            return true;
+
+      }
+
+    return false;
+    }
     public int manhattan(Vector2d other) {
         return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);
     }

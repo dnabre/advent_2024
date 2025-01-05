@@ -2,7 +2,7 @@
   <configuration default="false" name="aoc" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="src.main.java.aoc_2024.AdventOfCode2024" />
     <module name="advent_2024" />
-    <option name="VM_PARAMETERS" value="-ea" />
+    <option name="VM_PARAMETERS" value=" -ea " />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
