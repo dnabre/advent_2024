@@ -8,6 +8,16 @@ import java.util.List;
 import java.util.Objects;
 
 public class Vector2d implements Comparable<Vector2d> {
+    public Vector2d(int[] coords) {
+        if(coords.length != 2) {
+            throw new IllegalArgumentException(
+                    String.format("Vector2d from arrays requires array of length 2, got: %d", coords.length));
+        }
+        this.x = coords[0];
+        this.y = coords[1];
+
+    }
+
 
     public boolean equals(Object o) {
         if (!(o instanceof Vector2d vector2d)) return false;
@@ -45,6 +55,10 @@ public class Vector2d implements Comparable<Vector2d> {
 
     public Vector2d plus(Vector2d delta) {
         return new Vector2d(this.x + delta.x, this.y + delta.y);
+    }
+
+    public Vector2d plus(int[] offsets) {
+        return new Vector2d(this.x+offsets[0], this.y+offsets[1]);
     }
     public Vector2d locationAfterStep(Directions.Compass dir) {
         Vector2d new_loc = new Vector2d(this);
