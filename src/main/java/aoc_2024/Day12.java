@@ -9,15 +9,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import static java.lang.System.out;
-
 
 public class Day12 {
 
     public static final String PART1_ANSWER = "1464678";
     public static final String PART2_ANSWER = "877492";
     private static ArrayList<Plot> plot_list;
-    private static int plot_id = 0;
     private static char[][] farm_grid;
     private static Vector2d max;
 
@@ -65,8 +62,20 @@ public class Day12 {
         return String.valueOf(answer);
     }
 
+    protected static void parseInput(String filename) throws IOException {
+        String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
+        int width = lines[0].length();
+        int height = lines.length;
+        max = new Vector2d(width, height);
+        farm_grid = new char[height][width];
+        for (int y = 0; y < max.y; y++) {
+            char[] line_array = lines[y].toCharArray();
+            if (max.x >= 0) System.arraycopy(line_array, 0, farm_grid[y], 0, max.x);
+        }
+        plot_list = getPlots(farm_grid);
+    }
 
-    record Plot(int id, char plant, HashSet<Vector2d> tiles) {
+    record Plot(char plant, HashSet<Vector2d> tiles) {
 
         public boolean in(Vector2d v) {
             return tiles.contains(v);
@@ -78,12 +87,11 @@ public class Day12 {
 
         @Override
         public String toString() {
-            return String.format("[Plot %3d - plant: %c, tiles: %d ]", this.id, this.plant, tiles.size());
+            return String.format("[Plot - plant: %c, tiles: %d ]",  this.plant, tiles.size());
         }
 
 
     }
-
 
     private static int calcPerimeter(Plot plot, char[][] grid) {
         int p = 0;
@@ -155,27 +163,13 @@ public class Day12 {
                         List<Vector2d> neighbors = Directions.Compass.getNeighborsClamped(current, 0, max.x - 1);
                         work_queue.addAll(neighbors);
                     }
-                    Plot p = new Plot(plot_id, ch, tiles);
+                    Plot p = new Plot(ch, tiles);
                     plot_list.add(p);
-                    plot_id++;
+
                 }
             }
         }
         return plot_list;
-    }
-
-    private static void parseInput(String filename) throws IOException {
-        String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
-        out.printf("read %d files from %s\n", lines.length, filename);
-        int width = lines[0].length();
-        int height = lines.length;
-        max = new Vector2d(width, height);
-        farm_grid = new char[height][width];
-        for (int y = 0; y < max.y; y++) {
-            char[] line_array = lines[y].toCharArray();
-            if (max.x >= 0) System.arraycopy(line_array, 0, farm_grid[y], 0, max.x);
-        }
-        plot_list = getPlots(farm_grid);
     }
 
 
