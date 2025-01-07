@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Directions {
+
+
+
     public  enum Compass {
         NORTH,EAST,SOUTH,WEST;
         public static Vector2d[] getNeighbors(Vector2d pos) {
@@ -15,7 +18,6 @@ public class Directions {
             }
             return results;
         }
-
 
         public static List<Vector2d> getNeighborsClamped(Vector2d pos, int min_idx, int max_idx) {
             List<Vector2d> results = new LinkedList<>();

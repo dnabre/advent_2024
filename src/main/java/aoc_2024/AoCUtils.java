@@ -1,6 +1,7 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -23,7 +24,12 @@ public class AoCUtils {
         return result;
     }
 
+    static public class NullStream extends OutputStream {
+        @Override
+        public void write(int b) throws IOException {
 
+        }
+    }
     public static void printGrid(char[][] grid) {
         for (int y = 0; y < grid.length; y++) {
             for (int x = 0; x < grid[0].length; x++) {
