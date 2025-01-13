@@ -25,7 +25,7 @@ public class AdventOfCode2024 {
             {"inputs/2024/day_18_test_01.txt"},
             {"inputs/2024/day_19_test_01.txt"},
             {"inputs/2024/day_20_test_01.txt"},
-            {"inputs/2024/day_21_test_01.txt"},
+            {"inputs/2024/day_21_test_01.txt", "inputs/2024/day_21_test_02.txt", "inputs/2024/day_21_test_03.txt"},
             {"inputs/2024/day_22_test_01.txt","inputs/2024/day_22_test_02.txt"},
             {"inputs/2024/day_23_test_01.txt","inputs/2024/day_23_test_02.txt"},
             {"inputs/2024/day_24_test_01.txt","inputs/2024/day_24_test_01.txt"},
@@ -60,9 +60,9 @@ public class AdventOfCode2024 {
             "inputs/2024/day_25_input_01.txt",
     };
 
-    public static final int DAY = 12;
-    public static final boolean TESTING = false;
-    public static final int TEST_IDX =1;
+    public static final int DAY = 21;
+    public static final boolean TESTING = true;
+    public static final int TEST_IDX =3;
     public static final boolean TIMING = true;
 
     public static void main(String[] args) throws Exception {
@@ -81,7 +81,7 @@ public class AdventOfCode2024 {
             }
 
 
-           String[] results = Day12.runDay( System.out,input_string);
+           String[] results = Day21.runDay( System.out,input_string);
 
             System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
             System.out.printf("\t\tpart2:\t\t%s\n", results[1]);

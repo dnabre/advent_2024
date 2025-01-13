@@ -2,10 +2,7 @@ package src.main.java.aoc_2024;
 
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Vector2d implements Comparable<Vector2d> {
     public Vector2d(int[] coords) {
@@ -18,6 +15,11 @@ public class Vector2d implements Comparable<Vector2d> {
 
     }
 
+    public Vector2d move(char ch) {
+        Directions.Compass dir = Directions.Compass.fromChar(ch);
+        Vector2d new_vector = this.plus(dir.coordDelta());
+        return new_vector;
+    }
 
     public boolean equals(Object o) {
         if (!(o instanceof Vector2d vector2d)) return false;
