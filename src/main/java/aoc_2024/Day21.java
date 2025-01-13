@@ -18,167 +18,6 @@ public class Day21 {
 
 
 
-    static class DirPad extends InputPad {
-        static HashMap<Character, Vector2d> pad_map;
-        static HashMap<Vector2d, Character> position_to_value;
-        InputPad next_in_chain = null;
-
-        public DirPad(String _name, InputPad next_pad) {
-            super(_name);
-            arm_pos = pad_map.get('A');
-            next_in_chain = next_pad;
-        }
-
-        static void initialize() {
-            HashMap<Character, Vector2d> my_pad_map = new HashMap<>();
-            HashMap<Vector2d, Character> my_position_to_value = new HashMap<>();
-
-            /*
-                    | ^ | A |
-                | < | v | > |
-             */
-            my_pad_map.put('^', new Vector2d(1, 0));
-            my_pad_map.put('A', new Vector2d(2, 0));
-            my_pad_map.put('<', new Vector2d(0, 1));
-            my_pad_map.put('v', new Vector2d(1, 1));
-            my_pad_map.put('>', new Vector2d(2, 1));
-
-
-            for (char value : my_pad_map.keySet()) {
-                Vector2d pos = my_pad_map.get(value);
-                my_position_to_value.put(pos, value);
-            }
-            DirPad.position_to_value = my_position_to_value;
-            DirPad.pad_map = my_pad_map;
-        }
-
-        @Override
-        char getButtonPush() {
-            return position_to_value.get(this.arm_pos);
-        }
-
-        @Override
-        char currentButtonUnderArm() {
-            if(position_to_value.containsKey(this.arm_pos)) {
-                return position_to_value.get(arm_pos);
-            } else {
-                return '!';
-            }
-        }
-
-
-        @Override
-        Optional<Character> move(char ch) {
-            if(ch!= 'A') {
-                Directions.Compass dir = Directions.Compass.fromChar(ch);
-//                out.printf("moving arm from: %s to %s direct: %s  (DirPad: %s)\n", arm_pos, arm_pos.locationAfterStep(dir), dir, this.name);
-            } else {
-//                out.printf("pushing button (arm: %s) button: %s (DirPad: %s)\n", arm_pos, position_to_value.get(arm_pos), this.name);
-            }
-            Optional<Character> r = super.move(ch);
-//            out.printf("doing %c, result %s, pushing %s to ", ch, r, r.orElse(null));
-            if(r.isPresent() && (next_in_chain != null)) {
-//                out.println(next_in_chain);
-                r = next_in_chain.move(r.get());
-
-            } else {
-//                out.println(" caller");
-            }
-            return r;
-        }
-
-        @Override
-        protected boolean armCrashOk() {
-            if (DirPad.position_to_value.containsKey(this.arm_pos)) {
-                return true;
-            } else {
-                out.println("arm moved to error state");
-                Day21.debug_stack();
-                throw new IllegalStateException(String.format("DirPad %s, arm moved to illegal position (%s)",
-                        this.name, this.arm_pos));
-            }
-        }
-
-        @Override
-        public String toString() {
-            return String.format("DirPad: %s, Arm Position: %s, Over Value: %c, Move Count: %d", this.name, arm_pos,
-                    position_to_value.get(arm_pos), this.arm_mount_count);
-        }
-    }
-
-    static class NumPad extends InputPad {
-        static HashMap<Character, Vector2d> numpad_map;
-        static HashMap<Vector2d, Character> position_to_value;
-
-        public NumPad(String _name) {
-            super(_name);
-            arm_pos = NumPad.numpad_map.get('A');
-        }
-        @Override
-        char currentButtonUnderArm() {
-            if(position_to_value.containsKey(this.arm_pos)) {
-                return position_to_value.get(arm_pos);
-            } else {
-                return '!';
-            }
-        }
-        static void initialize() {
-            HashMap<Character, Vector2d> my_numpad_map = new HashMap<>();
-            HashMap<Vector2d, Character> my_position_to_value = new HashMap<>();
-
-        /*
-        | 7 | 8 | 9 |
-        | 4 | 5 | 6 |
-        | 1 | 2 | 3 |
-            | 0 | A |
-         */
-            my_numpad_map.put('7', new Vector2d(0, 0));
-            my_numpad_map.put('8', new Vector2d(1, 0));
-            my_numpad_map.put('9', new Vector2d(2, 0));
-            my_numpad_map.put('4', new Vector2d(0, 1));
-            my_numpad_map.put('5', new Vector2d(1, 1));
-            my_numpad_map.put('6', new Vector2d(2, 1));
-            my_numpad_map.put('1', new Vector2d(0, 2));
-            my_numpad_map.put('2', new Vector2d(1, 2));
-            my_numpad_map.put('3', new Vector2d(2, 2));
-            my_numpad_map.put('0', new Vector2d(1, 3));
-            my_numpad_map.put('A', new Vector2d(2, 3));
-
-            for (char value : my_numpad_map.keySet()) {
-                Vector2d pos = my_numpad_map.get(value);
-                my_position_to_value.put(pos, value);
-            }
-            NumPad.numpad_map = my_numpad_map;
-            NumPad.position_to_value = my_position_to_value;
-        }
-
-        @Override
-        char getButtonPush() {
-
-            char button = NumPad.position_to_value.get(arm_pos);
-//            out.printf("numpad (%s), pushing button: %c \n", this.name,button );
-            Day21.debug_buffer.append(String.format("(%s,%c)", this.name, button));
-            return button;
-        }
-
-
-
-        @Override
-        protected boolean armCrashOk() {
-            if (NumPad.position_to_value.containsKey(this.arm_pos)) {
-                return true;
-            } else {
-                throw new IllegalStateException(String.format("NumPad: %s, arm moved to illegal position (%s)", this.name,
-                        this.arm_pos));
-            }
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Numpad: %s, Arm Position: %s, Over Value: %c Move Count: %d",
-                    this.name, arm_pos, position_to_value.get(arm_pos), this.arm_mount_count);
-        }
-    }
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -205,118 +44,214 @@ public class Day21 {
         }
         return answers;
     }
+    public static void parseInput(String filename) throws IOException {
+        lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
+    }
 
-
-    static InputPad[] pad_stack;
-    static StringBuilder output_buffer;
     protected static String getPart1() {
 
-        out.printf("read %d lines\n\n", lines.length);
-        HashSet<String> cc_set = new HashSet<>();
-        for(String ln: lines) {
-            String[] parts = ln.split(AoCUtils.WHITESPACE_RE);
-            out.println(Arrays.toString(parts));
-            String code = parts[0];
-            String commands = parts[1];
-            char[] c_array = commands.toCharArray();
-            int idx =0;
-            while(idx < parts[1].length()) {
-                StringBuilder sb = new StringBuilder();
-                while((idx < c_array.length) && (c_array[idx] != 'A')) {
-                    sb.append(c_array[idx]);
-                    idx++;
-                }
-                sb.append(c_array[idx]);
-                idx++;
-                while((idx < c_array.length) && (c_array[idx] != 'A')) {
-                    sb.append(c_array[idx]);
-                    idx++;
-                }
-                if(idx < c_array.length) {
-                    sb.append(c_array[idx]);
-                }
-
-                cc_set.add(sb.toString());
-            }
-        }
-        for(String cc: cc_set) {
-            go(cc);
-            out.printf("cc: %s\t %s\n", cc, output_buffer);
-            output_buffer = new StringBuilder();
+        for(NumKey nk: NumKey.values()) {
+           out.printf("NumKey: %s :\n", nk);
+           for(DirKey dk: DirKey.values()) {
+               if (dk == DirKey.A) {
+                   out.printf("\tDirKey: %s  ---- n/a\n", dk);
+               } else {
+                   out.printf("\tDirKey: %s -> %s\n", dk, nk.next_key(dk));
+               }
+           }
+           out.println();
         }
 
-
-
-
-        out.println(cc_set);
-        out.printf("cc_set size: %d\n", cc_set.size());
-
-
-          out.println(Day21.output_buffer);
-          out.println("-----------------------------------------");
 
         long answer = -1;
         return String.valueOf(answer);
     }
-
-    static void go(String command_string) {
-
-        Optional<Character> r = Optional.empty();
-        output_buffer = new StringBuilder();
-        String command = command_string;
-        out.printf("running %s through chain\n", command);
-        InputPad my_pad = new NumPad("number");
-        push_pad(my_pad);
-        InputPad dir_pad = new DirPad("first dir", my_pad);
-        push_pad(dir_pad);
-        InputPad dir_pad2 = new DirPad("second dir", dir_pad);
-        push_pad(dir_pad2);
-        for (char ch : command.toCharArray()) {
-//            out.printf("top command: %c \t", ch);
-            r = dir_pad2.move(ch);
-//            out.printf("r: %s\n",r);
-            if(r.isPresent()) {
-                output_buffer.append(r.get());
-            }
-        }
-        out.printf("full chain result: %s\n", output_buffer);
- //       debug_stack();
-    }
-
-
-
-    static ArrayList<InputPad> stack_list = null;
-    private static void push_pad(InputPad pad) {
-        if(stack_list==null) {
-            stack_list = new ArrayList<>();
-        }
-        stack_list.add(pad);
-        pad_stack = stack_list.toArray(new InputPad[stack_list.size()]);
-    }
-
     protected static String getPart2() {
+
         long answer = -1;
         return String.valueOf(answer);
     }
 
-    protected static void parseInput(String filename) throws IOException {
-        lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
 
-        DirPad.initialize();
-        NumPad.initialize();
 
-    }
+     enum DirKey{
+        Up, Down, Left, Right, A;
 
-    static void debug_stack() {
-        out.println("\n debugging full pad stack");
-        out.printf("\toutput_buffer: %s\n", Day21.output_buffer.toString());
-        out.printf("\tdebug_buffer: %s\n", Day21.debug_buffer.toString());
-        for(int i=pad_stack.length-1; i >= 0; i--) {
-            InputPad ip = pad_stack[i];
-            out.printf("\tpad %s, arm_pos: %s over: %c, count: %d, %s\n",
-                    ip.name, ip.arm_pos, ip.currentButtonUnderArm(), ip.arm_mount_count, ip
-                    );
+        public DirKey[][] go_press(DirKey next) {
+            DirKey[][] moves = {{}};
+             switch(this) {
+                case Up -> {
+                    switch(next) {
+                        case Up -> {DirKey[][] Up_Up = {{}};
+                            moves = Up_Up;
+                        }
+                        case Down -> {    DirKey[][] Up_Down = {{Down}};
+                            moves = Up_Down;
+                        }
+                        case Left -> {DirKey[][] Up_Left = {{Down,Left}};
+                            moves = Up_Left;
+                        }
+                        case Right -> {  DirKey[][] Up_Right = {{Down, Right},{Right, Down}};
+                            moves = Up_Right;
+                        }
+                        case A -> {
+                            DirKey[][] Up_A = {{Right}};
+                            moves = Up_A;
+                        }
+                    }
+                }
+                case Down -> {
+                    switch(next) {
+                        case Up -> {DirKey[][] Up_Up = {{Up}};
+                            moves = Up_Up;
+                        }
+                        case Down -> {    DirKey[][] Up_Down = {{}};
+                            moves = Up_Down;
+                        }
+                        case Left -> {DirKey[][] Up_Left = {{Left}};
+                            moves = Up_Left;
+                        }
+                        case Right -> {  DirKey[][] Up_Right = {{Up, Right},{Right,Up}};
+                            moves = Up_Right;
+                        }
+                        case A -> {
+                            DirKey[][] Up_A = {{Up,Right},{Right,Up}};
+                            moves = Up_A;
+                        }
+                    }
+                }
+                case Left -> {
+                    switch(next) {
+                        case Up -> {DirKey[][] Up_Up = {{Right, Up}};
+                            moves = Up_Up;
+                        }
+                        case Down -> {    DirKey[][] Up_Down = {{Right}};
+                            moves = Up_Down;
+                        }
+                        case Left -> {DirKey[][] Up_Left = {{}};
+                            moves = Up_Left;
+                        }
+                        case Right -> {  DirKey[][] Up_Right = {{Right,Right}};
+                            moves = Up_Right;
+                        }
+                        case A -> {
+                            DirKey[][] Up_A = {{Right,Right,Up}};
+                            moves = Up_A;
+                        }
+                    }
+                }
+                case Right -> {
+                    switch(next) {
+                        case Up -> {DirKey[][] Up_Up = {{Up, Left},{Left,Up}};
+                            moves = Up_Up;
+                        }
+                        case Down -> {    DirKey[][] Up_Down = {{Left}};
+                            moves = Up_Down;
+                        }
+                        case Left -> {DirKey[][] Up_Left = {{Left,Left}};
+                            moves = Up_Left;
+                        }
+                        case Right -> {  DirKey[][] Up_Right = {{}};
+                            moves = Up_Right;
+                        }
+                        case A -> {
+                            DirKey[][] Up_A = {{Up}};
+                            moves = Up_A;
+                        }
+                    }
+                }
+                case A -> {
+                    switch(next) {
+                        case Up -> {DirKey[][] Up_Up = {{Left}};
+                            moves = Up_Up;
+                        }
+                        case Down -> {    DirKey[][] Up_Down = {{Left, Down},{Down,Left}};
+                            moves = Up_Down;
+                        }
+                        case Left -> {DirKey[][] Up_Left = {{Down,Left,Left}};
+                            moves = Up_Left;
+                        }
+                        case Right -> {  DirKey[][] Up_Right = {{Down}};
+                            moves = Up_Right;
+                        }
+                        case A -> {
+                            DirKey[][] Up_A = {{}};
+                            moves = Up_A;
+                        }
+                    }
+                }
+            }
+            for(int i=0; i < moves.length; i++) {
+                DirKey[] move_a = moves[i];
+                DirKey[] move_b = new DirKey[move_a.length+1];
+                for(int j=0; j < move_a.length; j++){
+                    move_b[j] = move_a[j];
+                }
+                move_b[move_a.length] = A;
+                moves[i]=move_b;
+            }
+             return moves;
         }
-    }
-    static StringBuilder debug_buffer = new StringBuilder();
+
+
+         @Override
+         public String toString() {
+             return switch(this){
+                 case Up -> "^";
+                 case Down -> "v";
+                 case Left -> "<";
+                 case Right -> ">";
+                 case A -> "A";
+             };
+         }
+     }
+
+     static private String dirs_to_string(DirKey[] dirs) {
+        StringBuilder sb = new StringBuilder();
+        for(DirKey d: dirs) {
+            sb.append(d.toString());
+        }
+        return sb.toString();
+     }
+
+     enum NumKey {
+         K7, K8, K9, K4, K5, K6, K1, K2, K3, K0, KA;
+        private enum NumKey_Internal {
+            K7, K8, K9, K4, K5, K6, K1, K2, K3, K0, KA, NN;
+        }
+         public Optional<NumKey> next_key(DirKey dir) {
+             if(dir.equals(DirKey.A)) {
+                 throw new IllegalArgumentException(String.format("Expected NSEW Direction, got A"));
+             }
+             int a = this.ordinal();
+             int b = dir.ordinal();
+             NumKey_Internal t = lookup[a][b];
+             if(t == NumKey_Internal.NN) {
+                 return Optional.empty();
+             } else {
+                 return Optional.of(NumKey.values()[t.ordinal()]);
+             }
+         }
+
+
+         private static NumKey_Internal[][] lookup =
+                 {
+                         {NumKey_Internal.NN, NumKey_Internal.K4, NumKey_Internal.NN, NumKey_Internal.K8},           //K7
+                         {NumKey_Internal.NN, NumKey_Internal.K5, NumKey_Internal.K7, NumKey_Internal.K9},           //K8
+                         {NumKey_Internal.NN, NumKey_Internal.K6, NumKey_Internal.K8, NumKey_Internal.NN},           //K9
+
+                         {NumKey_Internal.K7, NumKey_Internal.K1, NumKey_Internal.NN, NumKey_Internal.K5},           //K4
+                         {NumKey_Internal.K8, NumKey_Internal.K2, NumKey_Internal.K4, NumKey_Internal.K6},           //K5
+                         {NumKey_Internal.K9, NumKey_Internal.K3, NumKey_Internal.K5, NumKey_Internal.NN},           //K6
+
+                         {NumKey_Internal.K4, NumKey_Internal.NN, NumKey_Internal.NN, NumKey_Internal.K2},           //K1
+                         {NumKey_Internal.K5, NumKey_Internal.K0, NumKey_Internal.K1, NumKey_Internal.K3},           //K2
+                         {NumKey_Internal.K6, NumKey_Internal.KA, NumKey_Internal.K2, NumKey_Internal.NN},           //K3
+
+                         {NumKey_Internal.K2, NumKey_Internal.NN, NumKey_Internal.NN, NumKey_Internal.KA},           //K0
+                         {NumKey_Internal.K3, NumKey_Internal.NN, NumKey_Internal.K0, NumKey_Internal.NN},           //Ka
+                 };
+     }
+
+
 }
