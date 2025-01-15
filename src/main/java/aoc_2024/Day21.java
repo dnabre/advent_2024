@@ -5,22 +5,20 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.Optional;
-
-import static java.lang.System.out;
 
 public class Day21 {
 
-    public static final String PART1_ANSWER = "";
-    public static final String PART2_ANSWER = "";
-    public static String[] lines = null;
-
-    public static void parseInput(String filename) throws IOException {
-        lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
-    }
+    public static final String PART1_ANSWER = "157230";
+    public static final String PART2_ANSWER = "195969155897936";
+    public static String[] lines;
+    private static HashMap<CodeSpan, String> dirPadMoves;
+    private static HashMap<Order, Long> keyToLongCache;
+    private static HashMap<CodeSpan, String> numPadMoves;
+    private static final int PART1_NUMBER_OF_ROBOTS = 2;
+    private static final int PART2_NUMBER_OF_ROBOTS = 25;
+    private static final char[][] dirPad = {{' ', '^', 'A'}, {'<', 'v', '>'}};
+    private static final char[][] numPad = {{'7', '8', '9'}, {'4', '5', '6'}, {'1', '2', '3'}, {' ', '0', 'A'}};
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -31,16 +29,15 @@ public class Day21 {
         out.println();
 
         String[] answers = {"", ""};
-
         parseInput(inputString);
         answers[0] = getPart1();
         answers[1] = getPart2();
+
 
         if (!AdventOfCode2024.TESTING) {
             if (!answers[0].equals(PART1_ANSWER)) {
                 out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
             }
-
             if (!answers[1].equals(PART2_ANSWER)) {
                 out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
             }
@@ -49,404 +46,197 @@ public class Day21 {
     }
 
     protected static String getPart1() {
-
-
-
-
-        long answer = -1;
+        long total = 0;
+        for (String code : lines) {
+            long numeric_part_code = Long.parseLong(code.replaceAll("\\D", ""));
+            String command = findShortestCommand(code);
+            long complexity = numeric_part_code * command.length();
+            total += complexity;
+        }
+        long answer = total;
         return String.valueOf(answer);
     }
 
     protected static String getPart2() {
-
-        long answer = -1;
+        // Part 2 generates really massive command sequences, just keep track of their length
+        long total = 0;
+        for (String code : lines) {
+            long numeric_part_code = Long.parseLong(code.replaceAll("\\D", ""));
+            long command_length = findLengthOfShortestCommand(code);
+            total += numeric_part_code * command_length;
+        }
+        long answer = total;
         return String.valueOf(answer);
     }
 
-
-    enum DirKey {
-        Up, Down, Left, Right, A;
-
-        public DirKey[][] go_press(DirKey next) {
-            DirKey[][] moves = {{}};
-            switch (this) {
-                case Up -> {
-                    switch (next) {
-                        case Up -> {
-                            DirKey[][] Up_Up = {{}};
-                            moves = Up_Up;
-                        }
-                        case Down -> {
-                            DirKey[][] Up_Down = {{Down}};
-                            moves = Up_Down;
-                        }
-                        case Left -> {
-                            DirKey[][] Up_Left = {{Down, Left}};
-                            moves = Up_Left;
-                        }
-                        case Right -> {
-                            DirKey[][] Up_Right = {{Down, Right}, {Right, Down}};
-                            moves = Up_Right;
-                        }
-                        case A -> {
-                            DirKey[][] Up_A = {{Right}};
-                            moves = Up_A;
-                        }
-                    }
-                }
-                case Down -> {
-                    switch (next) {
-                        case Up -> {
-                            DirKey[][] Up_Up = {{Up}};
-                            moves = Up_Up;
-                        }
-                        case Down -> {
-                            DirKey[][] Up_Down = {{}};
-                            moves = Up_Down;
-                        }
-                        case Left -> {
-                            DirKey[][] Up_Left = {{Left}};
-                            moves = Up_Left;
-                        }
-                        case Right -> {
-                            DirKey[][] Up_Right = {{Up, Right}, {Right, Up}};
-                            moves = Up_Right;
-                        }
-                        case A -> {
-                            DirKey[][] Up_A = {{Up, Right}, {Right, Up}};
-                            moves = Up_A;
-                        }
-                    }
-                }
-                case Left -> {
-                    switch (next) {
-                        case Up -> {
-                            DirKey[][] Up_Up = {{Right, Up}};
-                            moves = Up_Up;
-                        }
-                        case Down -> {
-                            DirKey[][] Up_Down = {{Right}};
-                            moves = Up_Down;
-                        }
-                        case Left -> {
-                            DirKey[][] Up_Left = {{}};
-                            moves = Up_Left;
-                        }
-                        case Right -> {
-                            DirKey[][] Up_Right = {{Right, Right}};
-                            moves = Up_Right;
-                        }
-                        case A -> {
-                            DirKey[][] Up_A = {{Right, Right, Up}};
-                            moves = Up_A;
-                        }
-                    }
-                }
-                case Right -> {
-                    switch (next) {
-                        case Up -> {
-                            DirKey[][] Up_Up = {{Up, Left}, {Left, Up}};
-                            moves = Up_Up;
-                        }
-                        case Down -> {
-                            DirKey[][] Up_Down = {{Left}};
-                            moves = Up_Down;
-                        }
-                        case Left -> {
-                            DirKey[][] Up_Left = {{Left, Left}};
-                            moves = Up_Left;
-                        }
-                        case Right -> {
-                            DirKey[][] Up_Right = {{}};
-                            moves = Up_Right;
-                        }
-                        case A -> {
-                            DirKey[][] Up_A = {{Up}};
-                            moves = Up_A;
-                        }
-                    }
-                }
-                case A -> {
-                    switch (next) {
-                        case Up -> {
-                            DirKey[][] Up_Up = {{Left}};
-                            moves = Up_Up;
-                        }
-                        case Down -> {
-                            DirKey[][] Up_Down = {{Left, Down}, {Down, Left}};
-                            moves = Up_Down;
-                        }
-                        case Left -> {
-                            DirKey[][] Up_Left = {{Down, Left, Left}};
-                            moves = Up_Left;
-                        }
-                        case Right -> {
-                            DirKey[][] Up_Right = {{Down}};
-                            moves = Up_Right;
-                        }
-                        case A -> {
-                            DirKey[][] Up_A = {{}};
-                            moves = Up_A;
-                        }
-                    }
+    protected static void parseInput(String filename) throws IOException {
+        lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
+        HashMap<Character, Vector2d> numeric_pad_position_map = new HashMap<>();
+        for (int y1 = 0; y1 < numPad.length; y1++) {
+            for (int x1 = 0; x1 < numPad[0].length; x1++) {
+                char ch1 = numPad[y1][x1];
+                if (ch1 != ' ') {
+                    numeric_pad_position_map.put(numPad[y1][x1], new Vector2d(x1, y1));
                 }
             }
-            for (int i = 0; i < moves.length; i++) {
-                DirKey[] move_a = moves[i];
-                DirKey[] move_b = new DirKey[move_a.length + 1];
-                System.arraycopy(move_a, 0, move_b, 0, move_a.length);
-                move_b[move_a.length] = A;
-                moves[i] = move_b;
+        }
+        HashMap<Character, Vector2d> directional_pad_position_map = new HashMap<>();
+        for (int y = 0; y < dirPad.length; y++) {
+            for (int x = 0; x < dirPad[0].length; x++) {
+                char ch = dirPad[y][x];
+                if (ch != ' ') {
+                    directional_pad_position_map.put(dirPad[y][x], new Vector2d(x, y));
+                }
             }
-            return moves;
         }
 
-
-        @Override
-        public String toString() {
-            return switch (this) {
-                case Up -> "^";
-                case Down -> "v";
-                case Left -> "<";
-                case Right -> ">";
-                case A -> "A";
-            };
+        numPadMoves = new HashMap<>();
+        for (char left : numeric_pad_position_map.keySet()) {
+            for (char right : numeric_pad_position_map.keySet()) {
+                CodeSpan n_cmd = new CodeSpan(left, right);
+                String n_order = orderArmMovements(numeric_pad_position_map.get(left), numeric_pad_position_map.get(right), true);
+                numPadMoves.put(n_cmd, n_order);
+            }
         }
-    }
-    record NumState(NumKey key, ArrayList<NumKey> path) {
-
+        dirPadMoves = new HashMap<>();
+        for (char left : directional_pad_position_map.keySet()) {
+            for (char right : directional_pad_position_map.keySet()) {
+                CodeSpan n_cmd = new CodeSpan(left, right);
+                String n_order = orderArmMovements(directional_pad_position_map.get(left), directional_pad_position_map.get(right), false);
+                dirPadMoves.put(n_cmd, n_order);
+            }
+        }
+        keyToLongCache = new HashMap<>();
     }
 
-    enum NumKey {
-        K7, K8, K9, K4, K5, K6, K1, K2, K3, K0, KA;
-
-        public ArrayList<ArrayList<NumKey>> find_all_paths_to(NumKey to) {
-            ArrayList<ArrayList<NumKey>> paths = new ArrayList<>();
-            ArrayDeque<NumState> queue = new ArrayDeque<>();
-            HashMap<NumKey,Integer> shortest_distances = new HashMap<>();
-
-            ArrayList<NumKey> t = new ArrayList<>();
-            t.add(this);
-            queue.addLast(new NumState(this,t));
-            shortest_distances.put(this,1);
-
-            int shortest_path_length = Integer.MAX_VALUE;
-            while(!queue.isEmpty()) {
-                NumState current = queue.removeFirst();
-                int current_path_lenth = current.path.size();
-
-                if(current.key == to) {
-                    if (current_path_lenth  < shortest_path_length) {
-                        shortest_path_length = current_path_lenth;
-                        paths = new ArrayList<>();
-                        paths.addLast(current.path);
-                    } else if (current_path_lenth == shortest_path_length) {
-                        paths.addLast(current.path);
-                    }
-                    continue;
-                }
-
-                if (current_path_lenth >= shortest_path_length) {
-                    continue;
-                }
-
-                for(NumKey next_key: current.key.neighbor_keys_iter()) {
-                    int next_dist = shortest_distances.getOrDefault(next_key, Integer.MAX_VALUE);
-                    if (current_path_lenth < next_dist) {
-                        next_dist = current_path_lenth + 1;
-                        shortest_distances.put(next_key,next_dist);
-                        ArrayList<NumKey> next_path = new ArrayList<>(current.path);
-                        next_path.addLast(next_key);
-                        queue.addLast(new NumState(next_key, next_path));
-                    } else {
-                        shortest_distances.put(next_key,next_dist);
-                    }
-                }
-            }
-            return paths;
-        }
-
-
-        private static final NumKey_Internal[][] lookup = {{NumKey_Internal.NN, NumKey_Internal.K4, NumKey_Internal.NN, NumKey_Internal.K8},           //K7
-                {NumKey_Internal.NN, NumKey_Internal.K5, NumKey_Internal.K7, NumKey_Internal.K9},           //K8
-                {NumKey_Internal.NN, NumKey_Internal.K6, NumKey_Internal.K8, NumKey_Internal.NN},           //K9
-
-                {NumKey_Internal.K7, NumKey_Internal.K1, NumKey_Internal.NN, NumKey_Internal.K5},           //K4
-                {NumKey_Internal.K8, NumKey_Internal.K2, NumKey_Internal.K4, NumKey_Internal.K6},           //K5
-                {NumKey_Internal.K9, NumKey_Internal.K3, NumKey_Internal.K5, NumKey_Internal.NN},           //K6
-
-                {NumKey_Internal.K4, NumKey_Internal.NN, NumKey_Internal.NN, NumKey_Internal.K2},           //K1
-                {NumKey_Internal.K5, NumKey_Internal.K0, NumKey_Internal.K1, NumKey_Internal.K3},           //K2
-                {NumKey_Internal.K6, NumKey_Internal.KA, NumKey_Internal.K2, NumKey_Internal.NN},           //K3
-
-                {NumKey_Internal.K2, NumKey_Internal.NN, NumKey_Internal.NN, NumKey_Internal.KA},           //K0
-                {NumKey_Internal.K3, NumKey_Internal.NN, NumKey_Internal.K0, NumKey_Internal.NN},           //Ka
-        };
-
-        public Optional<NumKey> next_key(DirKey dir) {
-            if (dir.equals(DirKey.A)) {
-                throw new IllegalArgumentException("Expected NSEW Direction, got A");
-            }
-            int a = this.ordinal();
-            int b = dir.ordinal();
-            NumKey_Internal t = lookup[a][b];
-            if (t == NumKey_Internal.NN) {
-                return Optional.empty();
-            } else {
-                return Optional.of(NumKey.values()[t.ordinal()]);
-            }
-        }
-
-        public DirKey dir(NumKey next) {
-            switch (this) {
-                case K7 -> {
-                    switch (next) {
-                        case K8:
-                            return DirKey.Right;
-                        case K4:
-                            return DirKey.Down;
-                    }
-                }
-                case K8 -> {
-                    switch (next) {
-                        case K7:
-                            return DirKey.Left;
-                        case K9:
-                            return DirKey.Right;
-                        case K5:
-                            return DirKey.Down;
-                    }
-                }
-                case K9 -> {
-                    switch (next) {
-                        case K8:
-                            return DirKey.Left;
-                        case K6:
-                            return DirKey.Down;
-                    }
-                }
-                case K4 -> {
-                    switch (next) {
-                        case K7:
-                            return DirKey.Up;
-                        case K5:
-                            return DirKey.Right;
-                        case K1:
-                            return DirKey.Down;
-                    }
-                }
-                case K5 -> {
-                    switch (next) {
-                        case K8:
-                            return DirKey.Up;
-                        case K4:
-                            return DirKey.Left;
-                        case K6:
-                            return DirKey.Right;
-                        case K2:
-                            return DirKey.Down;
-                    }
-                }
-                case K6 -> {
-                    switch (next) {
-                        case K9:
-                            return DirKey.Up;
-                        case K5:
-                            return DirKey.Left;
-                        case K3:
-                            return DirKey.Down;
-                    }
-                }
-                case K1 -> {
-                    switch (next) {
-                        case K4:
-                            return DirKey.Up;
-                        case K2:
-                            return DirKey.Right;
-                    }
-                }
-                case K2 -> {
-                    switch (next) {
-                        case K5:
-                            return DirKey.Up;
-                        case K1:
-                            return DirKey.Left;
-                        case K3:
-                            return DirKey.Right;
-                        case K0:
-                            return DirKey.Down;
-                    }
-                }
-                case K3 -> {
-                    switch (next) {
-                        case K6:
-                            return DirKey.Up;
-                        case K2:
-                            return DirKey.Left;
-                        case KA:
-                            return DirKey.Down;
-                    }
-                }
-                case K0 -> {
-                    switch (next) {
-                        case K2:
-                            return DirKey.Up;
-                        case KA:
-                            return DirKey.Right;
-                    }
-                }
-                case KA -> {
-                    switch (next) {
-                        case K0:
-                            return DirKey.Left;
-                        case K3:
-                            return DirKey.Up;
-                    }
-                }
-            }
-            throw new IllegalArgumentException(String.format("%s and %s aren't neighbors!", this, next));
-        }
-
-        public ArrayList<NumKey> neighbor_keys_iter() {
-            ArrayList<NumKey> r = new ArrayList<>();
-            for (DirKey d : DirKey.values()) {
-                Optional<NumKey> o = this.next_key(d);
-                if (o.isPresent()) {
-                    r.add(o.get());
-                }
-            }
-            return r;
-        }
-
-        @Override
-        public String toString() {
-            return switch (this) {
-                case K7 -> "7";
-                case K8 -> "8";
-                case K9 -> "9";
-                case K4 -> "4";
-                case K5 -> "5";
-                case K6 -> "6";
-                case K1 -> "1";
-                case K2 -> "2";
-                case K3 -> "3";
-                case K0 -> "0";
-                case KA -> "A";
-            };
-        }
-
-        private enum NumKey_Internal {
-            K7, K8, K9, K4, K5, K6, K1, K2, K3, K0, KA, NN
-        }
-
-
+    record CodeSpan(char start, char end) {
     }
 
-    static private String dirs_to_string(DirKey[] dirs) {
+    record Order(String code, int robot_number) {
+    }
+
+    private static String buildCode(String code, int robot) {
+        if (robot == 0) {
+            return code;
+        }
+        if (code.length() == 1) {
+            return code;
+        }
+        StringBuilder total = new StringBuilder();
+        for (String move : code.split("A")) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i <= move.length(); i++) {
+                char start = 'A';
+                char end = 'A';
+                if (i != 0) {
+                    start = move.charAt(i - 1);
+                }
+                if (i != move.length()) {
+                    end = move.charAt(i);
+                }
+                CodeSpan m = new CodeSpan(start, end);
+
+                sb.append(dirPadMoves.get(m));
+                sb.append("A");
+            }
+
+            total.append(buildCode(sb.toString(), robot - 1));
+        }
+
+        return total.toString();
+    }
+
+    private static long buildCode_LengthOnly(String code, int robot) {
+        if (robot == 0) {
+            return code.length();
+        }
+        if (code.length() == 1) {
+            return 1;
+        }
+
+        Order order = new Order(code, robot);
+        if (keyToLongCache.containsKey(order)) {
+            return keyToLongCache.get(order);
+        }
+        long total = 0;
+        for (String move : code.split("A")) {
+            //      out.printf("countChars, code: %s, depth: %d, move: %s\n", code,depth,move);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i <= move.length(); i++) {
+                char start = 'A';
+                char end = 'A';
+                if (i != 0) {
+                    start = move.charAt(i - 1);
+                }
+                if (i != move.length()) {
+                    end = move.charAt(i);
+                }
+                CodeSpan m = new CodeSpan(start, end);
+
+                sb.append(dirPadMoves.get(m));
+                sb.append("A");
+            }
+            total += buildCode_LengthOnly(sb.toString(), robot - 1);
+        }
+        keyToLongCache.put(order, total);
+        return total;
+    }
+
+    private static long findLengthOfShortestCommand(String code) {
+
+        String numpad_code = getEndNumericCommand(code);
+        return buildCode_LengthOnly(numpad_code, PART2_NUMBER_OF_ROBOTS);
+    }
+
+    private static String findShortestCommand(String code0) {
+        String numpad_code = getEndNumericCommand(code0);
+        return buildCode(numpad_code, PART1_NUMBER_OF_ROBOTS);
+    }
+
+    private static String getEndNumericCommand(String code) {
         StringBuilder sb = new StringBuilder();
-        for (DirKey d : dirs) {
-            sb.append(d.toString());
+        for (int i = 0; i < code.length(); i++) {
+            char start_char;
+            if (i == 0) {
+                start_char = 'A';
+            } else {
+                start_char = code.charAt(i - 1);
+            }
+            CodeSpan cmd = new CodeSpan(start_char, code.charAt(i));
+            sb.append(numPadMoves.get(cmd));
+            sb.append("A");
         }
         return sb.toString();
     }
+
+    private static String orderArmMovements(Vector2d start, Vector2d end, boolean numeric) {
+        int dx = end.x - start.x;
+        int dy = end.y - start.y;
+        String v = ((dy > 0) ? "v" : "^").repeat(Math.abs(dy));
+        String h = ((dx > 0) ? ">" : "<").repeat(Math.abs(dx));
+        String right = v + h;
+        String left = h + v;
+        if (numeric) {
+            if ((start.y == numPad.length - 1) && (end.x == 0)) {
+                return right;
+
+            } else if ((start.x == 0) && (end.y == numPad.length - 1)) {
+                return left;
+            }
+        } else {
+            if (start.x == 0) {
+                return left;
+            } else if (end.x == 0) {
+                return right;
+            }
+        }
+        if ((dy < 0 && dx < 0) || (dy > 0 && dx < 0)) {
+            return left;
+        }
+        if ((dy < 0 && dx > 0) || (dy > 0 && dx > 0)) {
+            return right;
+        }
+        return left;
+    }
+
 }
