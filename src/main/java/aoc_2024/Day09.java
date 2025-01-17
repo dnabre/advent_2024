@@ -9,8 +9,6 @@ import java.util.Comparator;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
 
-import static java.lang.System.out;
-
 
 public class Day09 {
 
@@ -18,20 +16,16 @@ public class Day09 {
     public static final String PART2_ANSWER = "6363913128533";
     private static char[] packed_disk;
 
-    private sealed interface BlockSpan { }
-    private record FileBlock(int number, int offset, int size) implements BlockSpan { }
-    private record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {
-        @Override
-        public int compareTo(EmptyBlock other) {
-            return Integer.compare(this.offset, other.offset);
-        }
-    }
-
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
-        out.println("\tDay  9");
+        out.print("\tDay  24");
+        if (AdventOfCode2024.TESTING) {
+            out.print("\t (testing)");
+        }
+        out.println();
 
         String[] answers = {"", ""};
+
         parseInput(inputString);
         answers[0] = getPart1();
         answers[1] = getPart2();
@@ -48,13 +42,7 @@ public class Day09 {
         return answers;
     }
 
-    public static void parseInput(String filename) throws IOException {
-        String raw_input = Files.readString(Path.of(filename));
-        packed_disk = raw_input.toCharArray();
-
-    }
-
-    public static String getPart1() {
+    protected static String getPart1() {
         int[] disk = getUnpackedDisk(packed_disk);
         int used_space = 0;
         for (int v : disk) {
@@ -78,7 +66,7 @@ public class Day09 {
         return String.valueOf(answer);
     }
 
-    public static String getPart2()  {
+    protected static String getPart2() {
         ArrayList<FileBlock> file_list = new ArrayList<>();
         ArrayList<EmptyBlock> empty_list = new ArrayList<>();
 
@@ -110,9 +98,9 @@ public class Day09 {
         file_list.sort(Comparator.comparingInt(f -> -f.number));
         TreeSet<EmptyBlock> empty_blocks = new TreeSet<>(empty_list);
         for (FileBlock f : file_list) {
-             EmptyBlock go_here = null;
+            EmptyBlock go_here = null;
             for (EmptyBlock eb : empty_blocks) {
-                if ((eb.size >= f.size)  && (eb.offset < f.offset )){
+                if ((eb.size >= f.size) && (eb.offset < f.offset)) {
                     go_here = eb;
                     break;
                 }
@@ -138,6 +126,24 @@ public class Day09 {
         return String.valueOf(answer);
     }
 
+    protected static void parseInput(String filename) throws IOException {
+        String raw_input = Files.readString(Path.of(filename));
+        packed_disk = raw_input.toCharArray();
+
+    }
+
+    private sealed interface BlockSpan {
+    }
+
+    private record FileBlock(int number, int offset, int size) implements BlockSpan {
+    }
+
+    private record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {
+        @Override
+        public int compareTo(EmptyBlock other) {
+            return Integer.compare(this.offset, other.offset);
+        }
+    }
 
     private static long getChecksum(int[] disk_for_checksum) {
         long checksum = 0;
@@ -171,8 +177,6 @@ public class Day09 {
         return disk_list.stream().flatMapToInt(IntStream::of).toArray();
 
     }
-
-
 
 
 }
