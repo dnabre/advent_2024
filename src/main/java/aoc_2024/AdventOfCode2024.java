@@ -28,7 +28,8 @@ public class AdventOfCode2024 {
             {"inputs/2024/day_21_test_01.txt", "inputs/2024/day_21_test_02.txt", "inputs/2024/day_21_test_03.txt"},
             {"inputs/2024/day_22_test_01.txt","inputs/2024/day_22_test_02.txt"},
             {"inputs/2024/day_23_test_01.txt","inputs/2024/day_23_test_02.txt"},
-            {"inputs/2024/day_24_test_01.txt","inputs/2024/day_24_test_02.txt"},
+            {"inputs/2024/day_24_test_01.txt","inputs/2024/day_24_test_02.txt",
+                        "inputs/2024/day_24_test_03.txt","inputs/2024/day_24_test_04.txt"},
             {"inputs/2024/day_25_test_01.txt"}
     };
 
