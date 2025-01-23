@@ -96,9 +96,13 @@ public class Day24 {
 
 
     /*
+<<<<<<< HEAD
      to produce wrong answers. The first pair of gates with swapped outputs
      is x00 AND y00 -> z05 and x05 AND y05 -> z00; the second pair of
       gates is x01 AND y01 -> z02 and x02 AND y02 -> z01.
+=======
+     brute-forced answer. Helpful for testing doing it sensibly
+>>>>>>> d24c78e (So c)
      */
 static private String[][] swaps = {{ "z05", "jst"},{"mcm", "gdf"},{"z15", "dnt"},{"z30", "gwc"}};
 
@@ -420,11 +424,21 @@ out.println("\n end of assumption checking\n");
        HashMap<String,int[]> name_to_counts = new HashMap<>();
        out.printf("total number of names: %d\n", names.size());
         for(String name_check : name_a) {
+<<<<<<< HEAD
             int[] counts = new int[4];
             start_str_check = name_check;
             for (String output : gate_map.keySet()) {
                 Gate g = gate_map.get(output);
 
+=======
+            int[] counts = new int[5];
+            start_str_check = name_check;
+            for (String output : gate_map.keySet()) {
+                Gate g = gate_map.get(output);
+                if(output.equals(name_check)) {
+                    counts[4]++;
+                }
+>>>>>>> d24c78e (So c)
                 switch (g.which()) {
                     case SRC -> {
                         if (g.getName().startsWith(start_str_check)) {
@@ -469,11 +483,22 @@ out.println("\n end of assumption checking\n");
 
     for(String name: name_a) {
         int[] counts = name_to_counts.get(name);
+<<<<<<< HEAD
     //    out.printf("\t  %5s \t [s: %3d, &: %3d, x: %3d, v: %3d] \n",name,counts[0],counts[1],counts[2],counts[3]);
+=======
+        out.printf("\t  %5s \t [s: %3d, &: %3d, x: %3d, v: %3d, o: %3d] \n",name,counts[0],counts[1],counts[2],counts[3], counts[4]);
+>>>>>>> d24c78e (So c)
         if(counts[1] ==0) {
             out.printf("\t\t suspicious number of ands (%d)\n", counts[1]);
             bad_outputs.add(name);
         }
+<<<<<<< HEAD
+=======
+        if(counts[4] != 1) {
+            out.printf("\t\t suspicious number of outputs (%d)\n", counts[4]);
+            bad_outputs.add(name);
+        }
+>>>>>>> d24c78e (So c)
     }
 
 
