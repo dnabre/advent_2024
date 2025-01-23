@@ -45,16 +45,16 @@ public class Day24 {
     }
 
     protected static String getPart1() {
-        for(SourceGate sg: source_list) {
-            out.println(sg);
-        }
-        out.println();
-        for(Gate g: opgate_list) {
-            out.print(g);
-            BitValue bv = g.getValue();
-            out.printf(" := %s", bv);
-            out.println();
-        }
+//        for(SourceGate sg: source_list) {
+//            out.println(sg);
+//        }
+//        out.println();
+//        for(Gate g: opgate_list) {
+//            out.print(g);
+//            BitValue bv = g.getValue();
+//            out.printf(" := %s", bv);
+//            out.println();
+//        }
 
         String[] zgs = z_gate_names.toArray(new String[z_gates.size()]);
         Arrays.sort(zgs);
@@ -74,21 +74,15 @@ public class Day24 {
         String z_binary = sb.reverse().toString();
 
         long z_value = Long.parseLong(z_binary,2);
-        out.println();
-        out.printf("z-gates spells: %s -> %d\n", z_binary, z_value);
+//        out.println();
+//        out.printf("z-gates spells: %s -> %d\n", z_binary, z_value);
 
 
-//        out.printf("z_gates size: %d\n", z_gates.size());
-//        out.printf("z_gate_count: %d\n", z_gate_count);
 
-        long answer = -1;
+        long answer = z_value;
         return String.valueOf(answer);
     }
-//        int idx=0;
-//        while(idx < 15) {
-//            out.println(String.format("|z%02d|", idx));
-//            idx++;
-//        }
+
 
 
     protected static String getPart2() {
