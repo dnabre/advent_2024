@@ -21,20 +21,8 @@ import static java.lang.System.out;
 public class Day24 {
 
     public static final String PART1_ANSWER = "47666458872582";
-    public static final String PART2_ANSWER = "-1";
-    private static final GateType[] g_type = {GateType.SRC, GateType.AND, GateType.XOR, GateType.OR};
+    public static final String PART2_ANSWER = "dnt,gdf,gwc,jst,mcm,z05,z15,z30";
     private static final HashMap<String, Gate> gate_map = new HashMap<>();
-    //    private static ArrayList<SourceGate> source_list;
-    private static ArrayList<Gate> opgate_list;
-    /*
-<<<<<<< HEAD
-     to produce wrong answers. The first pair of gates with swapped outputs
-     is x00 AND y00 -> z05 and x05 AND y05 -> z00; the second pair of
-      gates is x01 AND y01 -> z02 and x02 AND y02 -> z01.
-=======
-     brute-forced answer. Helpful for testing doing it sensibly
->>>>>>> d24c78e (So c)
-     */
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
@@ -47,7 +35,7 @@ public class Day24 {
         String[] answers = {"", ""};
 
         parseInput(inputString);
-//        answers[0] = getPart1();
+        answers[0] = getPart1();
         answers[1] = getPart2();
 
         if (!AdventOfCode2024.TESTING) {
@@ -61,329 +49,70 @@ public class Day24 {
         }
         return answers;
     }
-/*
-    Adder
-    X Y -> Z, C
-        Z = X XOR Y XOR C
-        C = (X AND Y)  OR (C AND (X XOR Y))
 
- */
 
     protected static String getPart1() {
-
-
-        long x_num = getNumberFromGate('x');
-        long y_num = getNumberFromGate('y');
-        long z_num = getNumberFromGate('z');
-
-        out.printf("X+Y=Z => %d + %d = %d \n", x_num, y_num, z_num);
-        if (x_num + y_num != z_num) {
-            out.println("addition failreu");
-        }
-
-        long answer = z_num;
+        long answer = getNumberFromGate();
         return String.valueOf(answer);
     }
 
-    /*
-    Adder
-    X Y -> Z, C
-        Z = X XOR Y XOR C
-        C = (X AND Y)  OR (C AND (X XOR Y))
-
- */
 
     protected static String getPart2() {
-//        doSwaps(gate_map);
-        out.println("\n ---- swap corrections made ---- \n");
-        {
-            HashSet<Gate> x_gates = new HashSet<>();
-            HashSet<Gate> y_gates = new HashSet<>();
-            HashSet<Gate> z_gates = new HashSet<>();
-            // s, and, xor, or
-            int[] x_counts = new int[4];
-            int[] y_counts = new int[4];
-            int[] z_counts = new int[4];
-
-            for (Gate g : gate_map.values()) {
-                String[] vs = g.getAllNames();
-                for (String gn : vs) {
-                    if (gn.startsWith("x")) {
-                        x_gates.add(g);
-                        x_counts[g.type()]++;
-                    }
-                    if (gn.startsWith("y")) {
-                        y_gates.add(g);
-                        y_counts[g.type()]++;
-                    }
-                    if (gn.startsWith("z")) {
-                        z_gates.add(g);
-                        z_counts[g.type()]++;
-                    }
-                }
-
-            }
-
-            out.printf("total number of gate: %d\n", gate_map.size());
-            out.printf("x_counts:  \t\t (c: %d)\n", x_counts[0] + x_counts[1] + x_counts[2] + x_counts[3]);
-            printCounts(x_counts);
-            out.printf("y_counts:  \t\t (c: %d)\n", y_counts[0] + y_counts[1] + y_counts[2] + y_counts[3]);
-            printCounts(y_counts);
-            out.printf("z_counts:  \t\t (c: %d)\n", z_counts[0] + z_counts[1] + z_counts[2] + z_counts[3]);
-            printCounts(z_counts);
-        }
-        out.printf("Total of %d gates\n", gate_map.size());
 
         HashSet<String> bad_outputs = new HashSet<>();
-        HashSet<Gate> bad_gates = new HashSet<>();
-        // z should only be the result of XOR with the exception of the bit (z45) being the result of last  OR (from carry)
-
-        out.println("\n---------------------checking assertions---------------------\n");
-
-
-        //----------------- x time
-        out.println("checking assumption for x??");
-
-        out.print("\tx?? Should directly feed into 45 (number of bits) SRC, AND, & XOR gates\n");
-        int x_xor_count = 0;
-        int x_and_count = 0;
-        int x_src_count = 0;
-        boolean x_in_or = false;
-        String start_str_check = "x";
-        for (String output : gate_map.keySet()) {
-            Gate g = gate_map.get(output);
-            switch (g.which()) {
-                case SRC -> {
-                    if (g.getName().startsWith(start_str_check)) {
-                        x_src_count++;
-                    }
-                }
-                case AND -> {
-                    ANDGate a_g = (ANDGate) g;
-                    if ((a_g.left.startsWith(start_str_check)) || (a_g.right.startsWith(start_str_check))) {
-                        x_and_count++;
-                    }
-                }
-                case XOR -> {
-                    XORGate a_g = (XORGate) g;
-                    if ((a_g.left.startsWith(start_str_check)) || (a_g.right.startsWith(start_str_check))) {
-                        x_xor_count++;
-                    }
-                }
-                case OR -> {
-                    ORGate a_g = (ORGate) g;
-                    if ((a_g.left.startsWith(start_str_check)) || (a_g.right.startsWith(start_str_check))) {
-                        x_in_or = true;
-                        out.printf("\t\terror: x?? feeding directly into OR in, %s", g);
-                        bad_gates.add(g);
-                        bad_outputs.add(g.getName());
-                    }
-                }
-            }
-        }
-        if (x_in_or) {
-            out.print("\t\terror: x?? feeding into OR gates that it should\n");
-        }
-        if (x_xor_count != x_and_count) {
-            out.printf("\t\terror: x?? is feeding into an unequal number of XOR and AND gates  (%d, %d)\n", x_xor_count, x_and_count);
-        }
-        if (x_src_count != x_xor_count) {
-            out.printf("\t\terror: x?? is feeding into an unequal number of XOR and SRC gates  (%d, %d)\n", x_xor_count, x_src_count);
-        }
-        if (x_and_count != x_src_count) {
-            out.printf("\t\terror: x?? is feeding into an unequal number of AND and SRC gates  (%d, %d)\n", x_and_count, x_src_count);
-        }
-        if (x_and_count == x_src_count && x_src_count == x_xor_count) {
-            out.printf("\tx?? feeds the same number of XOR, SRC, AND gates (%d)\n", x_and_count);
-        }
-
-        //----------------- y time
-        out.println("checking assumption for y??");
-        out.print("\ty?? Should directly feed into 45 (number of bits) SRC, AND, & XOR gates\n");
-        int y_xor_count = 0;
-        int y_and_count = 0;
-        int y_src_count = 0;
-        boolean y_in_or = false;
-        start_str_check = "y";
-        for (String output : gate_map.keySet()) {
-            Gate g = gate_map.get(output);
-            switch (g.which()) {
-                case SRC -> {
-                    if (g.getName().startsWith(start_str_check)) {
-                        y_src_count++;
-                    }
-                }
-                case AND -> {
-                    ANDGate a_g = (ANDGate) g;
-                    if ((a_g.left.startsWith(start_str_check)) || (a_g.right.startsWith(start_str_check))) {
-                        y_and_count++;
-                    }
-                }
-                case XOR -> {
-                    XORGate a_g = (XORGate) g;
-                    if ((a_g.left.startsWith(start_str_check)) || (a_g.right.startsWith(start_str_check))) {
-                        y_xor_count++;
-                    }
-                }
-                case OR -> {
-                    ORGate a_g = (ORGate) g;
-                    if ((a_g.left.startsWith(start_str_check)) || (a_g.right.startsWith(start_str_check))) {
-                        y_in_or = true;
-                        out.printf("\t\terror: y?? feeding directly into OR in, %s", g);
-                        bad_gates.add(g);
-                        bad_outputs.add(g.getName());
-                    }
-                }
-            }
-        }
-        if (y_in_or) {
-            out.print("\t\terror: y?? feeding into OR gates that it should\n");
-        }
-        if (y_xor_count != y_and_count) {
-            out.printf("\t\terror: y?? is feeding into an unequal number of XOR and AND gates  (%d, %d)\n", y_xor_count, y_and_count);
-        }
-        if (y_src_count != y_xor_count) {
-            out.printf("\t\terror: y?? is feeding into an unequal number of XOR and SRC gates  (%d, %d)\n", y_xor_count, y_src_count);
-        }
-        if (y_and_count != y_src_count) {
-            out.printf("\t\terror: y?? is feeding into an unequal number of AND and SRC gates  (%d, %d)\n", y_and_count, y_src_count);
-        }
-        if (y_and_count == y_src_count && y_src_count == y_xor_count) {
-            out.printf("\ty?? feeds the same number of XOR, SRC, AND gates (%d)\n", y_and_count);
-        }
-
-
-        //----------------- z time
-        out.println("checking assumption for z??");
-        out.print("\tz?? Should be the output of  45 (number of bits-1 ) XOR gate and a single OR gate\n");
-        int z_xor_count = 0;
-        int z_and_count = 0;
-        int z_src_count = 0;
-        int z_or_count = 0;
-        boolean z_in_or = false;
-        start_str_check = "z";
-        ORGate z_or_gate = null;
-        for (String output : gate_map.keySet()) {
-            Gate g = gate_map.get(output);
-
-            switch (g.which()) {
-                case SRC -> {
-                    if (g.getName().startsWith(start_str_check)) {
-                        z_src_count++;
-                        out.printf("\t\terror: z?? is source gate, this shouldn't be: %s\n", g);
-                        bad_gates.add(g);
-                        bad_outputs.add(output);
-                    }
-                }
-                case AND -> {
-                    if (g.getName().startsWith(start_str_check)) {
-                        z_and_count++;
-                        out.printf("\t\terror: z?? is the output of AND gate, this shouldn't be: %s\n", g);
-                        bad_gates.add(g);
-                        bad_outputs.add(output);
-                    }
-                    ANDGate a_g = (ANDGate) g;
-                    if ((a_g.left.startsWith(start_str_check)) || (a_g.right.startsWith(start_str_check))) {
-                        out.printf("\t\terror: z?? is the input to AND gate: %s\n", a_g);
-                        bad_gates.add(g);
-                        bad_outputs.add(g.getName());
-
-                    }
-                }
-                case XOR -> {
-                    if (g.getName().startsWith(start_str_check)) {
-                        z_xor_count++;
-                        if (z_xor_count > 45) {
-                            out.printf("\t\terror: z?? is the output of too many XOR gates (%d), this shouldn't be: %s\n", z_xor_count, g);
-                            bad_gates.add(g);
-                            bad_outputs.add(output);
-                        }
-                    }
-                    XORGate a_g = (XORGate) g;
-                    if ((a_g.left.startsWith(start_str_check)) || (a_g.right.startsWith(start_str_check))) {
-                        out.printf("\t\terror: z?? is the input to XOR gate: %s\n", a_g);
-                        bad_gates.add(g);
-                        bad_outputs.add(output);
-
-                    }
-                }
-                case OR -> {
-                    ORGate a_g = (ORGate) g;
-                    if (a_g.name.startsWith(start_str_check)) {
-                        z_or_count++;
-                        z_or_gate = a_g;
-                        z_in_or = true;
-                        if (!a_g.name.equals("z45")) {
-                            out.printf("\t\terror: z?? is output of OR gate (not the single z45): %s \n", g);
-                            bad_gates.add(g);
-                            bad_outputs.add(output);
-                        }
-                    }
-                    if ((a_g.left.startsWith(start_str_check)) || (a_g.right.startsWith(start_str_check))) {
-                        z_in_or = true;
-                        out.printf("\t\terror: z?? is the input to  OR gate: %s\n", a_g);
-                        bad_gates.add(g);
-                        bad_outputs.add(g.getName());
-                    }
-                }
-            }
-        }
-
-        if (z_src_count > 0) {
-            out.printf("\t\terror: z?? is output of %d SRC gates instead of 0\n", z_src_count);
-        } else {
-            out.print("\tz?? is output of  no SRC gates, correct\n");
-        }
-        if (z_and_count > 0) {
-            out.printf("\t\terror: z?? is output of %d AND gates instead of 0\n", z_and_count);
-        } else {
-            out.print("\tz?? is output of  no AND gates, correct\n");
-        }
-        if (z_xor_count != 45) {
-            out.printf("\t\terror: z?? is output of %d XOR gates instead of 0\n", z_xor_count);
-        } else {
-            out.printf("\tz?? is output of %d XOR gates, correct\n", z_xor_count);
-        }
-
-
-        if (z_or_gate == null) {
-            assert (z_or_gate == null);
-            out.print("\t\terror: z?? is not in any OR gates, should be in precisely 1\n");
-        }
-
-        if (z_or_count == 1) {
-            if (z_or_gate.name.equals("z45")) {
-                out.print("\tz?? are in the single OR it should being (output to z45)\n");
-            } else {
-                out.printf("\t\terror: z?? is in one OR gate (ok), but the gate should be z45 but isn't: %s\n", z_or_gate);
-            }
-
-        } else {
-            out.printf("\t\terror: z?? is %d  OR gates, should be in precisely 1\n", z_or_count);
-        }
-        out.println("\n end of assumption checking\n");
-
-        out.printf("bad outputs: %s\n", bad_outputs);
-        out.print("bad gates:\n");
-        for (Gate b : bad_gates) {
-            out.printf("\t %s \n", b);
-        }
-
-        out.println("------------------------look at intermediate gates--------------------------");
-        out.printf("total number of gates: %d\n", gate_map.size());
+        String start_str_check;
         HashSet<String> names = new HashSet<>();
-        for (Gate g : gate_map.values()) {
+        start_str_check = "z";
+        for (String output : gate_map.keySet()) {
+            Gate g = gate_map.get(output);
             String[] nm = g.getAllNames();
             for (String n : nm) {
                 if (!inPart(n)) {
                     names.add(n);
                 }
             }
+            switch (g.which()) {
+                case SRC -> {
+                    if (g.getName().startsWith(start_str_check)) {
+
+
+                        bad_outputs.add(output);
+                    }
+                }
+                case AND -> {
+                    if (g.getName().startsWith(start_str_check)) {
+
+
+
+                        bad_outputs.add(output);
+                    }
+                    ANDGate a_g = (ANDGate) g;
+                    if ((a_g.left.startsWith(start_str_check)) || (a_g.right.startsWith(start_str_check))) {
+
+
+                        bad_outputs.add(g.getName());
+
+                    }
+                }
+                case XOR -> {
+
+
+                }
+                case OR -> {
+                    ORGate a_g = (ORGate) g;
+                    if (a_g.name.startsWith(start_str_check)) {
+                        if (!a_g.name.equals("z45")) {
+                            bad_outputs.add(output);
+                        }
+                    }
+
+                }
+            }
         }
-        String[] name_a = names.toArray(new String[names.size()]);
+
+        String[] name_a = names.toArray(new String[0]);
         Arrays.sort(name_a);
-        HashMap<String, int[]> name_to_counts = new HashMap<>();
-        out.printf("total number of names: %d\n", names.size());
+
         for (String name_check : name_a) {
             int[] counts = new int[5];
             start_str_check = name_check;
@@ -420,7 +149,7 @@ public class Day24 {
                                 }
                             }
                             if(!found_good_or) {
-                                bad_gates.add(g);
+
                                 bad_outputs.add(output);
                             }
                         }
@@ -439,39 +168,9 @@ public class Day24 {
                         if (!a_g.left.startsWith("x") && !a_g.left.startsWith("y")
                                 && !a_g.right.startsWith("x") && !a_g.right.startsWith("y")   &&!a_g.name.startsWith("z") ) {
 
-                                out.printf("gate: %s is bad\n", a_g);
-                                bad_gates.add(g);
                                 bad_outputs.add(output);
 
                         }
-//                        boolean gate_ok = false;
-//                        if(a_g.left.startsWith("x") || a_g.left.startsWith("y") || a_g.right.startsWith("x") || a_g.right.startsWith("y")) {
-//
-//
-//                            for(Gate gg: gate_map.values()) {
-//                                if(gg.which() == GateType.XOR ) {
-//                                    XORGate xg = (XORGate) gg;
-//                                    if (xg.left.equals(output) || xg.right.equals(output)) {
-//                                        gate_ok = true;
-//                                        break;
-//                                    }
-//                                }
-//                            }
-//
-//                        } else {
-//                                gate_ok = true;
-//                        }
-//                         if(!gate_ok) {
-//                             if(a_g.left.equals("x00") || a_g.left.equals("y00") ||a_g.right.equals("x00") || a_g.right.equals("y00")) {
-//
-//                             } else {
-//                                 out.printf("gate bad: %s\n", g);
-//                             }
-//                         }
-
-
-
-
                     }
                     case OR -> {
                         ORGate a_g = (ORGate) g;
@@ -484,59 +183,25 @@ public class Day24 {
                     }
                 }
             }
-            name_to_counts.put(name_check, counts);
-        }
-
-        out.println("names information");
-
-        for (String name : name_a) {
-            int[] counts = name_to_counts.get(name);
-
-
-            out.printf("\t  %5s \t [s: %3d, &: %3d, x: %3d, v: %3d, o: %3d] \n", name, counts[0], counts[1], counts[2], counts[3], counts[4]);
-
-            if (counts[1] == 0) {
-                out.printf("\t\t suspicious number of ands (%d)\n", counts[1]);
-                bad_outputs.add(name);
-            }
-
-            if (counts[4] != 1) {
-                out.printf("\t\t suspicious number of outputs (%d)\n", counts[4]);
-                bad_outputs.add(name);
+            if(counts[1] == 0) {
+                bad_outputs.add(name_check);
             }
 
         }
 
 
-        out.println();
-
-
-        String[] bad_names = bad_outputs.toArray(new String[bad_outputs.size()]);
+        String[] bad_names = bad_outputs.toArray(new String[0]);
         Arrays.sort(bad_names);
-        String answer = String.join(",", bad_names);
-//dnt,gdf,gwc,jst,mcm,z05,z15,z30
-
-        out.print("mine : ");
-        out.println(answer);
-
-        // So close
-        // my rpj needs to be jst
-
-
-
-
-        //long answer = -1;
-        return answer;
+        return String.join(",", bad_names);
     }
 
 
     private static ArrayList<ORGate> or_gates;
     protected static void parseInput(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Path.of(filename));
-        String r_lines = Files.readString(Path.of(filename));
         or_gates = new ArrayList<>();
 
-        String[] input_lines = lines.toArray(new String[lines.size()]);
+        String[] input_lines = lines.toArray(new String[0]);
 
         int idx = 0;
 
@@ -547,7 +212,6 @@ public class Day24 {
                 break;
             }
             String[] parts = ln.split(":");
-//            out.printf("%3d:\t%s\t%s\n", idx-1, ln, Arrays.toString(parts));
             String name = parts[0].trim();
             String s_value = parts[1].trim();
             BitValue bv = BitValue.parse(s_value);
@@ -556,32 +220,33 @@ public class Day24 {
             gate_map.put(name, sg);
 
         }
-        opgate_list = new ArrayList<>();
-//        out.println("---");
+
+
         while (idx < input_lines.length) {
             String ln = input_lines[idx];
             idx++;
             String[] parts = ln.split(AoCUtils.WHITESPACE_RE);
-//            out.printf("%3d:\t%s\t%s (parts: %d)\n", idx-1, ln, Arrays.toString(parts), parts.length);
+
             String left = parts[0].trim();
             String op = parts[1].trim();
             String right = parts[2].trim();
             String name = parts[4].trim();
             Gate g = null;
-            if (op.equals("AND")) {
-                g = new ANDGate(left, right, name);
-            } else if (op.equals("XOR")) {
-                g = new XORGate(left, right, name);
-            } else if (op.equals("OR")) {
-                ORGate og= new ORGate(left, right, name);
-                or_gates.add(og);
-                g = og;
-            } else {
-                out.printf("Unknown Gate type in input: %s, from line %3d: %s\n", op, idx - 1, ln);
-                System.exit(-1);
+            switch (op) {
+                case "AND" -> g = new ANDGate(left, right, name);
+                case "XOR" -> g = new XORGate(left, right, name);
+                case "OR" -> {
+                    ORGate og = new ORGate(left, right, name);
+                    or_gates.add(og);
+                    g = og;
+                }
+                default -> {
+                    out.printf("Unknown Gate type in input: %s, from line %3d: %s\n", op, idx - 1, ln);
+                    System.exit(-1);
+                }
             }
             gate_map.put(name, g);
-            opgate_list.add(g);
+
 
         }
 
@@ -590,21 +255,7 @@ public class Day24 {
     public enum BitValue {
         One, Zero, Unknown;
 
-        static public BitValue fromBool(boolean b) {
-            if (b) {
-                return One;
-            } else {
-                return Zero;
-            }
-        }
 
-        static public BitValue getBV(String s) {
-            if (s.equals("1")) {
-                return One;
-            } else {
-                return Zero;
-            }
-        }
 
         static public BitValue parse(String t) {
 
@@ -655,9 +306,7 @@ public class Day24 {
             return switch (this) {
                 case One -> true;
                 case Zero -> false;
-                case Unknown -> {
-                    throw new IllegalArgumentException("trying to get BitValue.Unknown as boolean");
-                }
+                default -> throw new IllegalArgumentException("trying to get BitValue.Unknown as boolean");
             };
         }
     }
@@ -671,7 +320,6 @@ public class Day24 {
 
         String getName();
 
-        Gate getGateSwappedOutput(String new_out);
 
         String[] getAllNames();
 
@@ -679,7 +327,7 @@ public class Day24 {
 
         GateType which();
 
-        BitValue getValueDebug();
+
     }
 
     record SourceGate(String name, BitValue value) implements Gate {
@@ -689,11 +337,7 @@ public class Day24 {
             gate_map.put(name, this);
         }
 
-        @Override
-        public BitValue getValueDebug() {
-            out.printf("SRC - %s -> %s\n", name,value);
-            return value;
-        }
+
 
         @Override
         public String[] getAllNames() {
@@ -710,10 +354,7 @@ public class Day24 {
             return 0;
         }
 
-        @Override
-        public Gate getGateSwappedOutput(String new_out) {
-            return new SourceGate(new_out, this.value);
-        }
+
 
         public String getName() {
             return this.name;
@@ -731,29 +372,12 @@ public class Day24 {
     }
 
     record ANDGate(String left, String right, String name) implements Gate {
-        @Override
-        public BitValue getValueDebug() {
-            BitValue l = gate_map.get(left).getValue();
-            BitValue r = gate_map.get(right).getValue();
-            BitValue result = l.and(r);
-            out.printf("%s - %s AND  %s - %s -> %s - %s \n",left,l,right,r,name,result);
-            gate_map.get(left).getValueDebug();
-            gate_map.get(right).getValueDebug();
-            return l.and(r);
-        }
+
 
         ANDGate(String left, String right, String name) {
             this.left = left;
             this.right = right;
             this.name = name;
-
-            if (this.left.startsWith("z")) {
-                out.printf("left input gate of (%s): %s\n", this.left, this);
-            }
-            if (this.right.startsWith("z")) {
-                out.printf("left input gate of (%s): %s\n", this.left, this);
-            }
-
             gate_map.put(name, this);
         }
 
@@ -767,10 +391,6 @@ public class Day24 {
             return new String[]{name, left, right};
         }
 
-        @Override
-        public Gate getGateSwappedOutput(String new_out) {
-            return new ANDGate(left, right, new_out);
-        }
 
         public String getName() {
             return this.name;
@@ -795,29 +415,13 @@ public class Day24 {
     }
 
     record XORGate(String left, String right, String name) implements Gate {
-        @Override
-        public BitValue getValueDebug() {
-            BitValue l = gate_map.get(left).getValue();
-            BitValue r = gate_map.get(right).getValue();
-            BitValue result = l.xor(r);
-            out.printf("%s - %s XOR  %s - %s -> %s - %s \n",left,l,right,r,name,result);
-            gate_map.get(left).getValueDebug();
-            gate_map.get(right).getValueDebug();
-            return result;
 
-        }
 
         XORGate(String left, String right, String name) {
             this.left = left;
             this.right = right;
             this.name = name;
-            if (this.left.startsWith("z")) {
-                out.printf("left input gate of (%s): %s\n", this.left, this);
-            }
-            if (this.right.startsWith("z")) {
-                out.printf("left input gate of (%s): %s\n", this.left, this);
-            }
-            gate_map.put(name, this);
+                       gate_map.put(name, this);
         }
 
         @Override
@@ -830,10 +434,6 @@ public class Day24 {
             return GateType.XOR;
         }
 
-        @Override
-        public Gate getGateSwappedOutput(String new_out) {
-            return new XORGate(left, right, new_out);
-        }
 
         @Override
         public String[] getAllNames() {
@@ -859,29 +459,14 @@ public class Day24 {
     }
 
     record ORGate(String left, String right, String name) implements Gate {
-        @Override
-        public BitValue getValueDebug() {
-            BitValue l = gate_map.get(left).getValue();
-            BitValue r = gate_map.get(right).getValue();
-            BitValue result = l.or(r);
-            out.printf("%s - %s  OR  %s - %s -> %s - %s \n",left,l,right,r,name,result);
-            gate_map.get(left).getValueDebug();
-            gate_map.get(right).getValueDebug();
-            return result;
 
-        }
 
         ORGate(String left, String right, String name) {
 
             this.left = left;
             this.right = right;
             this.name = name;
-            if (this.left.startsWith("z")) {
-                out.printf("left input gate of (%s): %s\n", this.left, this);
-            }
-            if (this.right.startsWith("z")) {
-                out.printf("left input gate of (%s): %s\n", this.left, this);
-            }
+
             gate_map.put(name, this);
         }
 
@@ -895,10 +480,7 @@ public class Day24 {
             return GateType.OR;
         }
 
-        @Override
-        public Gate getGateSwappedOutput(String new_out) {
-            return new ORGate(left, right, new_out);
-        }
+
 
         @Override
         public String[] getAllNames() {
@@ -918,78 +500,24 @@ public class Day24 {
         public BitValue getValue() {
             BitValue l = gate_map.get(left).getValue();
             BitValue r = gate_map.get(right).getValue();
-            BitValue result = l.or(r);
-
-            out.printf("%s - %s  OR  %s - %s -> %s - %s \n",left,l,right,r,name,result);
-            return result;
+            return l.or(r);
 
         }
     }
 
-    private static void checkGates() {
-        long x_num = getNumberFromGate('x');
-        long y_num = getNumberFromGate('y');
-        long z_num = getNumberFromGate('z');
-        long rr = x_num + y_num;
-
-        String x = Long.toString(x_num, 2);
-        String y = Long.toString(y_num, 2);
-        String z = Long.toString(z_num, 2);
-        String r = Long.toString(rr, 2);
-        int ll = Math.max(z.length(), r.length());
-        x = "0".repeat(ll - x.length()) + x;
-        y = "0".repeat(ll - y.length()) + y;
-        z = "0".repeat(ll - z.length()) + z;
-        r = "0".repeat(ll - r.length()) + r;
-
-        out.printf("input   x: %s\n", x);
-        out.printf("input   y: %s\n", y);
-        out.printf("output  z: %s\n", z);
-        out.printf("target  r: %s\n", r);
-        var z_a = z.toCharArray();
-        var r_a = r.toCharArray();
-        out.print("diff  z/r: ");
-        int d_points = 0;
-        for (int i = 0; i < r.length(); i++) {
-            char ch_z = z_a[i];
-            char ch_r = r_a[i];
-            if (ch_z != ch_r) {
-                out.print('*');
-                d_points++;
-            } else {
-                out.print(ch_z);
-            }
-        }
-        out.println();
-        out.printf("points of difference: %d\n", d_points);
-        out.printf("X + Y=Z => %d  + %d = %d    should be: %d \n", x_num, y_num, z_num, rr);
-    }
 
 
-
-    private static ArrayList<Gate> gateStartingWith(String ch) {
-        ArrayList<Gate> r = new ArrayList<>();
-        for (Gate g : gate_map.values()) {
-            if (g.getName().startsWith(ch)) {
-                r.add(g);
-            }
-
-        }
-        return r;
-    }
-
-    static private long getNumberFromGate(char ch) {
+    static private long getNumberFromGate() {
         ArrayList<String> gate_names = new ArrayList<>();
         for (Gate g : gate_map.values()) {
-            if (g.getName().startsWith(String.valueOf(ch))) {
+            if (g.getName().startsWith(String.valueOf('z'))) {
                 gate_names.add(g.getName());
             }
         }
-        String[] name_array = gate_names.toArray(new String[gate_names.size()]);
+        String[] name_array = gate_names.toArray(new String[0]);
         Arrays.sort(name_array);
 
-//        String[] zgs = z_gate_names.toArray(new String[z_gates.size()]);
-//        Arrays.sort(zgs);
+
         StringBuilder sb = new StringBuilder();
         for (String zs : name_array) {
             Gate g = gate_map.get(zs);
@@ -1011,12 +539,7 @@ public class Day24 {
         return (s.startsWith("x") || s.startsWith("y") || s.startsWith("z"));
     }
 
-    private static void printCounts(int[] v) {
-        out.printf("\tSRC: %d\n", v[0]);
-        out.printf("\tAND: %d\n", v[1]);
-        out.printf("\tXOR: %d\n", v[2]);
-        out.printf("\t OR: %d\n", v[3]);
-    }
+
 
 
 }
