@@ -22,6 +22,7 @@ public class Day24 {
 
     public static final String PART1_ANSWER = "47666458872582";
     public static final String PART2_ANSWER = "dnt,gdf,gwc,jst,mcm,z05,z15,z30";
+    private static ArrayList<ORGate> or_gates;
     private static final HashMap<String, Gate> gate_map = new HashMap<>();
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
@@ -50,12 +51,10 @@ public class Day24 {
         return answers;
     }
 
-
     protected static String getPart1() {
         long answer = getNumberFromGate();
         return String.valueOf(answer);
     }
-
 
     protected static String getPart2() {
 
@@ -81,7 +80,6 @@ public class Day24 {
                 }
                 case AND -> {
                     if (g.getName().startsWith(start_str_check)) {
-
 
 
                         bad_outputs.add(output);
@@ -138,17 +136,17 @@ public class Day24 {
                         }
                         if (!a_g.left.equals("x00") && !a_g.left.equals("y00") && !a_g.right.equals("x00") && !a_g.right.equals("y00")) {
                             boolean found_good_or = false;
-                            for(ORGate og: or_gates) {
-                                if(og.left.equals(output)) {
+                            for (ORGate og : or_gates) {
+                                if (og.left.equals(output)) {
                                     found_good_or = true;
                                     break;
                                 }
-                                if(og.right.equals(output)) {
+                                if (og.right.equals(output)) {
                                     found_good_or = true;
                                     break;
                                 }
                             }
-                            if(!found_good_or) {
+                            if (!found_good_or) {
 
                                 bad_outputs.add(output);
                             }
@@ -165,10 +163,9 @@ public class Day24 {
                             counts[g.type()]++;
 
                         }
-                        if (!a_g.left.startsWith("x") && !a_g.left.startsWith("y")
-                                && !a_g.right.startsWith("x") && !a_g.right.startsWith("y")   &&!a_g.name.startsWith("z") ) {
+                        if (!a_g.left.startsWith("x") && !a_g.left.startsWith("y") && !a_g.right.startsWith("x") && !a_g.right.startsWith("y") && !a_g.name.startsWith("z")) {
 
-                                bad_outputs.add(output);
+                            bad_outputs.add(output);
 
                         }
                     }
@@ -183,7 +180,7 @@ public class Day24 {
                     }
                 }
             }
-            if(counts[1] == 0) {
+            if (counts[1] == 0) {
                 bad_outputs.add(name_check);
             }
 
@@ -195,8 +192,6 @@ public class Day24 {
         return String.join(",", bad_names);
     }
 
-
-    private static ArrayList<ORGate> or_gates;
     protected static void parseInput(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Path.of(filename));
         or_gates = new ArrayList<>();
@@ -241,7 +236,6 @@ public class Day24 {
                     g = og;
                 }
                 default -> {
-                    out.printf("Unknown Gate type in input: %s, from line %3d: %s\n", op, idx - 1, ln);
                     System.exit(-1);
                 }
             }
@@ -254,7 +248,6 @@ public class Day24 {
 
     public enum BitValue {
         One, Zero, Unknown;
-
 
 
         static public BitValue parse(String t) {
@@ -338,7 +331,6 @@ public class Day24 {
         }
 
 
-
         @Override
         public String[] getAllNames() {
             return new String[]{name};
@@ -353,7 +345,6 @@ public class Day24 {
         public int type() {
             return 0;
         }
-
 
 
         public String getName() {
@@ -421,7 +412,7 @@ public class Day24 {
             this.left = left;
             this.right = right;
             this.name = name;
-                       gate_map.put(name, this);
+            gate_map.put(name, this);
         }
 
         @Override
@@ -481,7 +472,6 @@ public class Day24 {
         }
 
 
-
         @Override
         public String[] getAllNames() {
             return new String[]{name, left, right};
@@ -504,7 +494,6 @@ public class Day24 {
 
         }
     }
-
 
 
     static private long getNumberFromGate() {
@@ -538,8 +527,6 @@ public class Day24 {
     private static boolean inPart(String s) {
         return (s.startsWith("x") || s.startsWith("y") || s.startsWith("z"));
     }
-
-
 
 
 }
