@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 
@@ -14,7 +15,7 @@ public class Day14 {
     public static final String PART2_ANSWER = "7687";
 
     public static final int PART1_TICKS = 100;
-    public static final int PART2_TICKS = Integer.valueOf(PART2_ANSWER);
+
     private static ArrayList<Robot> robot_initial;
 
     public static String[] runDay(PrintStream out, String inputString) throws IOException {
@@ -93,15 +94,32 @@ public class Day14 {
     public static String getPart2() {
 
         Vector2d map_size = AdventOfCode2024.TESTING ? new Vector2d(11, 7) : new Vector2d(101, 103);
-        ArrayList<Robot> new_positions = new ArrayList<>();
-        for (Robot r : robot_initial) {
-            Robot n_r = r.elapsed(PART2_TICKS, map_size);
-            new_positions.add(n_r);
+
+        int end_step = -1;
+        boolean unique;
+        for(int e=0; e < 10000; e++) {
+            ArrayList<Robot> new_pos = new ArrayList<>();
+            for(Robot r: robot_initial) {
+                Robot n_r = r.elapsed(e, map_size);
+                new_pos.add(n_r);
+            }
+            HashSet<Vector2d> position_set = new HashSet<>();
+
+            unique = true;
+            for(Robot r: new_pos) {
+                if(position_set.contains(r.pos)) {
+                    unique=false;
+                    break;
+                } else {
+                    position_set.add(r.pos);
+                    end_step = e;
+                }
+            }
+            if(unique) break;
         }
 
-        // PART2_TICKS value found by watching frame animation
 
-        long answer = PART2_TICKS;
+        long answer = end_step;
         return Long.toString(answer);
     }
 
