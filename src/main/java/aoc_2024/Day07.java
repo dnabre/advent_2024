@@ -4,15 +4,31 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
 
 
-public class Day07 {
+public class Day07 extends AoCDay {
     public static final String PART1_ANSWER = "267566105056";
     public static final String PART2_ANSWER = "116094961956019";
     private static final ArrayList<Equation> equations = new ArrayList<>();
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+    public Day07(int day) {
+        super(day);
+    }
+
+    record Equation(long value, long[] terms) {
+    }
+
+    record State(long running, int to_term) {
+    }
+
+    public static long concat(long total, long next_term) {
+        return Long.parseLong(total + Long.toString(next_term));
+    }
+
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.println("\tDay  07");
 
@@ -33,7 +49,7 @@ public class Day07 {
         return answers;
     }
 
-    public static void parseInput(String filename) throws IOException {
+   protected void parseInput(String filename) throws IOException {
         String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
         for (String ln : lines) {
             String[] parts = ln.split(":");
@@ -49,31 +65,6 @@ public class Day07 {
         }
 
     }
-
-    public static String getPart1() {
-        long total = 0L;
-        for (Equation eq : equations) {
-            boolean sat = canEquationBeSatisfied(eq.value, eq.terms,false);
-            if (sat) {
-                total += eq.value;
-            }
-        }
-        long answer = total;
-        return String.valueOf(answer);
-    }
-
-    public static String getPart2() {
-        long total = 0L;
-        for (Equation eq : equations) {
-            boolean sat = canEquationBeSatisfied(eq.value, eq.terms,true);
-            if (sat) {
-                total += eq.value;
-            }
-        }
-        long answer = total;
-        return String.valueOf(answer);
-    }
-
 
     private static boolean canEquationBeSatisfied(long goal, long[] terms, boolean use_concat) {
         State start = new State(terms[0], 1);
@@ -97,7 +88,7 @@ public class Day07 {
                     State new_m = new State(m_run, current.to_term + 1);
                     work_queue.add(new_m);
                 }
-                if(use_concat) {
+                if (use_concat) {
                     long c_run = concat(current.running, terms[current.to_term]);
                     if (c_run <= goal) {
                         State new_c = new State(c_run, current.to_term + 1);
@@ -109,13 +100,27 @@ public class Day07 {
         return false;
     }
 
-    public static long concat(long total, long next_term) {
-        return Long.parseLong(total + Long.toString(next_term));
+    protected String getPart1() {
+        long total = 0L;
+        for (Equation eq : equations) {
+            boolean sat = canEquationBeSatisfied(eq.value, eq.terms, false);
+            if (sat) {
+                total += eq.value;
+            }
+        }
+        long answer = total;
+        return String.valueOf(answer);
     }
 
-    record State(long running, int to_term) {
-    }
-
-    record Equation(long value, long[] terms) {
+    protected String getPart2() {
+        long total = 0L;
+        for (Equation eq : equations) {
+            boolean sat = canEquationBeSatisfied(eq.value, eq.terms, true);
+            if (sat) {
+                total += eq.value;
+            }
+        }
+        long answer = total;
+        return String.valueOf(answer);
     }
 }

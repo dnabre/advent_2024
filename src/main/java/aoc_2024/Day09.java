@@ -10,13 +10,30 @@ import java.util.TreeSet;
 import java.util.stream.IntStream;
 
 
-public class Day09 {
+public class Day09 extends AoCDay {
 
     public static final String PART1_ANSWER = "6340197768906";
     public static final String PART2_ANSWER = "6363913128533";
     private static char[] packed_disk;
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+    private sealed interface BlockSpan {
+    }
+
+    public Day09(int day) {
+        super(day);
+    }
+
+    private record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {
+        @Override
+        public int compareTo(EmptyBlock other) {
+            return Integer.compare(this.offset, other.offset);
+        }
+    }
+
+    private record FileBlock(int number, int offset, int size) implements BlockSpan {
+    }
+
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.print("\tDay  24");
         if (AdventOfCode2024.TESTING) {
@@ -42,7 +59,46 @@ public class Day09 {
         return answers;
     }
 
-    protected static String getPart1() {
+   protected void parseInput(String filename) throws IOException {
+        String raw_input = Files.readString(Path.of(filename));
+        packed_disk = raw_input.toCharArray();
+
+    }
+
+    private static long getChecksum(int[] disk_for_checksum) {
+        long checksum = 0;
+        for (int i = 0; i < disk_for_checksum.length; i++) {
+            if (disk_for_checksum[i] == -1) continue;
+
+            checksum += ((long) i * disk_for_checksum[i]);
+        }
+        return checksum;
+    }
+
+    private static int[] getUnpackedDisk(char[] packed) {
+        ArrayList<Integer> disk_list = new ArrayList<>();
+        int file_no = 0;
+        boolean isFile = true;
+
+        for (char ch : packed) {
+            int chick = Character.getNumericValue(ch);
+            int to_write = -1;
+            if (isFile) {
+                to_write = file_no;
+                file_no++;
+
+            }
+            for (int count = 0; count < chick; count++) {
+                disk_list.add(to_write);
+            }
+            isFile = !isFile;
+        }
+
+        return disk_list.stream().flatMapToInt(IntStream::of).toArray();
+
+    }
+
+    protected String getPart1() {
         int[] disk = getUnpackedDisk(packed_disk);
         int used_space = 0;
         for (int v : disk) {
@@ -66,7 +122,7 @@ public class Day09 {
         return String.valueOf(answer);
     }
 
-    protected static String getPart2() {
+    protected String getPart2() {
         ArrayList<FileBlock> file_list = new ArrayList<>();
         ArrayList<EmptyBlock> empty_list = new ArrayList<>();
 
@@ -124,58 +180,6 @@ public class Day09 {
         }
         long answer = getChecksum(disk);
         return String.valueOf(answer);
-    }
-
-    protected static void parseInput(String filename) throws IOException {
-        String raw_input = Files.readString(Path.of(filename));
-        packed_disk = raw_input.toCharArray();
-
-    }
-
-    private sealed interface BlockSpan {
-    }
-
-    private record FileBlock(int number, int offset, int size) implements BlockSpan {
-    }
-
-    private record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {
-        @Override
-        public int compareTo(EmptyBlock other) {
-            return Integer.compare(this.offset, other.offset);
-        }
-    }
-
-    private static long getChecksum(int[] disk_for_checksum) {
-        long checksum = 0;
-        for (int i = 0; i < disk_for_checksum.length; i++) {
-            if (disk_for_checksum[i] == -1) continue;
-
-            checksum += ((long) i * disk_for_checksum[i]);
-        }
-        return checksum;
-    }
-
-    private static int[] getUnpackedDisk(char[] packed) {
-        ArrayList<Integer> disk_list = new ArrayList<>();
-        int file_no = 0;
-        boolean isFile = true;
-
-        for (char ch : packed) {
-            int chick = Character.getNumericValue(ch);
-            int to_write = -1;
-            if (isFile) {
-                to_write = file_no;
-                file_no++;
-
-            }
-            for (int count = 0; count < chick; count++) {
-                disk_list.add(to_write);
-            }
-            isFile = !isFile;
-        }
-
-        return disk_list.stream().flatMapToInt(IntStream::of).toArray();
-
     }
 
 

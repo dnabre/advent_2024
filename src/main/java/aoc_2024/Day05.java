@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class Day05 {
+public class Day05 extends AoCDay {
     public static final String PART1_ANSWER = "4814";
     public static final String PART2_ANSWER = "5448";
 
@@ -14,7 +14,11 @@ public class Day05 {
     private static HashMap<Integer, HashSet<Integer>> before_rules;
     private static LinkedList<LinkedList<Integer>> update_list;
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+    public Day05(int day) {
+        super(day);
+    }
+
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.println("\tDay  5");
 
@@ -33,74 +37,7 @@ public class Day05 {
         return answers;
     }
 
-
-    public static String getPart1() {
-
-        LinkedList<Integer> good_middle_pages = new LinkedList<>();
-
-        for (List<Integer> ups : update_list) {
-            boolean updates_good = checkUpdateList(ups);
-            if (updates_good) {
-                good_middle_pages.add(get_middle_of_list(ups));
-            }
-        }
-
-        int answer = good_middle_pages.stream().mapToInt(i -> i).sum();
-        return Integer.toString(answer);
-    }
-
-
-    public static String getPart2() {
-        List<LinkedList<Integer>> bad_updates = update_list.stream().filter((ls) -> !checkUpdateList(ls)).toList();
-
-        int mid_value_total = 0;
-        for (LinkedList<Integer> b_ls : bad_updates) {
-
-            int[] updates = b_ls.stream().mapToInt(i -> i).toArray();
-
-
-            do {
-
-                fix_update_list(updates);
-            } while (!checkUpdateArray(updates));
-
-
-            int m = get_middle_of_array(updates);
-
-            mid_value_total += m;
-        }
-
-
-        int answer = mid_value_total;
-        return Integer.toString(answer);
-    }
-
-    private static void fix_update_list(int[] updates) {
-        for (int i = 1; i < updates.length; i++) {
-            int left = updates[i - 1];
-            int right = updates[i];
-            //before rules
-            if (before_rules.containsKey(right)) {
-                if (!before_rules.get(right).contains(left)) {
-                    updates[i - 1] = right;
-                    updates[i] = left;
-
-                }
-            }
-            left = updates[i - 1];
-            right = updates[i];
-
-            //after rules
-            if (after_rules.containsKey(left)) {
-                if (!after_rules.get(left).contains(right)) {
-                    updates[i - 1] = right;
-                    updates[i] = left;
-                }
-            }
-        }
-    }
-
-    private static void parseInput(String input_filename) throws IOException {
+   protected void parseInput(String input_filename) throws IOException {
         String[] lines = Files.readAllLines(Path.of(input_filename)).toArray(new String[0]);
         boolean ordering_part = true;
         before_rules = new HashMap<>();
@@ -140,11 +77,6 @@ public class Day05 {
         }
     }
 
-    private static boolean checkUpdateList(List<Integer> ups) {
-        int[] updates = ups.stream().mapToInt(i -> i).toArray();
-        return checkUpdateArray(updates);
-    }
-
     private static boolean checkUpdateArray(int[] updates) {
         for (int i = 1; i < updates.length; i++) {
             int left = updates[i - 1];
@@ -166,15 +98,84 @@ public class Day05 {
         return true;
     }
 
+    private static boolean checkUpdateList(List<Integer> ups) {
+        int[] updates = ups.stream().mapToInt(i -> i).toArray();
+        return checkUpdateArray(updates);
+    }
+
+    private static void fix_update_list(int[] updates) {
+        for (int i = 1; i < updates.length; i++) {
+            int left = updates[i - 1];
+            int right = updates[i];
+            //before rules
+            if (before_rules.containsKey(right)) {
+                if (!before_rules.get(right).contains(left)) {
+                    updates[i - 1] = right;
+                    updates[i] = left;
+
+                }
+            }
+            left = updates[i - 1];
+            right = updates[i];
+
+            //after rules
+            if (after_rules.containsKey(left)) {
+                if (!after_rules.get(left).contains(right)) {
+                    updates[i - 1] = right;
+                    updates[i] = left;
+                }
+            }
+        }
+    }
+
+    private static int get_middle_of_array(int[] ups) {
+        int mid_index = ups.length / 2;
+        return ups[mid_index];
+    }
 
     private static <T> T get_middle_of_list(List<T> ups) {
         int mid_index = ups.size() / 2;
         return ups.get(mid_index);
     }
 
-    private static int get_middle_of_array(int[] ups) {
-        int mid_index = ups.length / 2;
-        return ups[mid_index];
+    protected String getPart1() {
+
+        LinkedList<Integer> good_middle_pages = new LinkedList<>();
+
+        for (List<Integer> ups : update_list) {
+            boolean updates_good = checkUpdateList(ups);
+            if (updates_good) {
+                good_middle_pages.add(get_middle_of_list(ups));
+            }
+        }
+
+        int answer = good_middle_pages.stream().mapToInt(i -> i).sum();
+        return Integer.toString(answer);
+    }
+
+    protected String getPart2() {
+        List<LinkedList<Integer>> bad_updates = update_list.stream().filter((ls) -> !checkUpdateList(ls)).toList();
+
+        int mid_value_total = 0;
+        for (LinkedList<Integer> b_ls : bad_updates) {
+
+            int[] updates = b_ls.stream().mapToInt(i -> i).toArray();
+
+
+            do {
+
+                fix_update_list(updates);
+            } while (!checkUpdateArray(updates));
+
+
+            int m = get_middle_of_array(updates);
+
+            mid_value_total += m;
+        }
+
+
+        int answer = mid_value_total;
+        return Integer.toString(answer);
     }
 
 }

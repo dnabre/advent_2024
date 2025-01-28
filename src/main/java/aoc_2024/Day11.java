@@ -8,15 +8,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class Day11 {
+public class Day11 extends AoCDay {
 
     public static final String PART1_ANSWER = "199986";
     public static final String PART2_ANSWER = "236804088748754";
+    private static final long max = Long.MIN_VALUE;
+    private static ArrayList<Long> parsed_input;
     private static final int[] BLINKS = {25, 75};
 
-    private static ArrayList<Long> parsed_input;
+    public Day11(int day) {
+        super(day);
+    }
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.print("\tDay  11");
         if (AdventOfCode2024.TESTING) {
@@ -41,7 +45,7 @@ public class Day11 {
         return answers;
     }
 
-    public static void parseInput(String filename) throws IOException {
+   protected void parseInput(String filename) throws IOException {
         String raw_input = Files.readString(Path.of(filename)).trim();
         parsed_input = new ArrayList<>();
         String[] parts = raw_input.split("\\s+");
@@ -50,7 +54,13 @@ public class Day11 {
         }
     }
 
-    public static String getPart1() {
+    private static boolean hasEvenNumDigit(long d) {
+        String s_str = Long.toString(d);
+        int s_length = s_str.length();
+        return (s_length % 2 == 0);
+    }
+
+    protected String getPart1() {
         ArrayList<Long> stones = new ArrayList<>(parsed_input);
         for (int blink = 0; blink < BLINKS[0]; blink++) {
             ArrayList<Long> new_stones = new ArrayList<>(stones.size());
@@ -76,8 +86,7 @@ public class Day11 {
         return String.valueOf(answer);
     }
 
-    private static long max = Long.MIN_VALUE;
-    public static String getPart2() {
+    protected String getPart2() {
         ArrayList<Long> stones = new ArrayList<>(parsed_input);
         HashMap<Long, Long> counts = new HashMap<>();
         for (long s_value : stones) {
@@ -107,14 +116,8 @@ public class Day11 {
             counts = new_counts;
         }
 
-        
+
         long answer = counts.values().stream().mapToLong(x -> x).sum();
         return String.valueOf(answer);
-    }
-
-    private static boolean hasEvenNumDigit(long d) {
-        String s_str = Long.toString(d);
-        int s_length = s_str.length();
-        return (s_length % 2 == 0);
     }
 }

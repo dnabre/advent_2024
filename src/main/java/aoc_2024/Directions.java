@@ -6,12 +6,12 @@ import java.util.List;
 public class Directions {
 
 
+    public enum Compass {
+        NORTH, EAST, SOUTH, WEST;
 
-    public  enum Compass {
-        NORTH,EAST,SOUTH,WEST;
         public static Vector2d[] getNeighbors(Vector2d pos) {
             Vector2d[] results = new Vector2d[Compass.values().length];
-            for(int i=0; i < Compass.values().length; i++) {
+            for (int i = 0; i < Compass.values().length; i++) {
                 Compass d = Compass.values()[i];
                 Vector2d delta = pos.plus(d.coordDelta());
                 results[i] = delta;
@@ -21,16 +21,17 @@ public class Directions {
 
         public static List<Vector2d> getNeighborsClamped(Vector2d pos, int min_idx, int max_idx) {
             List<Vector2d> results = new LinkedList<>();
-            for(Compass d:Compass.values()) {
+            for (Compass d : Compass.values()) {
                 Vector2d delta = pos.plus(d.coordDelta());
-                if ((delta.x >= min_idx) && (delta.x <= max_idx) && (delta.y >= min_idx) &&(delta.y <= max_idx)) {
+                if ((delta.x >= min_idx) && (delta.x <= max_idx) && (delta.y >= min_idx) && (delta.y <= max_idx)) {
                     results.add(delta);
                 }
             }
             return results;
         }
+
         public Vector2d coordDelta() {
-            switch(this) {
+            switch (this) {
                 case NORTH -> {
                     return new Vector2d(0, -1);
                 }
@@ -46,8 +47,9 @@ public class Directions {
             }
             throw new RuntimeException("This should be Unreachable");
         }
+
         public Compass turnRight() {
-            switch(this) {
+            switch (this) {
                 case NORTH -> {
                     return EAST;
                 }
@@ -63,8 +65,9 @@ public class Directions {
             }
             throw new RuntimeException("This should be Unreachable");
         }
+
         public Compass turnLeft() {
-            switch(this) {
+            switch (this) {
                 case NORTH -> {
                     return WEST;
                 }
@@ -82,7 +85,7 @@ public class Directions {
         }
 
         public Compass reverse() {
-            switch(this) {
+            switch (this) {
                 case NORTH -> {
                     return SOUTH;
                 }
@@ -116,8 +119,9 @@ public class Directions {
             }
             return null;
         }
+
         public char toChar() {
-            switch(this) {
+            switch (this) {
                 case NORTH -> {
                     return '^';
                 }

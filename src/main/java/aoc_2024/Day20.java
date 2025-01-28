@@ -2,9 +2,11 @@ package src.main.java.aoc_2024;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
-public class Day20 {
+public class Day20 extends AoCDay {
 
     public static final String PART1_ANSWER = "1441";
     public static final String PART2_ANSWER = "1021490";
@@ -14,45 +16,16 @@ public class Day20 {
     private static char[][] grid;
     private static Vector2d[] path;
     private static HashSet<Vector2d> path_set;
+    private static final char WALL = '#';
+    private static final int PART1_THRESHOLD = 100;
+    private static final int PART2_MAX_DISTANCE = 20;
+    private static final int PART1_JUMP_SIZE = 2;
 
-    public static String getPart1() {
-        long answer = getAllCheatsFromPath();
-        return String.valueOf(answer);
+    public Day20(int day) {
+        super(day);
     }
 
-    public static String getPart2() {
-        int answer = getAllCheatWithMax();
-        return String.valueOf(answer);
-    }
-
-    public static void parseInput(String filename) throws IOException {
-        grid = AoCUtils.parseGrid(filename);
-
-
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[0].length; x++) {
-                char ch = grid[y][x];
-                if (ch == 'S') {
-                    MAP_START = new Vector2d(x, y);
-                    grid[y][x] = '.';
-                }
-                if (ch == 'E') {
-                    MAP_END = new Vector2d(x, y);
-                    grid[y][x] = '.';
-                }
-
-            }
-        }
-
-        grid[MAP_START.y][MAP_START.x] = '.';
-        grid[MAP_END.y][MAP_END.x] = '.';
-
-        ToEnd = AoCUtils.findDistanceFromStartToEverywhere(grid, MAP_END);
-        build_path();
-
-    }
-
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.print("\tDay  20");
         if (AdventOfCode2024.TESTING) {
@@ -79,11 +52,32 @@ public class Day20 {
         return answers;
     }
 
-    private static final char WALL = '#';
-    private static final int PART1_THRESHOLD = 100;
-    private static final int PART2_MAX_DISTANCE = 20;
-    private static final int PART1_JUMP_SIZE = 2;
+   protected void parseInput(String filename) throws IOException {
+        grid = AoCUtils.parseGrid(filename);
 
+
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[0].length; x++) {
+                char ch = grid[y][x];
+                if (ch == 'S') {
+                    MAP_START = new Vector2d(x, y);
+                    grid[y][x] = '.';
+                }
+                if (ch == 'E') {
+                    MAP_END = new Vector2d(x, y);
+                    grid[y][x] = '.';
+                }
+
+            }
+        }
+
+        grid[MAP_START.y][MAP_START.x] = '.';
+        grid[MAP_END.y][MAP_END.x] = '.';
+
+        ToEnd = AoCUtils.findDistanceFromStartToEverywhere(grid, MAP_END);
+        build_path();
+
+    }
 
     private static Vector2d bestNextStep(Vector2d current, HashMap<Vector2d, Integer> toEnd) {
         int current_dist = toEnd.get(current);
@@ -103,7 +97,7 @@ public class Day20 {
         do {
             path_list.add(current);
             current = bestNextStep(current, ToEnd);
-        } while ((current!= null)&&(!current.equals(MAP_END)));
+        } while ((current != null) && (!current.equals(MAP_END)));
         path_list.add(MAP_END);
         path = path_list.toArray(new Vector2d[0]);
         path_set = new HashSet<>(path_list);
@@ -151,5 +145,15 @@ public class Day20 {
             }
         }
         return good_cheat_count;
+    }
+
+    protected String getPart1() {
+        long answer = getAllCheatsFromPath();
+        return String.valueOf(answer);
+    }
+
+    protected String getPart2() {
+        int answer = getAllCheatWithMax();
+        return String.valueOf(answer);
     }
 }

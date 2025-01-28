@@ -1,7 +1,7 @@
 package src.main.java.aoc_2024;
 
 
-import java.io.PrintStream;
+import static java.lang.System.out;
 
 public class AdventOfCode2024 {
     static final String[][] test_files = {
@@ -66,7 +66,26 @@ public class AdventOfCode2024 {
     public static final int TEST_IDX =2;
     public static final boolean TIMING = true;
 
+    public static void runAll() {
+        AoCDay[] days = getAllDays();
+        for(int d=0; d < 25; d++) {
+            AoCDay today = days[d];
+            String filename =input_files[d];
+            out.printf("Running day: %d ... \n", today.getDay());
+            long time = today.doDay(filename);
+            String[] results = today.answers;
+            out.printf("\t\tpart1:\t\t%s\n", results[0]);
+
+            out.printf("\t\tpart2:\t\t%s\n", results[1]);
+            out.printf("\t\t\t total time: %.1f ms\n", time / 1000000f);
+
+        }
+    }
+
+
     public static void main(String[] args) throws Exception {
+        runAll();
+
 
         int day_number = DAY;
         String input_string;
@@ -76,29 +95,55 @@ public class AdventOfCode2024 {
             input_string = input_files[day_number - 1];
         }
 
-            long start, end;
-            if (TIMING) {
-                start = System.nanoTime();
-            }
-
-
-           String[] results = Day22.runDay( System.out,input_string);
-
-            System.out.printf("\t\tpart1:\t\t%s\n", results[0]);
-            System.out.printf("\t\tpart2:\t\t%s\n", results[1]);
-            if (TIMING) {
-                end = System.nanoTime();
-                System.out.printf("\n total time: %.1f ms\n", (end - start) / 1000000f);
-            }
+//            long start, end;
+//            if (TIMING) {
+//                start = System.nanoTime();
+//            }
+//
+//
+//           String[] results = Day22.runDay( out,input_string);
+//
+//            out.printf("\t\tpart1:\t\t%s\n", results[0]);
+//            out.printf("\t\tpart2:\t\t%s\n", results[1]);
+//            if (TIMING) {
+//                end = System.nanoTime();
+//                out.printf("\n total time: %.1f ms\n", (end - start) / 1000000f);
+//            }
 
     }
-    private static String[] runDay(int day, PrintStream out, String input_string) {
-        String[] results = new String[2];
-        switch(day){
 
-        }
+    public static AoCDay[] getAllDays() {
+        AoCDay[] days = new AoCDay[25];
 
-        return results;
+        days[0] = new Day01(1);
+        days[1] = new Day02(2);
+        days[2] = new Day03(3);
+        days[3] = new Day04(4);
+        days[4] = new Day05(5);
+        days[5] = new Day06(6);
+        days[6] = new Day07(7);
+        days[7] = new Day08(8);
+        days[8] = new Day09(9);
+        days[9] = new Day10(10);
+        days[10] = new Day11(11);
+        days[11] = new Day12(12);
+        days[12] = new Day13(13);
+        days[13] = new Day14(14);
+        days[14] = new Day15(15);
+        days[15] = new Day16(16);
+        days[16] = new Day17(17);
+        days[17] = new Day18(18);
+        days[18] = new Day19(19);
+        days[19] = new Day20(20);
+        days[20] = new Day21(21);
+        days[21] = new Day22(22);
+        days[22] = new Day23(23);
+        days[23] = new Day24(24);
+        days[24] = new Day25(25);
+
+        return days;
     }
+
+
 }
 

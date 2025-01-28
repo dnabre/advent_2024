@@ -11,7 +11,7 @@ import java.util.List;
 
 import static src.main.java.aoc_2024.Directions.Compass;
 
-public class Day15 {
+public class Day15 extends AoCDay {
 
     public static final String PART1_ANSWER = "1471826";
     public static final String PART2_ANSWER = "1457703";
@@ -25,123 +25,14 @@ public class Day15 {
     private static Vector2d robot_start;
     private static HashSet<Vector2d> walls;
 
-    public static String getPart1() {
-        int grid_size = -1;
-        if (grid_sizes.x == grid_sizes.y) {
-            grid_size = grid_sizes.x;
-        }
-        char[][] grid = new char[grid_size][grid_size];
-        for (int y = 0; y < grid_size; y++) {
-            for (int x = 0; x < grid_size; x++) {
-                grid[x][y] = initial_grid[x][y];
-            }
-        }
-        Vector2d robot_loc = new Vector2d(robot_start);
-
-        for (Compass compass : move_list) {
-            Vector2d move_direction = compass.coordDelta();
-            Vector2d step_target = robot_loc.plus(move_direction);
-            char ch = grid[step_target.x][step_target.y];
-            switch (ch) {
-                case '.' -> robot_loc.add(move_direction);
-                case '#' -> {
-                }
-                case 'O' -> {
-                    Vector2d start_box_push = robot_loc.plus(move_direction);
-                    char u_box = grid[start_box_push.x][start_box_push.y];
-                    while (u_box == 'O') {
-                        start_box_push.add(move_direction);
-                        u_box = grid[start_box_push.x][start_box_push.y];
-                    }
-                    if (u_box == '.') {
-                        grid[start_box_push.x][start_box_push.y] = 'O';
-                        grid[step_target.x][step_target.y] = '.';
-                        robot_loc = step_target;
-                    }
-                }
-                default ->
-                        throw new IllegalArgumentException(String.format("robot is trying to step into unknown ('%c')\n", ch));
-            }
-        }
-        int gps_sum = 0;
-        for (int y = 0; y < grid_size; y++) {
-            for (int x = 0; x < grid_size; x++) {
-                char ch = grid[x][y];
-                if (ch == 'O') {
-                    gps_sum += getGPS(x, y);
-                }
-            }
-        }
-        long answer = gps_sum;
-        return String.valueOf(answer);
-    }
-
-    public static String getPart2(String INPUT) {
-        List<List<String>> blocks = AoCUtils.breakDataByNewline(INPUT);
-        ArrayList<Compass> moves = getMoves(blocks.get(1));
-        List<String> grid_lines = blocks.get(0);
-        char[][] grid = getExpandedGrid(grid_lines);
-        setupPart2(grid);
-
-        Vector2d robot_current = robot_start;
-        for (Compass dir : moves) {
-            new_box_locations = new ArrayList<>();
-            Vector2d robot_target = robot_current.plus(dir.coordDelta());
-            if (walls.contains(robot_target)) {
-                continue;
-            }
-            if (box_map.containsKey(robot_target)) {
-                Box b = box_map.get(robot_target);
-                CheckReturn r;
-                r = b.canMove(dir);
-                if (r.isMoveGood()) {
-                    b.doMove(dir);
-                } else {
-                    continue;
-                }
-            }
-            robot_current = robot_target;
-        }
-        long total = 0;
-        for (Box b : box_list) {
-            total += b.getGPS();
-        }
-
-        long answer = total;
-        return String.valueOf(answer);
-    }
-
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  15");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
-        }
-        out.println();
-
-        String[] answers = {"", ""};
-        String INPUT = Files.readString(Path.of(inputString));
-
-        parseInput(INPUT);
-        answers[0] = getPart1();
-        answers[1] = getPart2(INPUT);
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
-    }
-
     private sealed interface CheckReturn {
         CheckReturn and(CheckReturn other);
 
         boolean isMoveGood();
+    }
+
+    public Day15(int day) {
+        super(day);
     }
 
     private record Box(Vector2d left, Vector2d right) {
@@ -280,6 +171,99 @@ public class Day15 {
         }
     }
 
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
+        out.println("Advent of Code 2024");
+        out.print("\tDay  15");
+        if (AdventOfCode2024.TESTING) {
+            out.print("\t (testing)");
+        }
+        out.println();
+
+        String[] answers = {"", ""};
+        String INPUT = Files.readString(Path.of(inputString));
+
+        parseInput(INPUT);
+        answers[0] = getPart1();
+        answers[1] = getPart2(INPUT);
+
+        if (!AdventOfCode2024.TESTING) {
+            if (!answers[0].equals(PART1_ANSWER)) {
+                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
+            }
+
+            if (!answers[1].equals(PART2_ANSWER)) {
+                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
+            }
+        }
+        return answers;
+    }
+
+    protected static String getPart2(String INPUT) {
+        List<List<String>> blocks = AoCUtils.breakDataByNewline(INPUT);
+        ArrayList<Compass> moves = getMoves(blocks.get(1));
+        List<String> grid_lines = blocks.get(0);
+        char[][] grid = getExpandedGrid(grid_lines);
+        setupPart2(grid);
+
+        Vector2d robot_current = robot_start;
+        for (Compass dir : moves) {
+            new_box_locations = new ArrayList<>();
+            Vector2d robot_target = robot_current.plus(dir.coordDelta());
+            if (walls.contains(robot_target)) {
+                continue;
+            }
+            if (box_map.containsKey(robot_target)) {
+                Box b = box_map.get(robot_target);
+                CheckReturn r;
+                r = b.canMove(dir);
+                if (r.isMoveGood()) {
+                    b.doMove(dir);
+                } else {
+                    continue;
+                }
+            }
+            robot_current = robot_target;
+        }
+        long total = 0;
+        for (Box b : box_list) {
+            total += b.getGPS();
+        }
+
+        long answer = total;
+        return String.valueOf(answer);
+    }
+
+   protected void parseInput(String INPUT) throws IOException {
+        List<List<String>> blocks = AoCUtils.breakDataByNewline(INPUT);
+        String text = String.join("\n", blocks.getFirst());
+        String move = String.join("", blocks.getLast());
+        List<String> lines = text.lines().toList();
+        int height = lines.size();
+        int width = lines.getFirst().length();
+
+        grid_sizes = new Vector2d(height, width);
+        initial_grid = new char[width][height];
+        for (int y = 0; y < height; y++) {
+            String line = lines.get(y);
+            for (int x = 0; x < width; x++) {
+                char ch = line.charAt(x);
+                initial_grid[x][y] = ch;
+                if (ch == '@') {
+                    robot_start = new Vector2d(x, y);
+                    initial_grid[x][y] = '.';
+                }
+            }
+        }
+
+        move_list = new Compass[move.length()];
+        int idx = 0;
+        for (char ch : move.toCharArray()) {
+            Compass dir = Compass.fromChar(ch);
+            move_list[idx] = dir;
+            idx++;
+        }
+    }
+
     private static String expand(String line) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < line.length(); i++) {
@@ -342,37 +326,6 @@ public class Day15 {
         return moves;
     }
 
-    protected static void parseInput(String INPUT) throws IOException {
-        List<List<String>> blocks = AoCUtils.breakDataByNewline(INPUT);
-        String text = String.join("\n", blocks.getFirst());
-        String move = String.join("", blocks.getLast());
-        List<String> lines = text.lines().toList();
-        int height = lines.size();
-        int width = lines.getFirst().length();
-
-        grid_sizes = new Vector2d(height, width);
-        initial_grid = new char[width][height];
-        for (int y = 0; y < height; y++) {
-            String line = lines.get(y);
-            for (int x = 0; x < width; x++) {
-                char ch = line.charAt(x);
-                initial_grid[x][y] = ch;
-                if (ch == '@') {
-                    robot_start = new Vector2d(x, y);
-                    initial_grid[x][y] = '.';
-                }
-            }
-        }
-
-        move_list = new Compass[move.length()];
-        int idx = 0;
-        for (char ch : move.toCharArray()) {
-            Compass dir = Compass.fromChar(ch);
-            move_list[idx] = dir;
-            idx++;
-        }
-    }
-
     private static void setupPart2(char[][] grid) {
         maxes.x = grid.length;
         maxes.y = grid[0].length;
@@ -395,6 +348,57 @@ public class Day15 {
                 }
             }
         }
+    }
+
+    protected String getPart1() {
+        int grid_size = -1;
+        if (grid_sizes.x == grid_sizes.y) {
+            grid_size = grid_sizes.x;
+        }
+        char[][] grid = new char[grid_size][grid_size];
+        for (int y = 0; y < grid_size; y++) {
+            for (int x = 0; x < grid_size; x++) {
+                grid[x][y] = initial_grid[x][y];
+            }
+        }
+        Vector2d robot_loc = new Vector2d(robot_start);
+
+        for (Compass compass : move_list) {
+            Vector2d move_direction = compass.coordDelta();
+            Vector2d step_target = robot_loc.plus(move_direction);
+            char ch = grid[step_target.x][step_target.y];
+            switch (ch) {
+                case '.' -> robot_loc.add(move_direction);
+                case '#' -> {
+                }
+                case 'O' -> {
+                    Vector2d start_box_push = robot_loc.plus(move_direction);
+                    char u_box = grid[start_box_push.x][start_box_push.y];
+                    while (u_box == 'O') {
+                        start_box_push.add(move_direction);
+                        u_box = grid[start_box_push.x][start_box_push.y];
+                    }
+                    if (u_box == '.') {
+                        grid[start_box_push.x][start_box_push.y] = 'O';
+                        grid[step_target.x][step_target.y] = '.';
+                        robot_loc = step_target;
+                    }
+                }
+                default ->
+                        throw new IllegalArgumentException(String.format("robot is trying to step into unknown ('%c')\n", ch));
+            }
+        }
+        int gps_sum = 0;
+        for (int y = 0; y < grid_size; y++) {
+            for (int x = 0; x < grid_size; x++) {
+                char ch = grid[x][y];
+                if (ch == 'O') {
+                    gps_sum += getGPS(x, y);
+                }
+            }
+        }
+        long answer = gps_sum;
+        return String.valueOf(answer);
     }
 }
 

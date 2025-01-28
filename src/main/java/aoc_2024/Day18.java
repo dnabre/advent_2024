@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class Day18 {
+public class Day18 extends AoCDay {
 
     public static final String PART1_ANSWER = "438";
     public static final String PART2_ANSWER = "26,22";
@@ -16,7 +16,11 @@ public class Day18 {
     private static final Vector2d MAP_END = new Vector2d(GRID_SIZE.x - 1, GRID_SIZE.y - 1);
     private static final int PART1_NUMBER_OF_BYTES = AdventOfCode2024.TESTING ? 12 : 1024;
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+    public Day18(int day) {
+        super(day);
+    }
+
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.print("\tDay  18");
         if (AdventOfCode2024.TESTING) {
@@ -42,31 +46,7 @@ public class Day18 {
         return answers;
     }
 
-    protected static String getPart1() {
-        HashMap<Vector2d, Integer> distances_to_end = getAllDistancesStartingDropList(PART1_NUMBER_OF_BYTES);
-        long answer = distances_to_end.get(MAP_START);
-        return String.valueOf(answer);
-    }
-
-    protected static String getPart2() {
-        // binary search for highest m that has a path
-        int low = 0;
-        int high = drops.length - 1;
-        int mid = -1;
-        while (low <= high) {
-            mid = low + (high - low) / 2;
-            HashMap<Vector2d, Integer> distances_to_end = getAllDistancesStartingDropList(mid);
-            if (!distances_to_end.containsKey(MAP_START)) {
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-        Vector2d last_drop_point = drops[mid - 1];
-        return String.format("%d,%d", last_drop_point.x, last_drop_point.y);
-    }
-
-    protected static void parseInput(String filename) throws IOException {
+   protected void parseInput(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Path.of(filename));
         drops = new Vector2d[lines.size()];
         int idx = 0;
@@ -104,6 +84,30 @@ public class Day18 {
             }
         }
         return distances;
+    }
+
+    protected String getPart1() {
+        HashMap<Vector2d, Integer> distances_to_end = getAllDistancesStartingDropList(PART1_NUMBER_OF_BYTES);
+        long answer = distances_to_end.get(MAP_START);
+        return String.valueOf(answer);
+    }
+
+    protected String getPart2() {
+        // binary search for highest m that has a path
+        int low = 0;
+        int high = drops.length - 1;
+        int mid = -1;
+        while (low <= high) {
+            mid = low + (high - low) / 2;
+            HashMap<Vector2d, Integer> distances_to_end = getAllDistancesStartingDropList(mid);
+            if (!distances_to_end.containsKey(MAP_START)) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+        Vector2d last_drop_point = drops[mid - 1];
+        return String.format("%d,%d", last_drop_point.x, last_drop_point.y);
     }
 
 }

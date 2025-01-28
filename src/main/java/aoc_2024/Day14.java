@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 
 
-public class Day14 {
+public class Day14 extends AoCDay {
 
     public static final String PART1_ANSWER = "214109808";
     public static final String PART2_ANSWER = "7687";
@@ -18,7 +18,31 @@ public class Day14 {
 
     private static ArrayList<Robot> robot_initial;
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+    public Day14(int day) {
+        super(day);
+    }
+
+    record Robot(Vector2d pos, Vector2d velocity) {
+        @Override
+        public String toString() {
+            return String.format("Robot: p=%s, v=%s", pos, velocity);
+        }
+
+        public Robot elapsed(int time, Vector2d map_size) {
+            int pos_x = (pos.x + velocity.x * time) % map_size.x;
+            int pos_y = (pos.y + velocity.y * time) % map_size.y;
+            if (pos_x < 0) {
+                pos_x = pos_x + map_size.x;
+            }
+            if (pos_y < 0) {
+                pos_y = pos_y + map_size.y;
+            }
+
+            return new Robot(new Vector2d(pos_x, pos_y), velocity);
+        }
+    }
+
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.print("\tDay  14");
         if (AdventOfCode2024.TESTING) {
@@ -43,7 +67,7 @@ public class Day14 {
         return answers;
     }
 
-    public static void parseInput(String filename) throws IOException {
+   protected void parseInput(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Path.of(filename));
         robot_initial = new ArrayList<>();
         for (String s : lines) {
@@ -59,7 +83,7 @@ public class Day14 {
         }
     }
 
-    public static String getPart1() {
+    protected String getPart1() {
         Vector2d map_size = AdventOfCode2024.TESTING ? new Vector2d(11, 7) : new Vector2d(101, 103);
         ArrayList<Robot> new_positions = new ArrayList<>();
         for (Robot r : robot_initial) {
@@ -91,56 +115,36 @@ public class Day14 {
         return String.valueOf(answer);
     }
 
-    public static String getPart2() {
+    protected String getPart2() {
 
         Vector2d map_size = AdventOfCode2024.TESTING ? new Vector2d(11, 7) : new Vector2d(101, 103);
 
         int end_step = -1;
         boolean unique;
-        for(int e=0; e < 10000; e++) {
+        for (int e = 0; e < 10000; e++) {
             ArrayList<Robot> new_pos = new ArrayList<>();
-            for(Robot r: robot_initial) {
+            for (Robot r : robot_initial) {
                 Robot n_r = r.elapsed(e, map_size);
                 new_pos.add(n_r);
             }
             HashSet<Vector2d> position_set = new HashSet<>();
 
             unique = true;
-            for(Robot r: new_pos) {
-                if(position_set.contains(r.pos)) {
-                    unique=false;
+            for (Robot r : new_pos) {
+                if (position_set.contains(r.pos)) {
+                    unique = false;
                     break;
                 } else {
                     position_set.add(r.pos);
                     end_step = e;
                 }
             }
-            if(unique) break;
+            if (unique) break;
         }
 
 
         long answer = end_step;
         return Long.toString(answer);
-    }
-
-    record Robot(Vector2d pos, Vector2d velocity) {
-        @Override
-        public String toString() {
-            return String.format("Robot: p=%s, v=%s", pos, velocity);
-        }
-
-        public Robot elapsed(int time, Vector2d map_size) {
-            int pos_x = (pos.x + velocity.x * time) % map_size.x;
-            int pos_y = (pos.y + velocity.y * time) % map_size.y;
-            if (pos_x < 0) {
-                pos_x = pos_x + map_size.x;
-            }
-            if (pos_y < 0) {
-                pos_y = pos_y + map_size.y;
-            }
-
-            return new Robot(new Vector2d(pos_x, pos_y), velocity);
-        }
     }
 
 }

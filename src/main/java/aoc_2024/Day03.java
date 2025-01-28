@@ -1,4 +1,5 @@
 package src.main.java.aoc_2024;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -7,22 +8,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class Day03 {
+public class Day03 extends AoCDay {
     public static final String PART1_ANSWER = "161085926";
     public static final String PART2_ANSWER = "82045421";
 
     public static final String PART1_REGEX = "mul\\(\\d{1,3},\\d{1,3}\\)";
     public static final String PART2_REGEX = "mul\\(\\d{1,3},\\d{1,3}\\)|don't\\(\\)|do\\(\\)";
+    private static String input;
 
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+    public Day03(int day) {
+        super(day);
+    }
+
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.println("\tDay  3");
 
-
+        parseInput(inputString);
         String[] answers = {"", ""};
-        answers[0] = getPart1(inputString);
-        answers[1] = getPart2(inputString);
+        answers[0] = getPart1();
+        answers[1] = getPart2();
 
 
         if (!answers[0].equals(PART1_ANSWER)) {
@@ -35,8 +41,8 @@ public class Day03 {
         return answers;
     }
 
-    public static String getPart1(String s) throws IOException {
-        String input = Files.readString(Path.of(s.trim()));
+    protected static String getPart1() {
+
 
         Pattern pat = Pattern.compile(PART1_REGEX);
         Matcher matcher = pat.matcher(input);
@@ -54,8 +60,8 @@ public class Day03 {
         return Integer.toString(answer);
     }
 
-    public static String getPart2(String s) throws IOException {
-        String input = Files.readString(Path.of(s.trim()));
+    protected static String getPart2() {
+
 
         Pattern pat = Pattern.compile(PART2_REGEX);
         Matcher matcher = pat.matcher(input);
@@ -76,5 +82,9 @@ public class Day03 {
         }
         int answer = total;
         return Integer.toString(answer);
+    }
+
+   protected void parseInput(String filename) throws IOException {
+        input = Files.readString(Path.of(filename));
     }
 }

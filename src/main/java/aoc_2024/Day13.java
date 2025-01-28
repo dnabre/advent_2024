@@ -8,81 +8,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Day13 {
+public class Day13 extends AoCDay {
 
     public static final String PART1_ANSWER = "25629";
     public static final String PART2_ANSWER = "107487112929999";
-
+    private static ArrayList<Problem> parsed_input;
     private static final int A_TOKEN = 3;
     private static final int B_TOKEN = 1;
     private static final int PART1_LIMIT = 100;
     private static final long PART2_FACTOR = 10000000000000L;
-    private static ArrayList<Problem> parsed_input;
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  13");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
-        }
-        out.println();
-
-        String[] answers = {"", ""};
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
+    public Day13(int day) {
+        super(day);
     }
 
-    public static void parseInput(String filename) throws IOException {
-        List<String> lines = Files.readAllLines(Path.of(filename));
-        parsed_input = new ArrayList<>();
-        do {
-            Button a = Button.parse(lines.removeFirst());
-            Button b = Button.parse(lines.removeFirst());
-            Prize p = Prize.parse(lines.removeFirst());
-            Problem prob = new Problem(a, b, p);
-            parsed_input.add(prob);
-            if (!lines.isEmpty()) {
-                lines.removeFirst();
-            }
-        } while (!lines.isEmpty());
+    record Button(char letter, long x, long y) {
+        public static Button parse(String s) {
+            String[] parts = s.split("\\+");
+            char b_char = s.charAt(7);
+            long a_x = Long.parseLong(parts[1].split(",")[0]);
+            long a_y = Long.parseLong(parts[2]);
+            return new Button(b_char, a_x, a_y);
+        }
 
+        @Override
+        public String toString() {
+            return String.format("Button: %c: X%c%d, Y%c%d", letter, (x < 0) ? ' ' : '+', x, (y < 0) ? ' ' : '+', y);
+        }
+
+        public long x_press(long times) {
+            return x * times;
+        }
+
+        public long y_press(long times) {
+            return y * times;
+        }
     }
 
-    public static String getPart1() {
-        ArrayList<Problem> problems = new ArrayList<>(parsed_input);
-        long tokens = 0;
-        for (Problem p : problems) {
-            tokens += p.getTokensWithLimitedPushes(PART1_LIMIT);
+    record Prize(long x, long y) {
+        public static Prize parse(String s) {
+            String[] parts = s.split("=");
+            long p_x = Long.parseLong(parts[1].split(",")[0]);
+            long p_y = Long.parseLong(parts[2]);
+            return new Prize(p_x, p_y);
         }
-        long answer = tokens;
-        return String.valueOf(answer);
-    }
 
-
-    public static String getPart2() {
-        ArrayList<Problem> problems = new ArrayList<>();
-        for (Problem p : parsed_input) {
-            Problem new_p = new Problem(p.A, p.B, new Prize(p.P.x + PART2_FACTOR, p.P.y + PART2_FACTOR));
-            problems.add(new_p);
+        @Override
+        public String toString() {
+            return String.format("Prize: X=%d, Y=%d", x, y);
         }
-        long tokens = 0;
-        for (Problem p : problems) {
-            tokens += p.getTokens();
-        }
-        long answer = tokens;
-        return String.valueOf(answer);
     }
 
     record Problem(Button A, Button B, Prize P) {
@@ -90,6 +64,7 @@ public class Day13 {
         public String toString() {
             return A + "\n" + B + "\n" + P;
         }
+
         public long getTokensWithLimitedPushes(int max_pushes) {
             for (long a_press = 0; a_press < max_pushes; a_press++) {
                 for (long b_press = 0; b_press < max_pushes; b_press++) {
@@ -119,37 +94,70 @@ public class Day13 {
             return 0L;
         }
     }
-    record Button(char letter, long x, long y) {
-        public static Button parse(String s) {
-            String[] parts = s.split("\\+");
-            char b_char = s.charAt(7);
-            long a_x = Long.parseLong(parts[1].split(",")[0]);
-            long a_y = Long.parseLong(parts[2]);
-            return new Button(b_char, a_x, a_y);
-        }
-        @Override
-        public String toString() {
-            return String.format("Button: %c: X%c%d, Y%c%d", letter, (x < 0) ? ' ' : '+', x, (y < 0) ? ' ' : '+', y);
-        }
-        public long x_press(long times) {
-            return x * times;
-        }
-        public long y_press(long times) {
-            return y * times;
-        }
-    }
-    record Prize(long x, long y) {
-        public static Prize parse(String s) {
-            String[] parts = s.split("=");
-            long p_x = Long.parseLong(parts[1].split(",")[0]);
-            long p_y = Long.parseLong(parts[2]);
-            return new Prize(p_x, p_y);
-        }
 
-        @Override
-        public String toString() {
-            return String.format("Prize: X=%d, Y=%d", x, y);
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
+        out.println("Advent of Code 2024");
+        out.print("\tDay  13");
+        if (AdventOfCode2024.TESTING) {
+            out.print("\t (testing)");
         }
+        out.println();
+
+        String[] answers = {"", ""};
+        parseInput(inputString);
+        answers[0] = getPart1();
+        answers[1] = getPart2();
+
+        if (!AdventOfCode2024.TESTING) {
+            if (!answers[0].equals(PART1_ANSWER)) {
+                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
+            }
+
+            if (!answers[1].equals(PART2_ANSWER)) {
+                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
+            }
+        }
+        return answers;
+    }
+
+   protected void parseInput(String filename) throws IOException {
+        List<String> lines = Files.readAllLines(Path.of(filename));
+        parsed_input = new ArrayList<>();
+        do {
+            Button a = Button.parse(lines.removeFirst());
+            Button b = Button.parse(lines.removeFirst());
+            Prize p = Prize.parse(lines.removeFirst());
+            Problem prob = new Problem(a, b, p);
+            parsed_input.add(prob);
+            if (!lines.isEmpty()) {
+                lines.removeFirst();
+            }
+        } while (!lines.isEmpty());
+
+    }
+
+    protected String getPart1() {
+        ArrayList<Problem> problems = new ArrayList<>(parsed_input);
+        long tokens = 0;
+        for (Problem p : problems) {
+            tokens += p.getTokensWithLimitedPushes(PART1_LIMIT);
+        }
+        long answer = tokens;
+        return String.valueOf(answer);
+    }
+
+    protected String getPart2() {
+        ArrayList<Problem> problems = new ArrayList<>();
+        for (Problem p : parsed_input) {
+            Problem new_p = new Problem(p.A, p.B, new Prize(p.P.x + PART2_FACTOR, p.P.y + PART2_FACTOR));
+            problems.add(new_p);
+        }
+        long tokens = 0;
+        for (Problem p : problems) {
+            tokens += p.getTokens();
+        }
+        long answer = tokens;
+        return String.valueOf(answer);
     }
 }
 

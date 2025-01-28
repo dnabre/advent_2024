@@ -9,15 +9,18 @@ import java.util.Arrays;
 import java.util.List;
 
 
-
-public class Day17 {
+public class Day17 extends AoCDay {
 
     public static final String PART1_ANSWER = "4,6,1,4,2,1,3,1,6";
     public static final String PART2_ANSWER = "202366627359274";
     private static Computer start_state;
 
+    public Day17(int day) {
+        super(day);
+    }
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.print("\tDay  17");
         if (AdventOfCode2024.TESTING) {
@@ -42,7 +45,7 @@ public class Day17 {
         return answers;
     }
 
-    private static void parseInput(String inputString) throws IOException {
+   protected void parseInput(String inputString) throws IOException {
         String[] input_lines = Files.readAllLines(Path.of(inputString)).toArray(new String[0]);
 
         String[] parts_a = input_lines[0].split(":");
@@ -57,13 +60,12 @@ public class Day17 {
         start_state = new Computer(a, b, c, prog_list);
     }
 
-    public static String getPart1() {
+    protected String getPart1() {
         return Computer.runToHalt(start_state);
     }
 
 
-
-    public static String getPart2() {
+    protected String getPart2() {
         Computer device = new Computer(start_state);
         ArrayList<Long> program = AoCUtils.arrayToArrayList(device.program);
         ArrayList<Long> output;

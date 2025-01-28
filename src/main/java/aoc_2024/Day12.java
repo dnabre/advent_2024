@@ -10,15 +10,37 @@ import java.util.HashSet;
 import java.util.List;
 
 
-public class Day12 {
+public class Day12 extends AoCDay {
 
     public static final String PART1_ANSWER = "1464678";
     public static final String PART2_ANSWER = "877492";
-    private static ArrayList<Plot> plot_list;
     private static char[][] farm_grid;
     private static Vector2d max;
+    private static ArrayList<Plot> plot_list;
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+    public Day12(int day) {
+        super(day);
+    }
+
+    record Plot(char plant, HashSet<Vector2d> tiles) {
+
+        public boolean in(Vector2d v) {
+            return tiles.contains(v);
+        }
+
+        public int area() {
+            return this.tiles.size();
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[Plot - plant: %c, tiles: %d ]", this.plant, tiles.size());
+        }
+
+
+    }
+
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.print("\tDay  12");
         if (AdventOfCode2024.TESTING) {
@@ -44,25 +66,7 @@ public class Day12 {
         return answers;
     }
 
-    protected static String getPart1() {
-        int total = 0;
-        for (Plot p : plot_list) {
-            total += calcPerimeter(p, farm_grid) * p.area();
-        }
-        long answer = total;
-        return String.valueOf(answer);
-    }
-
-    protected static String getPart2() {
-        int total = 0;
-        for (Plot p : plot_list) {
-            total += calcSides(p) * p.area();
-        }
-        long answer = total;
-        return String.valueOf(answer);
-    }
-
-    protected static void parseInput(String filename) throws IOException {
+   protected void parseInput(String filename) throws IOException {
         String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
         int width = lines[0].length();
         int height = lines.length;
@@ -73,24 +77,6 @@ public class Day12 {
             if (max.x >= 0) System.arraycopy(line_array, 0, farm_grid[y], 0, max.x);
         }
         plot_list = getPlots(farm_grid);
-    }
-
-    record Plot(char plant, HashSet<Vector2d> tiles) {
-
-        public boolean in(Vector2d v) {
-            return tiles.contains(v);
-        }
-
-        public int area() {
-            return this.tiles.size();
-        }
-
-        @Override
-        public String toString() {
-            return String.format("[Plot - plant: %c, tiles: %d ]",  this.plant, tiles.size());
-        }
-
-
     }
 
     private static int calcPerimeter(Plot plot, char[][] grid) {
@@ -170,6 +156,24 @@ public class Day12 {
             }
         }
         return plot_list;
+    }
+
+    protected String getPart1() {
+        int total = 0;
+        for (Plot p : plot_list) {
+            total += calcPerimeter(p, farm_grid) * p.area();
+        }
+        long answer = total;
+        return String.valueOf(answer);
+    }
+
+    protected String getPart2() {
+        int total = 0;
+        for (Plot p : plot_list) {
+            total += calcSides(p) * p.area();
+        }
+        long answer = total;
+        return String.valueOf(answer);
     }
 
 

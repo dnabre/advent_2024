@@ -13,7 +13,14 @@ import static java.lang.System.out;
 
 public class AoCUtils {
     public static final String WHITESPACE_RE = "\\s+";
-    public static final String[] ORDINALS = {"zeroth","first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"};
+    public static final String[] ORDINALS = {"zeroth", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"};
+
+    static public class NullStream extends OutputStream {
+        @Override
+        public void write(int b) throws IOException {
+
+        }
+    }
 
     public static int[] WhitespaceDelimitedLineToIntegers(String ln) {
         String[] parts = ln.split("\\s+");
@@ -24,45 +31,29 @@ public class AoCUtils {
         return result;
     }
 
-    static public class NullStream extends OutputStream {
-        @Override
-        public void write(int b) throws IOException {
-
+    public static ArrayList<Long> arrayToArrayList(long[] program) {
+        ArrayList<Long> r = new ArrayList<>();
+        for (long ll : program) {
+            r.add(ll);
         }
-    }
-    public static void printGrid(char[][] grid) {
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[0].length; x++) {
-                char ch = grid[y][x];
-                out.print(ch);
-            }
-            out.println();
-        }
+        return r;
     }
 
-    public static void printGridT(char[][] grid) {
-        for (int y = 0; y < grid[0].length; y++) {
-            for (int x = 0; x < grid.length; x++) {
-                char ch = grid[y][x];
-                out.print(ch);
+    public static List<List<String>> breakDataByNewline(String data) {
+        List<List<String>> g_string = new ArrayList<>();
+        List<String> current = new ArrayList<>();
+        for (String line : data.lines().toList()) {
+            if (line.isBlank()) {
+                g_string.add(current);
+                current = new ArrayList<>();
+            } else {
+                current.add(line);
             }
-            out.println();
         }
-    }
-
-    public static void printGridWithSpecial(char[][] grid, Vector2d special_loc, char special_tile) {
-        for (int y = 0; y < grid[0].length; y++) {
-            for (int x = 0; x < grid.length; x++) {
-                char ch = grid[x][y];
-                if (special_loc.isEqual(x, y)) {
-                    out.print(special_tile);
-                } else {
-                    out.print(ch);
-                }
-
-            }
-            out.println();
+        if (!current.isEmpty()) {
+            g_string.add(current);
         }
+        return g_string;
     }
 
     public static long iPow(long a, long b) {
@@ -76,7 +67,6 @@ public class AoCUtils {
         }
         return re;
     }
-
 
     public static char[][] parseGrid(String filename) throws IOException {
         char[][] input_grid = Files.readAllLines(Path.of(filename)).stream().map(String::toCharArray).toList().toArray(new char[0][0]);
@@ -111,29 +101,39 @@ public class AoCUtils {
         return grid;
     }
 
-    public static List<List<String>> breakDataByNewline(String data) {
-        List<List<String>> g_string = new ArrayList<>();
-        List<String> current = new ArrayList<>();
-        for (String line : data.lines().toList()) {
-            if (line.isBlank()) {
-                g_string.add(current);
-                current = new ArrayList<>();
-            } else {
-                current.add(line);
+    public static void printGrid(char[][] grid) {
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[0].length; x++) {
+                char ch = grid[y][x];
+                out.print(ch);
             }
+            out.println();
         }
-        if (!current.isEmpty()) {
-            g_string.add(current);
-        }
-        return g_string;
     }
 
-    public static ArrayList<Long> arrayToArrayList(long[] program) {
-        ArrayList<Long> r = new ArrayList<>();
-        for (long ll : program) {
-            r.add(ll);
+    public static void printGridT(char[][] grid) {
+        for (int y = 0; y < grid[0].length; y++) {
+            for (int x = 0; x < grid.length; x++) {
+                char ch = grid[y][x];
+                out.print(ch);
+            }
+            out.println();
         }
-        return r;
+    }
+
+    public static void printGridWithSpecial(char[][] grid, Vector2d special_loc, char special_tile) {
+        for (int y = 0; y < grid[0].length; y++) {
+            for (int x = 0; x < grid.length; x++) {
+                char ch = grid[x][y];
+                if (special_loc.isEqual(x, y)) {
+                    out.print(special_tile);
+                } else {
+                    out.print(ch);
+                }
+
+            }
+            out.println();
+        }
     }
 
     static HashMap<Vector2d, Integer> findDistanceFromStartToEverywhere(char[][] grid, Vector2d start) {

@@ -7,14 +7,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 
-public class Day08 {
+public class Day08 extends AoCDay {
 
     public static final String PART1_ANSWER = "261"; // 340 is too high
     public static final String PART2_ANSWER = "898";
     private static char[][] grid;
     private static Vector2d max;
 
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
+    public Day08(int day) {
+        super(day);
+    }
+
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
         out.println("Advent of Code 2024");
         out.println("\tDay  8");
 
@@ -35,14 +39,29 @@ public class Day08 {
         return answers;
     }
 
-    private static void parseInput(String file_name) throws IOException {
+   protected void parseInput(String file_name) throws IOException {
         grid = AoCUtils.parseGrid(file_name);
         int max_x = grid.length;
         int max_y = grid[0].length;
         max = new Vector2d(max_x, max_y);
     }
 
-    public static String getPart1() {
+    private static HashMap<Character, ArrayList<Vector2d>> getAntennaList(char[][] grid) {
+        HashMap<Character, ArrayList<Vector2d>> antennas = new HashMap<>();
+        for (int y = 0; y < max.y; y++) {
+            for (int x = 0; x < max.x; x++) {
+                char ch = grid[x][y];
+                if (ch != '.') {
+                    ArrayList<Vector2d> ant_list = antennas.getOrDefault(ch, new ArrayList<>());
+                    ant_list.add(new Vector2d(x, y));
+                    antennas.put(ch, ant_list);
+                }
+            }
+        }
+        return antennas;
+    }
+
+    protected String getPart1() {
 
         HashSet<Vector2d> antinodes = new HashSet<>();
         HashMap<Character, ArrayList<Vector2d>> antennas = getAntennaList(grid);
@@ -66,7 +85,7 @@ public class Day08 {
                     int antinode_2y = compare_y - yDiff;
 
                     if (antinode_1x < max.x && antinode_1x >= 0 && antinode_1y < max.y && antinode_1y >= 0) {
-                        antinodes.add(new Vector2d(antinode_1x,antinode_1y));
+                        antinodes.add(new Vector2d(antinode_1x, antinode_1y));
                     }
 
                     if (antinode_2x < max.x && antinode_2x >= 0 && antinode_2y < max.y && antinode_2y >= 0) {
@@ -79,7 +98,8 @@ public class Day08 {
         int answer = antinodes.size();
         return Integer.toString(answer);
     }
-    public static String getPart2() {
+
+    protected String getPart2() {
 
         HashSet<Vector2d> antinodes = new HashSet<>();
         HashMap<Character, ArrayList<Vector2d>> antennas = getAntennaList(grid);
@@ -103,7 +123,7 @@ public class Day08 {
                     int antinode_2Y = compareY - yDiff;
 
                     while (antinode_1X < max.x && antinode_1X >= 0 && antinode_1Y < max.y && antinode_1Y >= 0) {
-                        antinodes.add(new Vector2d(antinode_1X,antinode_1Y));
+                        antinodes.add(new Vector2d(antinode_1X, antinode_1Y));
                         antinode_1Y += yDiff;
                         antinode_1X += xDiff;
                     }
@@ -113,7 +133,7 @@ public class Day08 {
                         antinode_2Y -= yDiff;
                         antinode_2X -= xDiff;
                     }
-                    antinodes.add(new Vector2d(x,y));
+                    antinodes.add(new Vector2d(x, y));
                     antinodes.add(new Vector2d(compareX, compareY));
                 }
             }
@@ -121,21 +141,6 @@ public class Day08 {
 
         int answer = antinodes.size();
         return Integer.toString(answer);
-    }
-
-    private static HashMap<Character, ArrayList<Vector2d>> getAntennaList(char[][] grid) {
-        HashMap<Character, ArrayList<Vector2d>> antennas = new HashMap<>();
-        for (int y = 0; y < max.y; y++) {
-            for (int x = 0; x < max.x; x++) {
-                char ch = grid[x][y];
-                if (ch != '.') {
-                    ArrayList<Vector2d> ant_list = antennas.getOrDefault(ch, new ArrayList<>());
-                    ant_list.add(new Vector2d(x, y));
-                    antennas.put(ch, ant_list);
-                }
-            }
-        }
-        return antennas;
     }
 
 

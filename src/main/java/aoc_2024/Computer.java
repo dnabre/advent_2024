@@ -46,9 +46,7 @@ public class Computer {
         output = new ArrayList<>();
     }
 
-    static OpCode asOpCode(long o) {
-        return decode[(int) o];
-    }
+    enum OpCode {ADV, BXL, BST, JNZ, BXC, OUT, BDV, CDV}
 
     public static String runToHalt(Computer other) {
         Computer fresh = new Computer(other);
@@ -57,6 +55,10 @@ public class Computer {
             running = fresh.step();
         }
         return fresh.getFormatedOutput();
+    }
+
+    static OpCode asOpCode(long o) {
+        return decode[(int) o];
     }
 
     public boolean step() {
@@ -128,28 +130,6 @@ public class Computer {
         output.addLast(o);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Computer \t [pc=%d]\n", this.pc));
-        sb.append("\tRegister A: ");
-        sb.append(this.reg_a);
-        sb.append("\n");
-        sb.append("\tRegister B: ");
-        sb.append(this.reg_b);
-        sb.append("\n");
-        sb.append("\tRegister C: ");
-        sb.append(this.reg_c);
-        sb.append("\n");
-        sb.append("\nProgram: ");
-        sb.append(Arrays.toString(this.program));
-        if (!output.isEmpty()) {
-            sb.append("\nOutput: ");
-            sb.append(this.output);
-        }
-        return sb.toString();
-    }
-
     public String getFormatedOutput() {
         if (this.output.isEmpty()) {
             return "no output";
@@ -178,6 +158,11 @@ public class Computer {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(reg_a, reg_b, reg_c, output, Arrays.hashCode(program), pc);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         src.main.java.aoc_2024.Computer computer = (src.main.java.aoc_2024.Computer) o;
@@ -185,10 +170,25 @@ public class Computer {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(reg_a, reg_b, reg_c, output, Arrays.hashCode(program), pc);
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Computer \t [pc=%d]\n", this.pc));
+        sb.append("\tRegister A: ");
+        sb.append(this.reg_a);
+        sb.append("\n");
+        sb.append("\tRegister B: ");
+        sb.append(this.reg_b);
+        sb.append("\n");
+        sb.append("\tRegister C: ");
+        sb.append(this.reg_c);
+        sb.append("\n");
+        sb.append("\nProgram: ");
+        sb.append(Arrays.toString(this.program));
+        if (!output.isEmpty()) {
+            sb.append("\nOutput: ");
+            sb.append(this.output);
+        }
+        return sb.toString();
     }
-
-    enum OpCode {ADV, BXL, BST, JNZ, BXC, OUT, BDV, CDV}
 }
 

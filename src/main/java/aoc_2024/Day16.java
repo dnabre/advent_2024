@@ -6,7 +6,7 @@ import java.util.*;
 
 import static src.main.java.aoc_2024.Directions.Compass;
 
-public class Day16 {
+public class Day16 extends AoCDay {
 
     public static final String PART1_ANSWER = "102460";
     public static final String PART2_ANSWER = "527";
@@ -15,65 +15,12 @@ public class Day16 {
     private static HashMap<Position, Integer> distance_from_start;
     private static char[][] grid;
     private static Vector2d max;
-
-    public static String getPart1() {
-        distance_from_start = getAllDistancesStartingFrom(MAP_START);
-        int cost = Integer.MAX_VALUE;
-        for (Compass d : Compass.values()) {
-            final int dist = distance_from_start.get(new Position(MAP_END, d));
-            cost = Math.min(cost, dist);
-        }
-        long answer = cost;
-        return String.valueOf(answer);
-    }
-
-    public static String getPart2() {
-        distance_from_start = getAllDistancesStartingFrom(MAP_START);
-
-        final ArrayList<Position> ends = new ArrayList<>(4);
-        for (Compass d : Compass.values()) {
-            ends.add(new Position(MAP_END, d));
-        }
-
-
-        final int min = ends.stream().mapToInt(e -> distance_from_start.get(e)).min().getAsInt();
-        final Position realEnd = distance_from_start.entrySet().stream().filter(e -> e.getValue().equals(min)).map(Map.Entry::getKey).toList().getFirst();
-
-        final HashSet<Vector2d> paths = new HashSet<>();
-        findCoordinatesOnShortestPaths(realEnd, MAP_START, distance_from_start, paths);
-        return String.valueOf(paths.size());
-    }
-
-    public static String[] runDay(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  16");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
-        }
-        out.println();
-
-        String[] answers = {"", ""};
-
-
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
-    }
-
     static private final int TURN_PRICE1 = 1000;
     static private final int STEP_PRICE = 1;
 
+    public Day16(int day) {
+        super(day);
+    }
 
     public record Position(Vector2d pos, Compass direction) implements Comparable<Position> {
         public Position(int x, int y, Compass compass) {
@@ -146,6 +93,54 @@ public class Day16 {
 
     }
 
+    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
+        out.println("Advent of Code 2024");
+        out.print("\tDay  16");
+        if (AdventOfCode2024.TESTING) {
+            out.print("\t (testing)");
+        }
+        out.println();
+
+        String[] answers = {"", ""};
+
+
+        parseInput(inputString);
+        answers[0] = getPart1();
+        answers[1] = getPart2();
+
+        if (!AdventOfCode2024.TESTING) {
+            if (!answers[0].equals(PART1_ANSWER)) {
+                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
+            }
+
+            if (!answers[1].equals(PART2_ANSWER)) {
+                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
+            }
+        }
+        return answers;
+    }
+
+   protected void parseInput(String filename) throws IOException {
+        char[][] input_grid = AoCUtils.parseGrid(filename);
+        max = new Vector2d(input_grid[0].length, input_grid.length);
+        grid = new char[max.y][max.x];
+        for (int y = 0; y < max.y; y++) {
+            for (int x = 0; x < max.x; x++) {
+                final Vector2d pos = new Vector2d(x, y);
+                char ch = input_grid[y][x];
+                if (ch == 'S') {
+                    MAP_START = new Position(pos, Compass.EAST);
+                    ch = '.';
+                } else if (ch == 'E') {
+                    MAP_END = pos;
+                    ch = '.';
+                }
+                grid[y][x] = ch;
+            }
+        }
+
+
+    }
 
     private static void findCoordinatesOnShortestPaths(Position current, Position start, HashMap<Position, Integer> distances, HashSet<Vector2d> coordinates) {
         Vector2d c = new Vector2d(current.pos.x, current.pos.y);
@@ -207,27 +202,32 @@ public class Day16 {
         return distances;
     }
 
+    protected String getPart1() {
+        distance_from_start = getAllDistancesStartingFrom(MAP_START);
+        int cost = Integer.MAX_VALUE;
+        for (Compass d : Compass.values()) {
+            final int dist = distance_from_start.get(new Position(MAP_END, d));
+            cost = Math.min(cost, dist);
+        }
+        long answer = cost;
+        return String.valueOf(answer);
+    }
 
-    private static void parseInput(String filename) throws IOException {
-        char[][] input_grid = AoCUtils.parseGrid(filename);
-        max = new Vector2d(input_grid[0].length, input_grid.length);
-        grid = new char[max.y][max.x];
-        for (int y = 0; y < max.y; y++) {
-            for (int x = 0; x < max.x; x++) {
-                final Vector2d pos = new Vector2d(x, y);
-                char ch = input_grid[y][x];
-                if (ch == 'S') {
-                    MAP_START = new Position(pos, Compass.EAST);
-                    ch = '.';
-                } else if (ch == 'E') {
-                    MAP_END = pos;
-                    ch = '.';
-                }
-                grid[y][x] = ch;
-            }
+    protected String getPart2() {
+        distance_from_start = getAllDistancesStartingFrom(MAP_START);
+
+        final ArrayList<Position> ends = new ArrayList<>(4);
+        for (Compass d : Compass.values()) {
+            ends.add(new Position(MAP_END, d));
         }
 
 
+        final int min = ends.stream().mapToInt(e -> distance_from_start.get(e)).min().getAsInt();
+        final Position realEnd = distance_from_start.entrySet().stream().filter(e -> e.getValue().equals(min)).map(Map.Entry::getKey).toList().getFirst();
+
+        final HashSet<Vector2d> paths = new HashSet<>();
+        findCoordinatesOnShortestPaths(realEnd, MAP_START, distance_from_start, paths);
+        return String.valueOf(paths.size());
     }
 
 
