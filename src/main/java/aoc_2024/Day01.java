@@ -2,43 +2,18 @@ package src.main.java.aoc_2024;
 
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 
 public class Day01 extends AoCDay {
-
     public static final String PART1_ANSWER = "2769675";
     public static final String PART2_ANSWER = "24643097";
     static private String[] lines;
 
-    public Day01(int day) {
-        super(day);
-    }
-
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.println("\tDay  1");
-        parseInput(inputString);
-        String[] answers = new String[2];
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-
-        if (!answers[0].equals(Day01.PART1_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], Day01.PART1_ANSWER);
-        }
-
-        if (!answers[1].equals(Day01.PART2_ANSWER)) {
-            out.printf("\n\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], Day01.PART2_ANSWER);
-        }
-        return answers;
-    }
-
-    protected void parseInput(String filename) throws IOException {
-        lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
     protected String getPart1() {
@@ -91,5 +66,13 @@ public class Day01 extends AoCDay {
             }
         }
         return Integer.toString(total);
+    }
+
+    protected void parseInput(String filename) throws IOException {
+        lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
+    }
+
+    public Day01(int day) {
+        super(day);
     }
 }

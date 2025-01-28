@@ -1,7 +1,6 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
@@ -11,62 +10,35 @@ import java.util.List;
 
 
 public class Day12 extends AoCDay {
-
     public static final String PART1_ANSWER = "1464678";
     public static final String PART2_ANSWER = "877492";
     private static char[][] farm_grid;
     private static Vector2d max;
     private static ArrayList<Plot> plot_list;
 
-    public Day12(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
-    record Plot(char plant, HashSet<Vector2d> tiles) {
-
-        public boolean in(Vector2d v) {
-            return tiles.contains(v);
+    protected String getPart1() {
+        int total = 0;
+        for (Plot p : plot_list) {
+            total += calcPerimeter(p, farm_grid) * p.area();
         }
-
-        public int area() {
-            return this.tiles.size();
-        }
-
-        @Override
-        public String toString() {
-            return String.format("[Plot - plant: %c, tiles: %d ]", this.plant, tiles.size());
-        }
-
-
+        long answer = total;
+        return String.valueOf(answer);
     }
 
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  12");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
+    protected String getPart2() {
+        int total = 0;
+        for (Plot p : plot_list) {
+            total += calcSides(p) * p.area();
         }
-        out.println();
-
-        String[] answers = {"", ""};
-
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
+        long answer = total;
+        return String.valueOf(answer);
     }
 
-   protected void parseInput(String filename) throws IOException {
+    protected void parseInput(String filename) throws IOException {
         String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
         int width = lines[0].length();
         int height = lines.length;
@@ -158,22 +130,26 @@ public class Day12 extends AoCDay {
         return plot_list;
     }
 
-    protected String getPart1() {
-        int total = 0;
-        for (Plot p : plot_list) {
-            total += calcPerimeter(p, farm_grid) * p.area();
-        }
-        long answer = total;
-        return String.valueOf(answer);
+    public Day12(int day) {
+        super(day);
     }
 
-    protected String getPart2() {
-        int total = 0;
-        for (Plot p : plot_list) {
-            total += calcSides(p) * p.area();
+    record Plot(char plant, HashSet<Vector2d> tiles) {
+
+        public int area() {
+            return this.tiles.size();
         }
-        long answer = total;
-        return String.valueOf(answer);
+
+        public boolean in(Vector2d v) {
+            return tiles.contains(v);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[Plot - plant: %c, tiles: %d ]", this.plant, tiles.size());
+        }
+
+
     }
 
 

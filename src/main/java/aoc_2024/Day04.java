@@ -1,45 +1,53 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Day04 extends AoCDay {
     public static final String PART1_ANSWER = "2297";
     public static final String PART2_ANSWER = "1745";
+    public static int[][] corner_direction = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+    public static int[][] octo_directions = {{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1}};
     private static char[][] grid = null;
     private static int x_max = -1;
     private static int x_min = -1;
     private static int y_max = -1;
     private static int y_min = -1;
-    public static int[][] octo_directions = {{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1}};
-    public static int[][] corner_direction = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
-    public Day04(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.println("\tDay  4");
-
-        String[] answers = {"", ""};
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!answers[0].equals(PART1_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], Day02.PART1_ANSWER);
+    protected String getPart1() {
+        int total = 0;
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[y].length; x++) {
+                char ch = grid[y][x];
+                if (ch == 'X') {
+                    total += XMasCountStartingFrom(x, y);
+                }
+            }
         }
-
-        if (!answers[1].equals(PART2_ANSWER)) {
-            out.printf("\n\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], Day02.PART2_ANSWER);
-        }
-        return answers;
+        int answer = total;
+        return Integer.toString(answer);
     }
 
-   protected void parseInput(String input_filename) throws IOException {
+    protected String getPart2() {
+        int total = 0;
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[y].length; x++) {
+                char ch = grid[y][x];
+                if (ch == 'A') {
+                    total += MasXCountStartingFrom(x, y);
+                }
+            }
+        }
+        int answer = total;
+        return Integer.toString(answer);
+    }
+
+    protected void parseInput(String input_filename) throws IOException {
         grid = Files.readAllLines(Path.of(input_filename)).stream().map(String::toCharArray).toList().toArray(new char[0][0]);
         x_min = 0;
         y_min = 0;
@@ -80,32 +88,8 @@ public class Day04 extends AoCDay {
         return sb.toString();
     }
 
-    protected String getPart1() {
-        int total = 0;
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[y].length; x++) {
-                char ch = grid[y][x];
-                if (ch == 'X') {
-                    total += XMasCountStartingFrom(x, y);
-                }
-            }
-        }
-        int answer = total;
-        return Integer.toString(answer);
-    }
-
-    protected String getPart2() {
-        int total = 0;
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[y].length; x++) {
-                char ch = grid[y][x];
-                if (ch == 'A') {
-                    total += MasXCountStartingFrom(x, y);
-                }
-            }
-        }
-        int answer = total;
-        return Integer.toString(answer);
+    public Day04(int day) {
+        super(day);
     }
 
 }

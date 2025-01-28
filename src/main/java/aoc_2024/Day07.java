@@ -1,7 +1,6 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
@@ -14,42 +13,35 @@ public class Day07 extends AoCDay {
     public static final String PART2_ANSWER = "116094961956019";
     private static final ArrayList<Equation> equations = new ArrayList<>();
 
-    public Day07(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
-    record Equation(long value, long[] terms) {
-    }
-
-    record State(long running, int to_term) {
-    }
-
-    public static long concat(long total, long next_term) {
-        return Long.parseLong(total + Long.toString(next_term));
-    }
-
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.println("\tDay  07");
-
-        String[] answers = {"", ""};
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
+    protected String getPart1() {
+        long total = 0L;
+        for (Equation eq : equations) {
+            boolean sat = canEquationBeSatisfied(eq.value, eq.terms, false);
+            if (sat) {
+                total += eq.value;
             }
         }
-        return answers;
+        long answer = total;
+        return String.valueOf(answer);
     }
 
-   protected void parseInput(String filename) throws IOException {
+    protected String getPart2() {
+        long total = 0L;
+        for (Equation eq : equations) {
+            boolean sat = canEquationBeSatisfied(eq.value, eq.terms, true);
+            if (sat) {
+                total += eq.value;
+            }
+        }
+        long answer = total;
+        return String.valueOf(answer);
+    }
+
+    protected void parseInput(String filename) throws IOException {
         String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
         for (String ln : lines) {
             String[] parts = ln.split(":");
@@ -64,6 +56,10 @@ public class Day07 extends AoCDay {
 
         }
 
+    }
+
+    public static long concat(long total, long next_term) {
+        return Long.parseLong(total + Long.toString(next_term));
     }
 
     private static boolean canEquationBeSatisfied(long goal, long[] terms, boolean use_concat) {
@@ -100,27 +96,13 @@ public class Day07 extends AoCDay {
         return false;
     }
 
-    protected String getPart1() {
-        long total = 0L;
-        for (Equation eq : equations) {
-            boolean sat = canEquationBeSatisfied(eq.value, eq.terms, false);
-            if (sat) {
-                total += eq.value;
-            }
-        }
-        long answer = total;
-        return String.valueOf(answer);
+    public Day07(int day) {
+        super(day);
     }
 
-    protected String getPart2() {
-        long total = 0L;
-        for (Equation eq : equations) {
-            boolean sat = canEquationBeSatisfied(eq.value, eq.terms, true);
-            if (sat) {
-                total += eq.value;
-            }
-        }
-        long answer = total;
-        return String.valueOf(answer);
+    record Equation(long value, long[] terms) {
+    }
+
+    record State(long running, int to_term) {
     }
 }

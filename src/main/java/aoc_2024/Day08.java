@@ -1,7 +1,6 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,51 +13,8 @@ public class Day08 extends AoCDay {
     private static char[][] grid;
     private static Vector2d max;
 
-    public Day08(int day) {
-        super(day);
-    }
-
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.println("\tDay  8");
-
-        String[] answers = {"", ""};
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
-    }
-
-   protected void parseInput(String file_name) throws IOException {
-        grid = AoCUtils.parseGrid(file_name);
-        int max_x = grid.length;
-        int max_y = grid[0].length;
-        max = new Vector2d(max_x, max_y);
-    }
-
-    private static HashMap<Character, ArrayList<Vector2d>> getAntennaList(char[][] grid) {
-        HashMap<Character, ArrayList<Vector2d>> antennas = new HashMap<>();
-        for (int y = 0; y < max.y; y++) {
-            for (int x = 0; x < max.x; x++) {
-                char ch = grid[x][y];
-                if (ch != '.') {
-                    ArrayList<Vector2d> ant_list = antennas.getOrDefault(ch, new ArrayList<>());
-                    ant_list.add(new Vector2d(x, y));
-                    antennas.put(ch, ant_list);
-                }
-            }
-        }
-        return antennas;
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
     protected String getPart1() {
@@ -141,6 +97,32 @@ public class Day08 extends AoCDay {
 
         int answer = antinodes.size();
         return Integer.toString(answer);
+    }
+
+    protected void parseInput(String file_name) throws IOException {
+        grid = AoCUtils.parseGrid(file_name);
+        int max_x = grid.length;
+        int max_y = grid[0].length;
+        max = new Vector2d(max_x, max_y);
+    }
+
+    private static HashMap<Character, ArrayList<Vector2d>> getAntennaList(char[][] grid) {
+        HashMap<Character, ArrayList<Vector2d>> antennas = new HashMap<>();
+        for (int y = 0; y < max.y; y++) {
+            for (int x = 0; x < max.x; x++) {
+                char ch = grid[x][y];
+                if (ch != '.') {
+                    ArrayList<Vector2d> ant_list = antennas.getOrDefault(ch, new ArrayList<>());
+                    ant_list.add(new Vector2d(x, y));
+                    antennas.put(ch, ant_list);
+                }
+            }
+        }
+        return antennas;
+    }
+
+    public Day08(int day) {
+        super(day);
     }
 
 

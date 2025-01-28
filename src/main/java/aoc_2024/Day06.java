@@ -1,7 +1,6 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,52 +12,76 @@ import static src.main.java.aoc_2024.Directions.Compass;
 public class Day06 extends AoCDay {
     public static final String PART1_ANSWER = "5067";
     public static final String PART2_ANSWER = "1793";
+    private static final char BLOCK = '#';
+    private static final char EMPTY = '.';
     private static HashSet<Vector2d> blockers;
     private static char[][] grid;
     private static Compass guard_init_dir;
     private static Vector2d guard_start;
     private static int x_max;
     private static int y_max;
-    private static final char EMPTY = '.';
-    private static final char BLOCK = '#';
 
-    public Day06(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
-    private enum Run_Result {
-        ESCAPE, LOOP
-    }
-
-    public record Guard(Vector2d loc, Compass heading) {
-        @Override
-        public String toString() {
-            return String.format("Guard @ %s facing %s", loc.toString(), heading.toString());
-        }
-    }
-
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.println("\tDay  6");
-
-        String[] answers = {"", ""};
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
+    protected String getPart1() {
+        HashSet<Vector2d> visited = new HashSet<>();
+        Guard guy = new Guard(guard_start, guard_init_dir);
+        while (guard_on_map(guy)) {
+            visited.add(guy.loc);
+            Vector2d next_step = step_forward_location(guy);
+            if (next_step == null) {
+                break;
             }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
+            //char next_tile = next_step.fromGrid(grid);
+            char next_tile = grid[next_step.x][next_step.y];
+            if (next_tile == BLOCK) {
+                guy = new Guard(guy.loc, guy.heading.turnRight());
+            } else {
+                guy = new Guard(next_step, guy.heading);
             }
         }
-        return answers;
+        int answer = visited.size();
+        return Integer.toString(answer);
     }
 
-   protected void parseInput(String filename) throws IOException {
+    protected String getPart2() {
+        Guard guy = new Guard(guard_start, guard_init_dir);
+        ArrayList<Guard> path_states = new ArrayList<>();
+        Stack<Guard> path_state_stack = new Stack<>();
+
+        while (true) {
+            path_states.add(guy);
+            Vector2d next_step = step_forward_location(guy);
+            if (next_step == null) {
+                break;
+            }
+            if (blockers.contains(next_step)) {
+                guy = new Guard(guy.loc, guy.heading.turnRight());
+            } else {
+                guy = new Guard(next_step, guy.heading);
+            }
+            path_state_stack.push(guy);
+        }
+        HashSet<Vector2d> loop_makers = new HashSet<>();
+        for (Guard g_state : path_states.reversed()) {
+            if (path_state_stack.empty()) {
+                continue;
+            }
+            Vector2d new_blocker = g_state.loc;
+            if (!path_state_stack.empty()) {
+                Run_Result r = testBlockerForward(new Guard(guard_start, guard_init_dir), new_blocker);
+                if (r == Run_Result.LOOP) {
+                    loop_makers.add(new_blocker);
+                }
+            }
+        }
+        int answer = loop_makers.size();
+        return Integer.toString(answer);
+    }
+
+    protected void parseInput(String filename) throws IOException {
         char[][] input_grid = Files.readAllLines(Path.of(filename)).stream().map(String::toCharArray).toList().toArray(new char[0][0]);
         int input_x_max = input_grid[0].length - 1;
         int input_y_max = input_grid.length - 1;
@@ -123,60 +146,19 @@ public class Day06 extends AoCDay {
 
     }
 
-    protected String getPart1() {
-        HashSet<Vector2d> visited = new HashSet<>();
-        Guard guy = new Guard(guard_start, guard_init_dir);
-        while (guard_on_map(guy)) {
-            visited.add(guy.loc);
-            Vector2d next_step = step_forward_location(guy);
-            if (next_step == null) {
-                break;
-            }
-            //char next_tile = next_step.fromGrid(grid);
-            char next_tile = grid[next_step.x][next_step.y];
-            if (next_tile == BLOCK) {
-                guy = new Guard(guy.loc, guy.heading.turnRight());
-            } else {
-                guy = new Guard(next_step, guy.heading);
-            }
-        }
-        int answer = visited.size();
-        return Integer.toString(answer);
+    public Day06(int day) {
+        super(day);
     }
 
-    protected String getPart2() {
-        Guard guy = new Guard(guard_start, guard_init_dir);
-        ArrayList<Guard> path_states = new ArrayList<>();
-        Stack<Guard> path_state_stack = new Stack<>();
+    private enum Run_Result {
+        ESCAPE, LOOP
+    }
 
-        while (true) {
-            path_states.add(guy);
-            Vector2d next_step = step_forward_location(guy);
-            if (next_step == null) {
-                break;
-            }
-            if (blockers.contains(next_step)) {
-                guy = new Guard(guy.loc, guy.heading.turnRight());
-            } else {
-                guy = new Guard(next_step, guy.heading);
-            }
-            path_state_stack.push(guy);
+    public record Guard(Vector2d loc, Compass heading) {
+        @Override
+        public String toString() {
+            return String.format("Guard @ %s facing %s", loc.toString(), heading.toString());
         }
-        HashSet<Vector2d> loop_makers = new HashSet<>();
-        for (Guard g_state : path_states.reversed()) {
-            if (path_state_stack.empty()) {
-                continue;
-            }
-            Vector2d new_blocker = g_state.loc;
-            if (!path_state_stack.empty()) {
-                Run_Result r = testBlockerForward(new Guard(guard_start, guard_init_dir), new_blocker);
-                if (r == Run_Result.LOOP) {
-                    loop_makers.add(new_blocker);
-                }
-            }
-        }
-        int answer = loop_makers.size();
-        return Integer.toString(answer);
     }
 
 

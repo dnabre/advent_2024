@@ -1,7 +1,6 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -12,11 +11,55 @@ public class Day13 extends AoCDay {
 
     public static final String PART1_ANSWER = "25629";
     public static final String PART2_ANSWER = "107487112929999";
-    private static ArrayList<Problem> parsed_input;
     private static final int A_TOKEN = 3;
     private static final int B_TOKEN = 1;
     private static final int PART1_LIMIT = 100;
     private static final long PART2_FACTOR = 10000000000000L;
+    private static ArrayList<Problem> parsed_input;
+
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
+    }
+
+    protected String getPart1() {
+        ArrayList<Problem> problems = new ArrayList<>(parsed_input);
+        long tokens = 0;
+        for (Problem p : problems) {
+            tokens += p.getTokensWithLimitedPushes(PART1_LIMIT);
+        }
+        long answer = tokens;
+        return String.valueOf(answer);
+    }
+
+    protected String getPart2() {
+        ArrayList<Problem> problems = new ArrayList<>();
+        for (Problem p : parsed_input) {
+            Problem new_p = new Problem(p.A, p.B, new Prize(p.P.x + PART2_FACTOR, p.P.y + PART2_FACTOR));
+            problems.add(new_p);
+        }
+        long tokens = 0;
+        for (Problem p : problems) {
+            tokens += p.getTokens();
+        }
+        long answer = tokens;
+        return String.valueOf(answer);
+    }
+
+    protected void parseInput(String filename) throws IOException {
+        List<String> lines = Files.readAllLines(Path.of(filename));
+        parsed_input = new ArrayList<>();
+        do {
+            Button a = Button.parse(lines.removeFirst());
+            Button b = Button.parse(lines.removeFirst());
+            Prize p = Prize.parse(lines.removeFirst());
+            Problem prob = new Problem(a, b, p);
+            parsed_input.add(prob);
+            if (!lines.isEmpty()) {
+                lines.removeFirst();
+            }
+        } while (!lines.isEmpty());
+
+    }
 
     public Day13(int day) {
         super(day);
@@ -60,24 +103,6 @@ public class Day13 extends AoCDay {
     }
 
     record Problem(Button A, Button B, Prize P) {
-        @Override
-        public String toString() {
-            return A + "\n" + B + "\n" + P;
-        }
-
-        public long getTokensWithLimitedPushes(int max_pushes) {
-            for (long a_press = 0; a_press < max_pushes; a_press++) {
-                for (long b_press = 0; b_press < max_pushes; b_press++) {
-                    long t_x = A.x_press(a_press) + B.x_press(b_press);
-                    long t_y = A.y_press(a_press) + B.y_press(b_press);
-                    if ((P.x == t_x) && (P.y == t_y)) {
-                        return (A_TOKEN * a_press) + (B_TOKEN * b_press);
-                    }
-                }
-            }
-            return 0L;
-        }
-
         public long getTokens() {
             long det = A.x_press(B.y) - B.x_press(A.y);
             if (det != 0) {
@@ -93,71 +118,24 @@ public class Day13 extends AoCDay {
             }
             return 0L;
         }
-    }
 
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  13");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
-        }
-        out.println();
-
-        String[] answers = {"", ""};
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
+        public long getTokensWithLimitedPushes(int max_pushes) {
+            for (long a_press = 0; a_press < max_pushes; a_press++) {
+                for (long b_press = 0; b_press < max_pushes; b_press++) {
+                    long t_x = A.x_press(a_press) + B.x_press(b_press);
+                    long t_y = A.y_press(a_press) + B.y_press(b_press);
+                    if ((P.x == t_x) && (P.y == t_y)) {
+                        return (A_TOKEN * a_press) + (B_TOKEN * b_press);
+                    }
+                }
             }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
+            return 0L;
         }
-        return answers;
-    }
 
-   protected void parseInput(String filename) throws IOException {
-        List<String> lines = Files.readAllLines(Path.of(filename));
-        parsed_input = new ArrayList<>();
-        do {
-            Button a = Button.parse(lines.removeFirst());
-            Button b = Button.parse(lines.removeFirst());
-            Prize p = Prize.parse(lines.removeFirst());
-            Problem prob = new Problem(a, b, p);
-            parsed_input.add(prob);
-            if (!lines.isEmpty()) {
-                lines.removeFirst();
-            }
-        } while (!lines.isEmpty());
-
-    }
-
-    protected String getPart1() {
-        ArrayList<Problem> problems = new ArrayList<>(parsed_input);
-        long tokens = 0;
-        for (Problem p : problems) {
-            tokens += p.getTokensWithLimitedPushes(PART1_LIMIT);
+        @Override
+        public String toString() {
+            return A + "\n" + B + "\n" + P;
         }
-        long answer = tokens;
-        return String.valueOf(answer);
-    }
-
-    protected String getPart2() {
-        ArrayList<Problem> problems = new ArrayList<>();
-        for (Problem p : parsed_input) {
-            Problem new_p = new Problem(p.A, p.B, new Prize(p.P.x + PART2_FACTOR, p.P.y + PART2_FACTOR));
-            problems.add(new_p);
-        }
-        long tokens = 0;
-        for (Problem p : problems) {
-            tokens += p.getTokens();
-        }
-        long answer = tokens;
-        return String.valueOf(answer);
     }
 }
 

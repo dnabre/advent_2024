@@ -12,15 +12,8 @@ import java.util.PriorityQueue;
 import static java.lang.System.out;
 
 public class AoCUtils {
-    public static final String WHITESPACE_RE = "\\s+";
     public static final String[] ORDINALS = {"zeroth", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"};
-
-    static public class NullStream extends OutputStream {
-        @Override
-        public void write(int b) throws IOException {
-
-        }
-    }
+    public static final String WHITESPACE_RE = "\\s+";
 
     public static int[] WhitespaceDelimitedLineToIntegers(String ln) {
         String[] parts = ln.split("\\s+");
@@ -37,23 +30,6 @@ public class AoCUtils {
             r.add(ll);
         }
         return r;
-    }
-
-    public static List<List<String>> breakDataByNewline(String data) {
-        List<List<String>> g_string = new ArrayList<>();
-        List<String> current = new ArrayList<>();
-        for (String line : data.lines().toList()) {
-            if (line.isBlank()) {
-                g_string.add(current);
-                current = new ArrayList<>();
-            } else {
-                current.add(line);
-            }
-        }
-        if (!current.isEmpty()) {
-            g_string.add(current);
-        }
-        return g_string;
     }
 
     public static long iPow(long a, long b) {
@@ -133,6 +109,13 @@ public class AoCUtils {
 
             }
             out.println();
+        }
+    }
+
+    static public class NullStream extends OutputStream {
+        @Override
+        public void write(int b) throws IOException {
+
         }
     }
 

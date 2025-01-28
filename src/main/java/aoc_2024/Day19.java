@@ -1,57 +1,50 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import static java.lang.System.out;
+
 
 public class Day19 extends AoCDay {
 
     public static final String PART1_ANSWER = "367";
     public static final String PART2_ANSWER = "724388733465031";
+    private static final HashMap<String, Boolean> cache = new HashMap<>();
     private static ArrayList<String> designs;
     private static ArrayList<String> patterns;
-    private static final HashMap<String, Boolean> cache = new HashMap<>();
     private static final HashMap<String, Long> ways_cache = new HashMap<>();
 
-    public Day19(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  19");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
-        }
-        out.println();
-
-        String[] answers = {"", ""};
-        String INPUT = Files.readString(Path.of(inputString));
-
-        parseInput(INPUT);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
+    protected String getPart1() {
+        int count = 0;
+        for (String design : designs) {
+            if (canMake(design, filterPatterns(design, patterns))) {
+                count++;
             }
         }
-        return answers;
-
+        long answer = count;
+        return String.valueOf(answer);
     }
 
-   protected void parseInput(String INPUT) throws IOException {
-        String[] lines = INPUT.split("\n");
+    protected String getPart2() {
+        long total = 0;
+        for (String design : designs) {
+            total += countWays(design, filterPatterns(design, patterns));
+        }
+        long answer = total;
+        return String.valueOf(answer);
+    }
+
+    protected void parseInput(String input_filename) throws IOException {
+        String[] lines = Files.readAllLines(Path.of(input_filename)).toArray(new String[0]);
         patterns = new ArrayList<>(Arrays.stream(lines[0].split(",")).map(String::trim).toList());
         designs = new ArrayList<>();
 
@@ -107,24 +100,8 @@ public class Day19 extends AoCDay {
         return viable;
     }
 
-    protected String getPart1() {
-        int count = 0;
-        for (String design : designs) {
-            if (canMake(design, filterPatterns(design, patterns))) {
-                count++;
-            }
-        }
-        long answer = count;
-        return String.valueOf(answer);
-    }
-
-    protected String getPart2() {
-        long total = 0;
-        for (String design : designs) {
-            total += countWays(design, filterPatterns(design, patterns));
-        }
-        long answer = total;
-        return String.valueOf(answer);
+    public Day19(int day) {
+        super(day);
     }
 
 }

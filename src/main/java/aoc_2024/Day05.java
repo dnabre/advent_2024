@@ -1,7 +1,6 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -9,35 +8,55 @@ import java.util.*;
 public class Day05 extends AoCDay {
     public static final String PART1_ANSWER = "4814";
     public static final String PART2_ANSWER = "5448";
-
     private static HashMap<Integer, HashSet<Integer>> after_rules;
     private static HashMap<Integer, HashSet<Integer>> before_rules;
     private static LinkedList<LinkedList<Integer>> update_list;
 
-    public Day05(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.println("\tDay  5");
+    protected String getPart1() {
 
-        String[] answers = {"", ""};
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
+        LinkedList<Integer> good_middle_pages = new LinkedList<>();
 
-        if (!answers[0].equals(PART1_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
+        for (List<Integer> ups : update_list) {
+            boolean updates_good = checkUpdateList(ups);
+            if (updates_good) {
+                good_middle_pages.add(get_middle_of_list(ups));
+            }
         }
 
-        if (!answers[1].equals(PART2_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-        }
-        return answers;
+        int answer = good_middle_pages.stream().mapToInt(i -> i).sum();
+        return Integer.toString(answer);
     }
 
-   protected void parseInput(String input_filename) throws IOException {
+    protected String getPart2() {
+        List<LinkedList<Integer>> bad_updates = update_list.stream().filter((ls) -> !checkUpdateList(ls)).toList();
+
+        int mid_value_total = 0;
+        for (LinkedList<Integer> b_ls : bad_updates) {
+
+            int[] updates = b_ls.stream().mapToInt(i -> i).toArray();
+
+
+            do {
+
+                fix_update_list(updates);
+            } while (!checkUpdateArray(updates));
+
+
+            int m = get_middle_of_array(updates);
+
+            mid_value_total += m;
+        }
+
+
+        int answer = mid_value_total;
+        return Integer.toString(answer);
+    }
+
+    protected void parseInput(String input_filename) throws IOException {
         String[] lines = Files.readAllLines(Path.of(input_filename)).toArray(new String[0]);
         boolean ordering_part = true;
         before_rules = new HashMap<>();
@@ -138,44 +157,8 @@ public class Day05 extends AoCDay {
         return ups.get(mid_index);
     }
 
-    protected String getPart1() {
-
-        LinkedList<Integer> good_middle_pages = new LinkedList<>();
-
-        for (List<Integer> ups : update_list) {
-            boolean updates_good = checkUpdateList(ups);
-            if (updates_good) {
-                good_middle_pages.add(get_middle_of_list(ups));
-            }
-        }
-
-        int answer = good_middle_pages.stream().mapToInt(i -> i).sum();
-        return Integer.toString(answer);
-    }
-
-    protected String getPart2() {
-        List<LinkedList<Integer>> bad_updates = update_list.stream().filter((ls) -> !checkUpdateList(ls)).toList();
-
-        int mid_value_total = 0;
-        for (LinkedList<Integer> b_ls : bad_updates) {
-
-            int[] updates = b_ls.stream().mapToInt(i -> i).toArray();
-
-
-            do {
-
-                fix_update_list(updates);
-            } while (!checkUpdateArray(updates));
-
-
-            int m = get_middle_of_array(updates);
-
-            mid_value_total += m;
-        }
-
-
-        int answer = mid_value_total;
-        return Integer.toString(answer);
+    public Day05(int day) {
+        super(day);
     }
 
 }

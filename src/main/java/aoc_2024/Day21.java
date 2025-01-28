@@ -2,60 +2,51 @@ package src.main.java.aoc_2024;
 
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 
 public class Day21 extends AoCDay {
-
     public static final String PART1_ANSWER = "157230";
     public static final String PART2_ANSWER = "195969155897936";
-    private static HashMap<CodeSpan, String> dirPadMoves;
-    private static HashMap<Order, Long> keyToLongCache;
-    private static HashMap<CodeSpan, String> numPadMoves;
+    public static String[] lines;
     private static final int PART1_NUMBER_OF_ROBOTS = 2;
     private static final int PART2_NUMBER_OF_ROBOTS = 25;
     private static final char[][] dirPad = {{' ', '^', 'A'}, {'<', 'v', '>'}};
+    private static HashMap<CodeSpan, String> dirPadMoves;
+    private static HashMap<Order, Long> keyToLongCache;
     private static final char[][] numPad = {{'7', '8', '9'}, {'4', '5', '6'}, {'1', '2', '3'}, {' ', '0', 'A'}};
-    public static String[] lines;
+    private static HashMap<CodeSpan, String> numPadMoves;
 
-    public Day21(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
-    record CodeSpan(char start, char end) {
-    }
-
-    record Order(String code, int robot_number) {
-    }
-
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  21");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
+    protected String getPart1() {
+        long total = 0;
+        for (String code : lines) {
+            long numeric_part_code = Long.parseLong(code.replaceAll("\\D", ""));
+            String command = findShortestCommand(code);
+            long complexity = numeric_part_code * command.length();
+            total += complexity;
         }
-        out.println();
-
-        String[] answers = {"", ""};
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
+        long answer = total;
+        return String.valueOf(answer);
     }
 
-   protected void parseInput(String filename) throws IOException {
+    protected String getPart2() {
+        // Part 2 generates really massive command sequences, just keep track of their length
+        long total = 0;
+        for (String code : lines) {
+            long numeric_part_code = Long.parseLong(code.replaceAll("\\D", ""));
+            long command_length = findLengthOfShortestCommand(code);
+            total += numeric_part_code * command_length;
+        }
+        long answer = total;
+        return String.valueOf(answer);
+    }
+
+    protected void parseInput(String filename) throws IOException {
         lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
         HashMap<Character, Vector2d> numeric_pad_position_map = new HashMap<>();
         for (int y1 = 0; y1 < numPad.length; y1++) {
@@ -219,28 +210,14 @@ public class Day21 extends AoCDay {
         return left;
     }
 
-    protected String getPart1() {
-        long total = 0;
-        for (String code : lines) {
-            long numeric_part_code = Long.parseLong(code.replaceAll("\\D", ""));
-            String command = findShortestCommand(code);
-            long complexity = numeric_part_code * command.length();
-            total += complexity;
-        }
-        long answer = total;
-        return String.valueOf(answer);
+    public Day21(int day) {
+        super(day);
     }
 
-    protected String getPart2() {
-        // Part 2 generates really massive command sequences, just keep track of their length
-        long total = 0;
-        for (String code : lines) {
-            long numeric_part_code = Long.parseLong(code.replaceAll("\\D", ""));
-            long command_length = findLengthOfShortestCommand(code);
-            total += numeric_part_code * command_length;
-        }
-        long answer = total;
-        return String.valueOf(answer);
+    record CodeSpan(char start, char end) {
+    }
+
+    record Order(String code, int robot_number) {
     }
 
 }

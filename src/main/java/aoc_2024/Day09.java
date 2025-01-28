@@ -1,7 +1,6 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -11,91 +10,12 @@ import java.util.stream.IntStream;
 
 
 public class Day09 extends AoCDay {
-
     public static final String PART1_ANSWER = "6340197768906";
     public static final String PART2_ANSWER = "6363913128533";
     private static char[] packed_disk;
 
-    private sealed interface BlockSpan {
-    }
-
-    public Day09(int day) {
-        super(day);
-    }
-
-    private record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {
-        @Override
-        public int compareTo(EmptyBlock other) {
-            return Integer.compare(this.offset, other.offset);
-        }
-    }
-
-    private record FileBlock(int number, int offset, int size) implements BlockSpan {
-    }
-
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  24");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
-        }
-        out.println();
-
-        String[] answers = {"", ""};
-
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
-    }
-
-   protected void parseInput(String filename) throws IOException {
-        String raw_input = Files.readString(Path.of(filename));
-        packed_disk = raw_input.toCharArray();
-
-    }
-
-    private static long getChecksum(int[] disk_for_checksum) {
-        long checksum = 0;
-        for (int i = 0; i < disk_for_checksum.length; i++) {
-            if (disk_for_checksum[i] == -1) continue;
-
-            checksum += ((long) i * disk_for_checksum[i]);
-        }
-        return checksum;
-    }
-
-    private static int[] getUnpackedDisk(char[] packed) {
-        ArrayList<Integer> disk_list = new ArrayList<>();
-        int file_no = 0;
-        boolean isFile = true;
-
-        for (char ch : packed) {
-            int chick = Character.getNumericValue(ch);
-            int to_write = -1;
-            if (isFile) {
-                to_write = file_no;
-                file_no++;
-
-            }
-            for (int count = 0; count < chick; count++) {
-                disk_list.add(to_write);
-            }
-            isFile = !isFile;
-        }
-
-        return disk_list.stream().flatMapToInt(IntStream::of).toArray();
-
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
     protected String getPart1() {
@@ -180,6 +100,62 @@ public class Day09 extends AoCDay {
         }
         long answer = getChecksum(disk);
         return String.valueOf(answer);
+    }
+
+    protected void parseInput(String filename) throws IOException {
+        String raw_input = Files.readString(Path.of(filename));
+        packed_disk = raw_input.toCharArray();
+
+    }
+
+    private static long getChecksum(int[] disk_for_checksum) {
+        long checksum = 0;
+        for (int i = 0; i < disk_for_checksum.length; i++) {
+            if (disk_for_checksum[i] == -1) continue;
+
+            checksum += ((long) i * disk_for_checksum[i]);
+        }
+        return checksum;
+    }
+
+    private static int[] getUnpackedDisk(char[] packed) {
+        ArrayList<Integer> disk_list = new ArrayList<>();
+        int file_no = 0;
+        boolean isFile = true;
+
+        for (char ch : packed) {
+            int chick = Character.getNumericValue(ch);
+            int to_write = -1;
+            if (isFile) {
+                to_write = file_no;
+                file_no++;
+
+            }
+            for (int count = 0; count < chick; count++) {
+                disk_list.add(to_write);
+            }
+            isFile = !isFile;
+        }
+
+        return disk_list.stream().flatMapToInt(IntStream::of).toArray();
+
+    }
+
+    private sealed interface BlockSpan {
+    }
+
+    public Day09(int day) {
+        super(day);
+    }
+
+    private record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {
+        @Override
+        public int compareTo(EmptyBlock other) {
+            return Integer.compare(this.offset, other.offset);
+        }
+    }
+
+    private record FileBlock(int number, int offset, int size) implements BlockSpan {
     }
 
 

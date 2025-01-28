@@ -1,7 +1,6 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -12,52 +11,12 @@ public class Day11 extends AoCDay {
 
     public static final String PART1_ANSWER = "199986";
     public static final String PART2_ANSWER = "236804088748754";
+    private static final int[] BLINKS = {25, 75};
     private static final long max = Long.MIN_VALUE;
     private static ArrayList<Long> parsed_input;
-    private static final int[] BLINKS = {25, 75};
 
-    public Day11(int day) {
-        super(day);
-    }
-
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  11");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
-        }
-        out.println();
-
-        String[] answers = {"", ""};
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
-    }
-
-   protected void parseInput(String filename) throws IOException {
-        String raw_input = Files.readString(Path.of(filename)).trim();
-        parsed_input = new ArrayList<>();
-        String[] parts = raw_input.split("\\s+");
-        for (String p : parts) {
-            parsed_input.add(Long.valueOf(p));
-        }
-    }
-
-    private static boolean hasEvenNumDigit(long d) {
-        String s_str = Long.toString(d);
-        int s_length = s_str.length();
-        return (s_length % 2 == 0);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
     protected String getPart1() {
@@ -119,5 +78,24 @@ public class Day11 extends AoCDay {
 
         long answer = counts.values().stream().mapToLong(x -> x).sum();
         return String.valueOf(answer);
+    }
+
+    protected void parseInput(String filename) throws IOException {
+        String raw_input = Files.readString(Path.of(filename)).trim();
+        parsed_input = new ArrayList<>();
+        String[] parts = raw_input.split("\\s+");
+        for (String p : parts) {
+            parsed_input.add(Long.valueOf(p));
+        }
+    }
+
+    private static boolean hasEvenNumDigit(long d) {
+        String s_str = Long.toString(d);
+        int s_length = s_str.length();
+        return (s_length % 2 == 0);
+    }
+
+    public Day11(int day) {
+        super(day);
     }
 }

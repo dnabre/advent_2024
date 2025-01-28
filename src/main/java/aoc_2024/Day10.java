@@ -1,7 +1,6 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,57 +10,38 @@ import java.util.List;
 public class Day10 extends AoCDay {
     public static final String PART1_ANSWER = "737";
     public static final String PART2_ANSWER = "1619";
-    private static char[][] grid;
     private static final int MAX_HEIGHT = 9;
+    private static char[][] grid;
 
-    public Day10(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
-    record State(Vector2d current) {
-        public int height() {
-            return Character.getNumericValue(grid[current.x][current().y]);
+    protected String getPart1() {
+        List<Vector2d> starts = getStartingPositions();
+        List<Vector2d> targets = getTargetPositions();
+        int path_total = 0;
+        for (Vector2d start : starts) {
+            int found_paths = FindPathStartToPeaks(start, targets);
+            path_total += found_paths;
         }
-
-        @Override
-        public String toString() {
-            return String.format("@%s, height: %d", this.current, this.height());
-        }
+        long answer = path_total;
+        return String.valueOf(answer);
     }
 
-    record State2(Vector2d current, ArrayList<Vector2d> path) {
-        public int height() {
-            return Character.getNumericValue(grid[current.x][current().y]);
+    protected String getPart2() {
+        List<Vector2d> starts = getStartingPositions();
+        List<Vector2d> targets = getTargetPositions();
+        int path_total = 0;
+        for (Vector2d start : starts) {
+            int found_paths = FindDistinctPathStartToPeaks(start, targets);
+            path_total += found_paths;
         }
-
-        @Override
-        public String toString() {
-            return String.format("@%s, height: %d (S2)", this.current, this.height());
-        }
+        long answer = path_total;
+        return String.valueOf(answer);
     }
 
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.println("\tDay  10");
-
-        String[] answers = {"", ""};
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
-    }
-
-   protected void parseInput(String filename) throws IOException {
+    protected void parseInput(String filename) throws IOException {
         grid = AoCUtils.parseGrid(filename);
     }
 
@@ -148,27 +128,29 @@ public class Day10 extends AoCDay {
         return pos;
     }
 
-    protected String getPart1() {
-        List<Vector2d> starts = getStartingPositions();
-        List<Vector2d> targets = getTargetPositions();
-        int path_total = 0;
-        for (Vector2d start : starts) {
-            int found_paths = FindPathStartToPeaks(start, targets);
-            path_total += found_paths;
-        }
-        long answer = path_total;
-        return String.valueOf(answer);
+    public Day10(int day) {
+        super(day);
     }
 
-    protected String getPart2() {
-        List<Vector2d> starts = getStartingPositions();
-        List<Vector2d> targets = getTargetPositions();
-        int path_total = 0;
-        for (Vector2d start : starts) {
-            int found_paths = FindDistinctPathStartToPeaks(start, targets);
-            path_total += found_paths;
+    record State(Vector2d current) {
+        public int height() {
+            return Character.getNumericValue(grid[current.x][current().y]);
         }
-        long answer = path_total;
-        return String.valueOf(answer);
+
+        @Override
+        public String toString() {
+            return String.format("@%s, height: %d", this.current, this.height());
+        }
+    }
+
+    record State2(Vector2d current, ArrayList<Vector2d> path) {
+        public int height() {
+            return Character.getNumericValue(grid[current.x][current().y]);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("@%s, height: %d (S2)", this.current, this.height());
+        }
     }
 }

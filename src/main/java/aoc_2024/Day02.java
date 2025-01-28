@@ -2,7 +2,6 @@ package src.main.java.aoc_2024;
 
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -11,8 +10,34 @@ public class Day02 extends AoCDay {
     public static final String PART2_ANSWER = "476";
     private static String[] lines;
 
-    public Day02(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
+    }
+
+    protected String getPart1() {
+
+        int safe_reports = 0;
+        for (String line : lines) {
+            if (isRowSafe(AoCUtils.WhitespaceDelimitedLineToIntegers(line))) {
+                safe_reports++;
+            }
+        }
+        return Integer.toString(safe_reports);
+    }
+
+    protected String getPart2() {
+        int safe_reports = 0;
+        for (String line : lines) {
+            int[] row = AoCUtils.WhitespaceDelimitedLineToIntegers(line);
+            if (isRowSafeReportsSkipping(row)) {
+                safe_reports++;
+            }
+        }
+        return Integer.toString(safe_reports);
+    }
+
+    protected void parseInput(String filename) throws IOException {
+        lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
     }
 
     public static boolean isRowSafe(int[] row) {
@@ -71,50 +96,8 @@ public class Day02 extends AoCDay {
         return isRowSafe(new_arr);
     }
 
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.println("\tDay  2");
-
-
-        String[] answers = {"", ""};
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-
-        if (!answers[0].equals(Day02.PART1_ANSWER)) {
-            out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], Day02.PART1_ANSWER);
-        }
-
-        if (!answers[1].equals(Day02.PART2_ANSWER)) {
-            out.printf("\n\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], Day02.PART2_ANSWER);
-        }
-        return answers;
-    }
-
-    protected static String getPart1() {
-
-        int safe_reports = 0;
-        for (String line : lines) {
-            if (isRowSafe(AoCUtils.WhitespaceDelimitedLineToIntegers(line))) {
-                safe_reports++;
-            }
-        }
-        return Integer.toString(safe_reports);
-    }
-
-   protected void parseInput(String filename) throws IOException {
-        lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
-    }
-
-    protected String getPart2() {
-        int safe_reports = 0;
-        for (String line : lines) {
-            int[] row = AoCUtils.WhitespaceDelimitedLineToIntegers(line);
-            if (isRowSafeReportsSkipping(row)) {
-                safe_reports++;
-            }
-        }
-        return Integer.toString(safe_reports);
+    public Day02(int day) {
+        super(day);
     }
 
 

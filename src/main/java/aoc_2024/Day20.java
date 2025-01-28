@@ -1,58 +1,39 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
 public class Day20 extends AoCDay {
-
     public static final String PART1_ANSWER = "1441";
     public static final String PART2_ANSWER = "1021490";
     private static Vector2d MAP_END;
     private static Vector2d MAP_START;
+    private static final int PART1_JUMP_SIZE = 2;
+    private static final int PART1_THRESHOLD = 100;
+    private static final int PART2_MAX_DISTANCE = 20;
     private static HashMap<Vector2d, Integer> ToEnd;
+    private static final char WALL = '#';
     private static char[][] grid;
     private static Vector2d[] path;
     private static HashSet<Vector2d> path_set;
-    private static final char WALL = '#';
-    private static final int PART1_THRESHOLD = 100;
-    private static final int PART2_MAX_DISTANCE = 20;
-    private static final int PART1_JUMP_SIZE = 2;
 
-    public Day20(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  20");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
-        }
-        out.println();
-
-        String[] answers = {"", ""};
-
-        parseInput(inputString);
-
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
+    protected String getPart1() {
+        long answer = getAllCheatsFromPath();
+        return String.valueOf(answer);
     }
 
-   protected void parseInput(String filename) throws IOException {
+    protected String getPart2() {
+        int answer = getAllCheatWithMax();
+        return String.valueOf(answer);
+    }
+
+    protected void parseInput(String filename) throws IOException {
         grid = AoCUtils.parseGrid(filename);
 
 
@@ -147,13 +128,7 @@ public class Day20 extends AoCDay {
         return good_cheat_count;
     }
 
-    protected String getPart1() {
-        long answer = getAllCheatsFromPath();
-        return String.valueOf(answer);
-    }
-
-    protected String getPart2() {
-        int answer = getAllCheatWithMax();
-        return String.valueOf(answer);
+    public Day20(int day) {
+        super(day);
     }
 }

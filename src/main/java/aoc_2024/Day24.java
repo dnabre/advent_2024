@@ -1,7 +1,6 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -17,370 +16,13 @@ import java.util.*;
 
 
 public class Day24 extends AoCDay {
-
     public static final String PART1_ANSWER = "47666458872582";
     public static final String PART2_ANSWER = "dnt,gdf,gwc,jst,mcm,z05,z15,z30";
-    private static ArrayList<ORGate> or_gates;
     private static final HashMap<String, Gate> gate_map = new HashMap<>();
+    private static ArrayList<ORGate> or_gates;
 
-    public Day24(int day) {
-        super(day);
-    }
-
-    public enum BitValue {
-        One, Zero, Unknown;
-
-
-        static public BitValue parse(String t) {
-
-            if (t.equals("0")) {
-                return Zero;
-            }
-            if (t.equals("1")) {
-                return One;
-            }
-            throw new NumberFormatException(String.format("String |%s| can't be parsed to BitValue", t));
-        }
-
-        public BitValue or(BitValue other) {
-            if (this == Unknown) {
-                return other;
-            } else if (other == Unknown) {
-                return this;
-            }
-
-            if (this == One || other == One) {
-                return One;
-            } else {
-                return Zero;
-            }
-        }
-
-        public BitValue and(BitValue other) {
-            if (this == One && other == One) {
-                return One;
-            }
-            if (this == Zero || other == Zero) {
-                return Zero;
-            }
-            return Unknown;
-        }
-
-        public BitValue xor(BitValue other) {
-            if (this == Unknown || other == Unknown) {
-                return Unknown;
-            }
-            if ((this == One && other == Zero) || (this == Zero && other == One)) {
-                return One;
-            }
-            return Zero;
-        }
-
-        boolean toBool() {
-            return switch (this) {
-                case One -> true;
-                case Zero -> false;
-                default -> throw new IllegalArgumentException("trying to get BitValue.Unknown as boolean");
-            };
-        }
-    }
-
-    enum GateType {
-        SRC, AND, XOR, OR
-    }
-
-    sealed interface Gate {
-        BitValue getValue();
-
-        String getName();
-
-
-        String[] getAllNames();
-
-        int type();  // s, and, xor, or
-
-        GateType which();
-
-
-    }
-
-    record ANDGate(String left, String right, String name) implements Gate {
-
-
-        ANDGate(String left, String right, String name) {
-            this.left = left;
-            this.right = right;
-            this.name = name;
-            gate_map.put(name, this);
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s AND %s -> %s", this.left, this.right, this.name);
-        }
-
-        @Override
-        public BitValue getValue() {
-            BitValue l = gate_map.get(left).getValue();
-            BitValue r = gate_map.get(right).getValue();
-            return l.and(r);
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        @Override
-        public String[] getAllNames() {
-            return new String[]{name, left, right};
-        }
-
-        @Override
-        public int type() {
-            return 1;
-        }
-
-        @Override
-        public GateType which() {
-            return GateType.AND;
-        }
-    }
-
-    record ORGate(String left, String right, String name) implements Gate {
-
-
-        ORGate(String left, String right, String name) {
-
-            this.left = left;
-            this.right = right;
-            this.name = name;
-
-            gate_map.put(name, this);
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s  OR %s -> %s", this.left, this.right, this.name);
-        }
-
-        @Override
-        public BitValue getValue() {
-            BitValue l = gate_map.get(left).getValue();
-            BitValue r = gate_map.get(right).getValue();
-            return l.or(r);
-
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        @Override
-        public String[] getAllNames() {
-            return new String[]{name, left, right};
-        }
-
-        @Override
-        public int type() {
-            return 3;
-        }
-
-        @Override
-        public GateType which() {
-            return GateType.OR;
-        }
-    }
-
-    record SourceGate(String name, BitValue value) implements Gate {
-        SourceGate(String name, BitValue value) {
-            this.name = name;
-            this.value = value;
-            gate_map.put(name, this);
-        }
-
-        @Override
-        public BitValue getValue() {
-            return this.value;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        @Override
-        public String[] getAllNames() {
-            return new String[]{name};
-        }
-
-        @Override
-        public int type() {
-            return 0;
-        }
-
-        @Override
-        public GateType which() {
-            return GateType.SRC;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s: %s", this.name, this.value == BitValue.One ? "1" : "0");
-        }
-    }
-
-    record XORGate(String left, String right, String name) implements Gate {
-
-
-        XORGate(String left, String right, String name) {
-            this.left = left;
-            this.right = right;
-            this.name = name;
-            gate_map.put(name, this);
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s XOR %s -> %s", this.left, this.right, this.name);
-        }
-
-        @Override
-        public BitValue getValue() {
-            BitValue l = gate_map.get(left).getValue();
-            BitValue r = gate_map.get(right).getValue();
-            return l.xor(r);
-
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        @Override
-        public String[] getAllNames() {
-            return new String[]{name, left, right};
-        }
-
-        @Override
-        public int type() {
-            return 2;
-        }
-
-        @Override
-        public GateType which() {
-            return GateType.XOR;
-        }
-    }
-
-    public static String[] runDayStatic(PrintStream out, String inputString) throws IOException {
-        out.println("Advent of Code 2024");
-        out.print("\tDay  24");
-        if (AdventOfCode2024.TESTING) {
-            out.print("\t (testing)");
-        }
-        out.println();
-
-        String[] answers = {"", ""};
-
-        parseInput(inputString);
-        answers[0] = getPart1();
-        answers[1] = getPart2();
-
-        if (!AdventOfCode2024.TESTING) {
-            if (!answers[0].equals(PART1_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[0], PART1_ANSWER);
-            }
-
-            if (!answers[1].equals(PART2_ANSWER)) {
-                out.printf("\t\tWRONG ANSWER got: %s, expected %s\n", answers[1], PART2_ANSWER);
-            }
-        }
-        return answers;
-    }
-
-   protected void parseInput(String filename) throws IOException {
-        List<String> lines = Files.readAllLines(Path.of(filename));
-        or_gates = new ArrayList<>();
-
-        String[] input_lines = lines.toArray(new String[0]);
-
-        int idx = 0;
-
-        while (idx < input_lines.length) {
-            String ln = input_lines[idx];
-            idx++;
-            if (ln.isEmpty()) {
-                break;
-            }
-            String[] parts = ln.split(":");
-            String name = parts[0].trim();
-            String s_value = parts[1].trim();
-            BitValue bv = BitValue.parse(s_value);
-            SourceGate sg = new SourceGate(name, bv);
-
-            gate_map.put(name, sg);
-
-        }
-
-
-        while (idx < input_lines.length) {
-            String ln = input_lines[idx];
-            idx++;
-            String[] parts = ln.split(AoCUtils.WHITESPACE_RE);
-
-            String left = parts[0].trim();
-            String op = parts[1].trim();
-            String right = parts[2].trim();
-            String name = parts[4].trim();
-            Gate g = null;
-            switch (op) {
-                case "AND" -> g = new ANDGate(left, right, name);
-                case "XOR" -> g = new XORGate(left, right, name);
-                case "OR" -> {
-                    ORGate og = new ORGate(left, right, name);
-                    or_gates.add(og);
-                    g = og;
-                }
-                default -> {
-                    System.exit(-1);
-                }
-            }
-            gate_map.put(name, g);
-
-
-        }
-
-    }
-
-    static private long getNumberFromGate() {
-        ArrayList<String> gate_names = new ArrayList<>();
-        for (Gate g : gate_map.values()) {
-            if (g.getName().startsWith(String.valueOf('z'))) {
-                gate_names.add(g.getName());
-            }
-        }
-        String[] name_array = gate_names.toArray(new String[0]);
-        Arrays.sort(name_array);
-
-
-        StringBuilder sb = new StringBuilder();
-        for (String zs : name_array) {
-            Gate g = gate_map.get(zs);
-            BitValue bv = g.getValue();
-            boolean b_bv = bv.toBool();
-            if (b_bv) {
-                sb.append("1");
-            } else {
-                sb.append("0");
-            }
-        }
-        String num = sb.reverse().toString();
-
-
-        return Long.valueOf(num, 2);
-    }
-
-    private static boolean inPart(String s) {
-        return (s.startsWith("x") || s.startsWith("y") || s.startsWith("z"));
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
 
     protected String getPart1() {
@@ -522,6 +164,340 @@ public class Day24 extends AoCDay {
         String[] bad_names = bad_outputs.toArray(new String[0]);
         Arrays.sort(bad_names);
         return String.join(",", bad_names);
+    }
+
+    protected void parseInput(String filename) throws IOException {
+        List<String> lines = Files.readAllLines(Path.of(filename));
+        or_gates = new ArrayList<>();
+
+        String[] input_lines = lines.toArray(new String[0]);
+
+        int idx = 0;
+
+        while (idx < input_lines.length) {
+            String ln = input_lines[idx];
+            idx++;
+            if (ln.isEmpty()) {
+                break;
+            }
+            String[] parts = ln.split(":");
+            String name = parts[0].trim();
+            String s_value = parts[1].trim();
+            BitValue bv = BitValue.parse(s_value);
+            SourceGate sg = new SourceGate(name, bv);
+
+            gate_map.put(name, sg);
+
+        }
+
+
+        while (idx < input_lines.length) {
+            String ln = input_lines[idx];
+            idx++;
+            String[] parts = ln.split(AoCUtils.WHITESPACE_RE);
+
+            String left = parts[0].trim();
+            String op = parts[1].trim();
+            String right = parts[2].trim();
+            String name = parts[4].trim();
+            Gate g = null;
+            switch (op) {
+                case "AND" -> g = new ANDGate(left, right, name);
+                case "XOR" -> g = new XORGate(left, right, name);
+                case "OR" -> {
+                    ORGate og = new ORGate(left, right, name);
+                    or_gates.add(og);
+                    g = og;
+                }
+                default -> {
+                    System.exit(-1);
+                }
+            }
+            gate_map.put(name, g);
+
+
+        }
+
+    }
+
+    static private long getNumberFromGate() {
+        ArrayList<String> gate_names = new ArrayList<>();
+        for (Gate g : gate_map.values()) {
+            if (g.getName().startsWith(String.valueOf('z'))) {
+                gate_names.add(g.getName());
+            }
+        }
+        String[] name_array = gate_names.toArray(new String[0]);
+        Arrays.sort(name_array);
+
+
+        StringBuilder sb = new StringBuilder();
+        for (String zs : name_array) {
+            Gate g = gate_map.get(zs);
+            BitValue bv = g.getValue();
+            boolean b_bv = bv.toBool();
+            if (b_bv) {
+                sb.append("1");
+            } else {
+                sb.append("0");
+            }
+        }
+        String num = sb.reverse().toString();
+
+
+        return Long.valueOf(num, 2);
+    }
+
+    private static boolean inPart(String s) {
+        return (s.startsWith("x") || s.startsWith("y") || s.startsWith("z"));
+    }
+
+    public Day24(int day) {
+        super(day);
+    }
+
+    public enum BitValue {
+        One, Zero, Unknown;
+
+
+        public BitValue and(BitValue other) {
+            if (this == One && other == One) {
+                return One;
+            }
+            if (this == Zero || other == Zero) {
+                return Zero;
+            }
+            return Unknown;
+        }
+
+        public BitValue or(BitValue other) {
+            if (this == Unknown) {
+                return other;
+            } else if (other == Unknown) {
+                return this;
+            }
+
+            if (this == One || other == One) {
+                return One;
+            } else {
+                return Zero;
+            }
+        }
+
+        static public BitValue parse(String t) {
+
+            if (t.equals("0")) {
+                return Zero;
+            }
+            if (t.equals("1")) {
+                return One;
+            }
+            throw new NumberFormatException(String.format("String |%s| can't be parsed to BitValue", t));
+        }
+
+        public BitValue xor(BitValue other) {
+            if (this == Unknown || other == Unknown) {
+                return Unknown;
+            }
+            if ((this == One && other == Zero) || (this == Zero && other == One)) {
+                return One;
+            }
+            return Zero;
+        }
+
+        boolean toBool() {
+            return switch (this) {
+                case One -> true;
+                case Zero -> false;
+                default -> throw new IllegalArgumentException("trying to get BitValue.Unknown as boolean");
+            };
+        }
+    }
+
+    enum GateType {
+        SRC, AND, XOR, OR
+    }
+
+
+    sealed interface Gate {
+        String[] getAllNames();
+
+        String getName();
+
+        BitValue getValue();
+
+        int type();  // s, and, xor, or
+
+        GateType which();
+
+
+    }
+
+    record ANDGate(String left, String right, String name) implements Gate {
+
+
+        @Override
+        public String[] getAllNames() {
+            return new String[]{name, left, right};
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public BitValue getValue() {
+            BitValue l = gate_map.get(left).getValue();
+            BitValue r = gate_map.get(right).getValue();
+            return l.and(r);
+        }
+
+        @Override
+        public int type() {
+            return 1;
+        }
+
+        @Override
+        public GateType which() {
+            return GateType.AND;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s AND %s -> %s", this.left, this.right, this.name);
+        }
+
+        ANDGate(String left, String right, String name) {
+            this.left = left;
+            this.right = right;
+            this.name = name;
+            gate_map.put(name, this);
+        }
+    }
+
+    record ORGate(String left, String right, String name) implements Gate {
+
+
+        @Override
+        public String[] getAllNames() {
+            return new String[]{name, left, right};
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public BitValue getValue() {
+            BitValue l = gate_map.get(left).getValue();
+            BitValue r = gate_map.get(right).getValue();
+            return l.or(r);
+
+        }
+
+        @Override
+        public int type() {
+            return 3;
+        }
+
+        @Override
+        public GateType which() {
+            return GateType.OR;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s  OR %s -> %s", this.left, this.right, this.name);
+        }
+
+        ORGate(String left, String right, String name) {
+
+            this.left = left;
+            this.right = right;
+            this.name = name;
+
+            gate_map.put(name, this);
+        }
+    }
+
+    record SourceGate(String name, BitValue value) implements Gate {
+        @Override
+        public String[] getAllNames() {
+            return new String[]{name};
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public BitValue getValue() {
+            return this.value;
+        }
+
+        @Override
+        public int type() {
+            return 0;
+        }
+
+        @Override
+        public GateType which() {
+            return GateType.SRC;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s: %s", this.name, this.value == BitValue.One ? "1" : "0");
+        }
+
+        SourceGate(String name, BitValue value) {
+            this.name = name;
+            this.value = value;
+            gate_map.put(name, this);
+        }
+    }
+
+    record XORGate(String left, String right, String name) implements Gate {
+
+
+        @Override
+        public String[] getAllNames() {
+            return new String[]{name, left, right};
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public BitValue getValue() {
+            BitValue l = gate_map.get(left).getValue();
+            BitValue r = gate_map.get(right).getValue();
+            return l.xor(r);
+
+        }
+
+        @Override
+        public int type() {
+            return 2;
+        }
+
+        @Override
+        public GateType which() {
+            return GateType.XOR;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s XOR %s -> %s", this.left, this.right, this.name);
+        }
+
+        XORGate(String left, String right, String name) {
+            this.left = left;
+            this.right = right;
+            this.name = name;
+            gate_map.put(name, this);
+        }
     }
 
 
