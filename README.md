@@ -36,3 +36,12 @@ I haven't worked with Java in over a decade. So my style will at best be outdate
 idiomatic, modern, or good.
 
 
+
+### Slow Days that should be reviewed to speed up
+| day    | time (both parts) | new/improved time |
+|--------|------------------:|------------------:|
+| Day 06 |          1611.9ms |                   |
+| Day 09 |           461.3ms |                   |
+| Day 16 |           545.2ms |                   |
+| Day 22 |          1800.4ms |                   |
+
