@@ -16,7 +16,6 @@ abstract public class AoCDay {
 
 
     public long doDay(String filename) {
-
         long start, end;
         try {
             start = System.nanoTime();
