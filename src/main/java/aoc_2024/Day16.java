@@ -3,6 +3,7 @@ package src.main.java.aoc_2024;
 import java.io.IOException;
 import java.util.*;
 
+import static java.lang.System.out;
 import static src.main.java.aoc_2024.Directions.Compass;
 
 public class Day16 extends AoCDay {
@@ -21,7 +22,8 @@ public class Day16 extends AoCDay {
     }
 
     protected String getPart1() {
-        distance_from_start = getAllDistancesStartingFrom(MAP_START);
+
+
         int cost = Integer.MAX_VALUE;
         for (Compass d : Compass.values()) {
             final int dist = distance_from_start.get(new Position(MAP_END, d));
@@ -32,18 +34,24 @@ public class Day16 extends AoCDay {
     }
 
     protected String getPart2() {
-        distance_from_start = getAllDistancesStartingFrom(MAP_START);
 
-        final ArrayList<Position> ends = new ArrayList<>(4);
+
+         ArrayList<Position> ends = new ArrayList<>(4);
         for (Compass d : Compass.values()) {
             ends.add(new Position(MAP_END, d));
         }
 
+        int f_min = Integer.MAX_VALUE;
+        for(Position p : ends) {
+            f_min = Math.min(distance_from_start.get(p), f_min);
+        }
+        final int min = f_min;
 
-        final int min = ends.stream().mapToInt(e -> distance_from_start.get(e)).min().getAsInt();
-        final Position realEnd = distance_from_start.entrySet().stream().filter(e -> e.getValue().equals(min)).map(Map.Entry::getKey).toList().getFirst();
 
-        final HashSet<Vector2d> paths = new HashSet<>();
+        Position realEnd = distance_from_start.entrySet().stream()
+                 .filter(e -> e.getValue().equals(min)).map(HashMap.Entry::getKey).toList().getFirst();
+
+         HashSet<Vector2d> paths = new HashSet<>();
         findCoordinatesOnShortestPaths(realEnd, MAP_START, distance_from_start, paths);
         return String.valueOf(paths.size());
     }
@@ -66,8 +74,8 @@ public class Day16 extends AoCDay {
                 grid[y][x] = ch;
             }
         }
-
-
+        distance_from_start = getAllDistancesStartingFrom(MAP_START);
+        out.printf("size: %d\n",distance_from_start.size());
     }
 
     private static void findCoordinatesOnShortestPaths(Position current, Position start, HashMap<Position, Integer> distances, HashSet<Vector2d> coordinates) {
@@ -97,10 +105,14 @@ public class Day16 extends AoCDay {
     }
 
     private static HashMap<Position, Integer> getAllDistancesStartingFrom(Position start) {
+
         PriorityQueue<Position> work_queue = new PriorityQueue<>();
         work_queue.offer(start);
-        HashMap<Position, Integer> distances = new HashMap<>();
+        HashMap<Position, Integer> distances = new HashMap<>(65536);
+
+
         distances.put(start, 0);
+
         while (!work_queue.isEmpty()) {
             Position current = work_queue.poll();
             int dist = distances.get(current);
@@ -116,17 +128,20 @@ public class Day16 extends AoCDay {
             }
             Position left_turn = new Position(current.pos, current.direction.turnLeft());
             Position right_turn = new Position(current.pos, current.direction.turnRight());
-
             int turn_dist = dist + TURN_PRICE1;
-            if (turn_dist < distances.getOrDefault(left_turn, Integer.MAX_VALUE)) {
-                distances.put(left_turn, turn_dist);
-                work_queue.offer(left_turn);
-            }
-            if (turn_dist < distances.getOrDefault(right_turn, Integer.MAX_VALUE)) {
-                distances.put(right_turn, turn_dist);
-                work_queue.offer(right_turn);
-            }
+                if (turn_dist < distances.getOrDefault(left_turn, Integer.MAX_VALUE)) {
+                    distances.put(left_turn, turn_dist);
+                    work_queue.offer(left_turn);
+                }
+
+                if (turn_dist < distances.getOrDefault(right_turn, Integer.MAX_VALUE)) {
+                    distances.put(right_turn, turn_dist);
+                    work_queue.offer(right_turn);
+                }
+
         }
+
+
         return distances;
     }
 
@@ -139,10 +154,13 @@ public class Day16 extends AoCDay {
         public int compareTo(final Position other) {
             if (this.pos.y != other.pos.y) {
                 return Integer.compare(this.pos.y, other.pos.y);
-            } else {
+            } else if (this.pos.x != other.pos.x) {
                 return Integer.compare(this.pos.x, other.pos.x);
+            } else {
+                return this.direction.compareTo(other.direction);
             }
         }
+
 
         public Optional<Position> getNeighbourReversed(final char[][] grid) {
             int x = this.pos.x;

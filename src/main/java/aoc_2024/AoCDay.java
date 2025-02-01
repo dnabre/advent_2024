@@ -8,8 +8,8 @@ abstract public class AoCDay {
     protected String[] answers;
     protected int day;
     protected long time = -1L;
-    private static final String PART1_ANSWER = "WRONG";
-    private static final String PART2_ANSWER = "WRONG";
+    public static final String PART1_ANSWER = "WRONG";
+    public static final String PART2_ANSWER = "WRONG";
 
 
     abstract public boolean[] checkAnswers(String[] answers);

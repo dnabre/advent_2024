@@ -14,7 +14,7 @@ public class AdventOfCode2024 {
     public static final boolean TESTING = false;
     public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;
-    protected  static final double ADJUST_TIME_TO_MS = 1000000f;
+    protected  static final double ADJUST_TIME_TO_MS = 1_000_000.0f;
     protected  static final int NUMBER_OF_DAYS = 25;
     protected static final boolean RUN_ALL = false;
     protected static final double SLOW_THRESHOLD = 400.0;
@@ -36,7 +36,7 @@ public class AdventOfCode2024 {
             Class<?> day_class = Class.forName(s_day);
             Constructor<?> ctor = day_class.getConstructors()[0];
             test_day = (AoCDay) ctor.newInstance(new Object[]{DAY});
-            out.printf("Testing %s\n", test_day);
+            out.println(test_day);
         } catch (Exception e) {
             out.printf("Error when trying to construct class: %s. Exception Type: %s\\n\"", s_day, e.getClass().getName());
             out.println(e.toString());
@@ -51,13 +51,14 @@ public class AdventOfCode2024 {
         }
         assert test_day != null;
    //     String[] results = test_day.runDay(out, input_string);
-        double run_time = test_day.doDay(input_string) /ADJUST_TIME_TO_MS;
+        long raw_time =test_day.doDay(input_string);
+        double run_time =raw_time /ADJUST_TIME_TO_MS;
+        printDayDetail(test_day,test_day.answers);
         String[] results = test_day.answers;
         out.printf("\t\tpart1:\t\t%s\n", results[0]);
         out.printf("\t\tpart2:\t\t%s\n", results[1]);
         if (TIMING) {
-
-            out.printf("\n total time: %.1f ms\n", run_time);
+            out.printf("\n total time: %.1f ms\t\t %d\n", run_time, raw_time);
         }
 
     }
@@ -71,6 +72,28 @@ public class AdventOfCode2024 {
         if (!correct[1]) {
             out.printf("\t ERROR \t Part 1 answer %s is WRONG\n", results[1]);
         }
+    }
+
+    static public void printDayDetail(AoCDay day, String[] results) {
+        boolean[] correct = day.checkAnswers(results);
+        try {
+            String[]  answers = new String[]{
+                     String.valueOf(day.getClass().getField("PART1_ANSWER").get(day)),
+                     String.valueOf(day.getClass().getField("PART2_ANSWER").get(day))
+             };
+
+            if (!correct[0]) {
+                out.printf("\t ERROR \t Part 1 answer %s is WRONG, expected %s\n", results[0], answers[0]);
+            }
+            if (!correct[1]) {
+                out.printf("\t ERROR \t Part 1 answer %s is WRONG, expected %s\n", results[1], answers[1]);
+            }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            out.println("Error Accessing answer Fields");
+        }
+
+
+
     }
 
     public static void runAll() {
