@@ -38,10 +38,10 @@ idiomatic, modern, or good.
 
 
 ### Slow Days that should be reviewed to speed up
-| day    | time (both parts) | new/improved time |
-|--------|------------------:|------------------:|
-| [Day 6: Guard Gallivant](https://adventofcode.com/2024/day/6)  |          1611.9ms |                   |
-| [Day 9:  Disk Fragmenter](https://adventofcode.com/2024/day/9) |           461.3ms |                   |
-| [Day 16: Reindeer Maze](https://adventofcode.com/2024/day/16) |           545.2ms |                   |
-| [Day 22: Monkey Market](https://adventofcode.com/2024/day/22)  |          1800.4ms |                   |
+| day    | time (both parts) |  new/improved time |
+|--------|------------------:|-------------------:|
+| [Day 6: Guard Gallivant](https://adventofcode.com/2024/day/6)  |          1611.9ms |                    |
+| [Day 9:  Disk Fragmenter](https://adventofcode.com/2024/day/9) |           461.3ms |                    |
+| [Day 16: Reindeer Maze](https://adventofcode.com/2024/day/16) |           545.2ms | 163.5 ms (↓ 381.7) |
+| [Day 22: Monkey Market](https://adventofcode.com/2024/day/22)  |          1800.4ms |                    |
 

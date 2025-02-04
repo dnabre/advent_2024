@@ -9,7 +9,7 @@ import static java.lang.System.out;
 
 public class AdventOfCode2024 {
     public static final int TARGET_DAY = 16;
-    public static final boolean RUN_ALL = false;
+    public static final boolean RUN_ALL = true;
     public static final boolean TESTING = false;
     public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;

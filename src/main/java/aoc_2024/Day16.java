@@ -1,7 +1,9 @@
 package src.main.java.aoc_2024;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.PriorityQueue;
 
 import static src.main.java.aoc_2024.Directions.Compass;
 
@@ -10,13 +12,12 @@ public class Day16 extends AoCDay {
     public static final String PART2_ANSWER = "527";
     private static Vector2d MAP_END;
     private static Vector2d MAP_START;
-
     static private final int STEP_PRICE = 1;
-    static private final int TURN_PRICE1 = 1000;
-    private static int bestScore = Integer.MAX_VALUE;
+    static private final int TURN_PRICE = 1000;
     private static char[][] grid;
-    private static HashSet<Visit> onBestPath;
-
+    private static int lowestScore = Integer.MAX_VALUE;
+    private static HashSet<Visit> mainPath;
+    private static HashMap<Vector2d, HashSet<Compass>> visited;
 
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
@@ -25,23 +26,9 @@ public class Day16 extends AoCDay {
     protected String getPart1() {
         HashMap<Vector2d, HashSet<Compass>> visited = new HashMap<>();
         PriorityQueue<State> work_queue = new PriorityQueue<>();
-        onBestPath = new HashSet<>();
-
-        work_queue.offer(new State(MAP_START, Compass.EAST, 0, null));
-        while (!work_queue.isEmpty()) {
-            State state = work_queue.poll();
-            if (state.pos.equals(MAP_END)) {
-                for (State st = state; st != null; st = st.prev) {
-                    onBestPath.add(new Visit(st.pos, st.direction, st.score));
-                }
-                for (Compass direction : Compass.values()) {
-                    onBestPath.add(new Visit(state.pos, direction, state.score));
-                }
-                bestScore = state.score;
-
-                break;
-
-            }
+        mainPath = new HashSet<>();
+        State state = new State(MAP_START, Compass.EAST, 0, null);
+        while (state != null && !state.pos.equals(MAP_END)) {
             Vector2d ahead = state.pos.locationAfterStep(state.direction);
             if (grid[ahead.y][ahead.x] != '#') {
                 State next = new State(ahead, state.direction, state.score + STEP_PRICE, state);
@@ -49,81 +36,71 @@ public class Day16 extends AoCDay {
                     work_queue.offer(next);
                 }
             }
-            State left = new State(state.pos, state.direction.turnLeft(), state.score + TURN_PRICE1, state);
+            State left = state.left();
             if (notAlreadyVisited(visited, left.pos, left.direction)) {
                 work_queue.offer(left);
             }
-            State right = new State(state.pos, state.direction.turnRight(), state.score + TURN_PRICE1, state);
+            State right = state.right();
             if (notAlreadyVisited(visited, right.pos, right.direction)) {
                 work_queue.offer(right);
             }
+            state = work_queue.poll();
+        }
+        assert state != null;
+        //Need to add these final visits for Part 2
+        for (Compass direction : Compass.values()) {
+            mainPath.add(state.getVisit(direction));
         }
 
-        long answer = bestScore;
+        lowestScore = state.score;
+
+
+        long answer = lowestScore;
         return String.valueOf(answer);
 
     }
 
     protected String getPart2() {
-        int seats = countSeats(onBestPath);
-
+        int seats= 0;
         int prev = 0;
-        while (prev < seats) {
-
-            PriorityQueue<State> queue = new PriorityQueue<>();
-            HashMap<Vector2d, HashSet<Compass>> visited = new HashMap<>();
-            queue.add(new State(MAP_START, Compass.EAST, 0, null));
-            while (!queue.isEmpty()) {
-                State state = queue.poll();
-                if (state.score > bestScore) {
+        do{
+            PriorityQueue<State> work_queue = new PriorityQueue<>();
+            visited = new HashMap<>();
+            work_queue.offer(new State(MAP_START, Compass.EAST, 0, null));
+            while (!work_queue.isEmpty()) {
+                State state = work_queue.poll();
+                if (state.score > lowestScore) {
                     continue;
                 }
                 if (MAP_END.equals(state.pos)) {
                     continue;
                 }
-                Visit current_visit = new Visit(state.pos, state.direction, state.score);
+
+                Visit current_visit = state.getVisit();
                 Vector2d ahead = state.pos.locationAfterStep(state.direction);
                 if (grid[ahead.y][ahead.x] != '#') {
-
-                    State next = new State(ahead, state.direction, state.score + STEP_PRICE, state);
-                    Visit next_visit = new Visit(next.pos, next.direction, next.score);
-
-
-                    if (!onBestPath.contains(current_visit) && onBestPath.contains(next_visit)) {
-                        for (State p_state = state; p_state != null; p_state = p_state.prev) {
-                            onBestPath.add(new Visit(p_state.pos, p_state.direction, p_state.score));
-                        }
-                    } else if (notAlreadyVisited(visited, next.pos, next.direction)) {
-                        queue.add(next);
+                    State new_state = tryNewState(ahead, state.direction, STEP_PRICE, state);
+                    if (new_state != null) {
+                        work_queue.offer(new_state);
                     }
-
                 }
-                State left = new State(state.pos, state.direction.turnLeft(), state.score + TURN_PRICE1, state);
-                Visit v = new Visit(left.pos, left.direction, left.score);
-                if (!onBestPath.contains(current_visit) && onBestPath.contains(v)) {
-                    for (State p_state = state; p_state != null; p_state = p_state.prev) {
-                        onBestPath.add(new Visit(p_state.pos, p_state.direction, p_state.score));
-                    }
-                } else if (notAlreadyVisited(visited, left.pos, left.direction)) {
-                    queue.add(left);
+                State left_state = tryNewState(state.pos, state.direction.turnLeft(), TURN_PRICE, state);
+                if (left_state != null) {
+                    work_queue.offer(left_state);
                 }
-
-                State right = new State(state.pos, state.direction.turnRight(), state.score + TURN_PRICE1, state);
-                v = new Visit(right.pos, right.direction, right.score);
-                if (!onBestPath.contains(current_visit) && onBestPath.contains(v)) {
-                    for (State p_state = state; p_state != null; p_state = p_state.prev) {
-                        onBestPath.add(new Visit(p_state.pos, p_state.direction, p_state.score));
-                    }
-                } else if (notAlreadyVisited(visited, right.pos, right.direction)) {
-                    queue.add(right);
+                State right_state = tryNewState(state.pos, state.direction.turnRight(), TURN_PRICE, state);
+                if (right_state != null) {
+                    work_queue.offer(right_state);
                 }
             }
-
             prev = seats;
-            seats = countSeats(onBestPath);
+            HashSet<Vector2d> seat_set = new HashSet<>(mainPath.size());
+            for(Visit v: mainPath) {
+                seat_set.add(v.pos);
+            }
+            seats = seat_set.size();
 
-        }
-
+        } while(prev < seats);
 
         long answer = seats;
         return String.valueOf(answer);
@@ -149,11 +126,12 @@ public class Day16 extends AoCDay {
         }
     }
 
-    private int countSeats(HashSet<Visit> onBestPath) {
-        HashSet<Vector2d> seats = new HashSet<>();
-        onBestPath.forEach(v -> seats.add(v.pos));
-        return seats.size();
+    private static void addToMainPath(State p_state) {
+        for (State p_s = p_state; p_s != null; p_s = p_s.prev) {
+            mainPath.add(new Visit(p_s.pos, p_s.direction, p_s.score));
+        }
     }
+
 
     private static boolean notAlreadyVisited(HashMap<Vector2d, HashSet<Compass>> visited, Vector2d pos, Compass dir) {
         HashSet<Compass> dir_set;
@@ -168,6 +146,20 @@ public class Day16 extends AoCDay {
         return !ret;
     }
 
+    private static State tryNewState(Vector2d pos, Compass dir, int score_increment, State prev_state) {
+        Visit current_visit = prev_state.getVisit();
+        State new_state = new State(pos, dir, prev_state.score + score_increment, prev_state);
+        Visit new_visit = new_state.getVisit();
+
+        State return_value = null;
+        if (!mainPath.contains(current_visit) && mainPath.contains(new_visit)) {
+            addToMainPath(new_state);
+        } else if (notAlreadyVisited(visited, pos, dir)) {
+            return_value = new_state;
+        }
+        return return_value;
+    }
+
     public Day16(int day) {
         super(day);
     }
@@ -177,6 +169,20 @@ public class Day16 extends AoCDay {
         @Override
         public int compareTo(State o) {
             return (this.score - o.score);
+        }
+
+        public Visit getVisit() {
+            return new Visit(this.pos, this.direction, this.score);
+        }
+
+        public Visit getVisit(Compass dir) {
+            return new Visit(this.pos, dir, this.score);
+        }
+        public State left() {
+            return new State(pos,direction.turnLeft(), score+ TURN_PRICE, this);
+        }
+        public State right() {
+            return new State(pos,direction.turnRight(), score+ TURN_PRICE, this);
         }
     }
 

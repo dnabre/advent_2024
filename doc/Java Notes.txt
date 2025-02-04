@@ -1,3 +1,22 @@
 import static java.lang.System.out;
 
  -XX:+FlightRecorder  -XX:StartFlightRecording:filename="file.jfr"
+
+
+ day16:
+
+
+State next = new State(ahead, state.direction, state.score + STEP_PRICE, state);
+Visit next_visit = new Visit(next.pos, next.direction, next.score);
+
+ if (!onBestPath.contains(current_visit) && onBestPath.contains(next_visit)) {
+     for (State p_state = state; p_state != null; p_state = p_state.prev) {
+    onBestPath.add(new Visit(p_state.pos, p_state.direction, p_state.score));
+    }
+ } else if (notAlreadyVisited(visited, next.pos, next.direction)) {
+  queue.add(next);
+
+}
+
+
+= mainPath.stream().map(visit -> visit.pos).distinct().count();
