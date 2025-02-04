@@ -2,21 +2,20 @@ package src.main.java.aoc_2024;
 
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.OptionalDouble;
 
 import static java.lang.System.out;
 
 public class AdventOfCode2024 {
-    public static final int DAY = 16;
+    public static final int TARGET_DAY = 16;
+    public static final boolean RUN_ALL = false;
     public static final boolean TESTING = false;
     public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;
-    protected  static final double ADJUST_TIME_TO_MS = 1_000_000.0f;
-    protected  static final int NUMBER_OF_DAYS = 25;
-    protected static final boolean RUN_ALL = false;
+    private static final int TRIALS = 1;
+    protected static final double ADJUST_TIME_TO_MS = 1_000_000.0f;
+    protected static final int NUMBER_OF_DAYS = 25;
     protected static final double SLOW_THRESHOLD = 400.0;
     protected static final String[][] all_answers = new String[NUMBER_OF_DAYS][];
     protected static final double[] all_times = new double[NUMBER_OF_DAYS];
@@ -28,21 +27,20 @@ public class AdventOfCode2024 {
             return;
         }
 
-        String s_day = AdventOfCode2024.class.getPackageName() +"." + "Day" + (DAY<10?"0":"") + String.valueOf(DAY);
+        String s_day = AdventOfCode2024.class.getPackageName() + "." + "Day" + (TARGET_DAY < 10 ? "0" : "") + TARGET_DAY;
         AoCDay test_day = null;
 
         try {
 
             Class<?> day_class = Class.forName(s_day);
-            Constructor<?> ctor = day_class.getConstructors()[0];
-            test_day = (AoCDay) ctor.newInstance(new Object[]{DAY});
+            Constructor<?> constructor = day_class.getConstructors()[0];
+            test_day = (AoCDay) constructor.newInstance(new Object[]{TARGET_DAY});
             out.println(test_day);
         } catch (Exception e) {
             out.printf("Error when trying to construct class: %s. Exception Type: %s\\n\"", s_day, e.getClass().getName());
-            out.println(e.toString());
         }
 
-        int day_number = DAY;
+        int day_number = TARGET_DAY;
         String input_string;
         if (TESTING) {
             input_string = test_files[day_number - 1][TEST_IDX - 1];
@@ -50,17 +48,27 @@ public class AdventOfCode2024 {
             input_string = input_files[day_number - 1];
         }
         assert test_day != null;
-   //     String[] results = test_day.runDay(out, input_string);
-        long raw_time =test_day.doDay(input_string);
-        double run_time =raw_time /ADJUST_TIME_TO_MS;
-        printDayDetail(test_day,test_day.answers);
-        String[] results = test_day.answers;
-        out.printf("\t\tpart1:\t\t%s\n", results[0]);
-        out.printf("\t\tpart2:\t\t%s\n", results[1]);
-        if (TIMING) {
-            out.printf("\n total time: %.1f ms\t\t %d\n", run_time, raw_time);
-        }
 
+
+
+        if(TRIALS == 1) {
+            long raw_time = test_day.doDay(input_string);
+            double run_time = raw_time / ADJUST_TIME_TO_MS;
+            printDayDetail(test_day, test_day.answers);
+            String[] results = test_day.answers;
+            out.printf("\t\tpart1:\t\t%s\n", results[0]);
+            out.printf("\t\tpart2:\t\t%s\n", results[1]);
+            if (TIMING) {
+                out.printf("\n total time: %.1f ms\n", run_time);
+            }
+        } else {
+            double total_time = 0.0;
+            for(int trial_num=0; trial_num < TRIALS; trial_num++) {
+                total_time += test_day.doDay(input_string) /  ADJUST_TIME_TO_MS;
+            }
+            out.printf("Ran %3d trials, average time: %.1f ms\n", TRIALS, total_time/ TRIALS);
+
+        }
     }
 
     static public void printDayDetail(int d) {
@@ -70,28 +78,24 @@ public class AdventOfCode2024 {
             out.printf("\t ERROR \t Part 1 answer %s is WRONG\n", results[0]);
         }
         if (!correct[1]) {
-            out.printf("\t ERROR \t Part 1 answer %s is WRONG\n", results[1]);
+            out.printf("\t ERROR \t Part 2 answer %s is WRONG\n", results[1]);
         }
     }
 
     static public void printDayDetail(AoCDay day, String[] results) {
         boolean[] correct = day.checkAnswers(results);
         try {
-            String[]  answers = new String[]{
-                     String.valueOf(day.getClass().getField("PART1_ANSWER").get(day)),
-                     String.valueOf(day.getClass().getField("PART2_ANSWER").get(day))
-             };
+            String[] answers = new String[]{String.valueOf(day.getClass().getField("PART1_ANSWER").get(day)), String.valueOf(day.getClass().getField("PART2_ANSWER").get(day))};
 
             if (!correct[0]) {
                 out.printf("\t ERROR \t Part 1 answer %s is WRONG, expected %s\n", results[0], answers[0]);
             }
             if (!correct[1]) {
-                out.printf("\t ERROR \t Part 1 answer %s is WRONG, expected %s\n", results[1], answers[1]);
+                out.printf("\t ERROR \t Part 2 answer %s is WRONG, expected %s\n", results[1], answers[1]);
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             out.println("Error Accessing answer Fields");
         }
-
 
 
     }
@@ -103,17 +107,30 @@ public class AdventOfCode2024 {
             AoCDay today = days[d];
             String filename = input_files[d];
             out.printf("Running day: %d ... ", today.getDay());
-            all_times[d] = today.doDay(filename) / ADJUST_TIME_TO_MS;
+            if(TRIALS == 1) {
+                all_times[d] = today.doDay(filename) / ADJUST_TIME_TO_MS;
+                out.printf(" done. Time:  %.1f ms\n", all_times[d]);
+            } else {
+                long total_time_raw = 0L;
+                for(int trial=0; trial< TRIALS; trial++) {
+                    total_time_raw += today.doDay(filename);
+                }
+                double avg = total_time_raw /ADJUST_TIME_TO_MS / TRIALS;
+                out.printf(" done. Average of %d trials: %.1f ms\n", TRIALS, avg );
+                all_times[d] = avg;
+            }
             all_answers[d] = today.answers;
-            out.printf(" done. Time:  %.1f ms\n", all_times[d]);
+
+
             if (all_times[d] > SLOW_THRESHOLD) {
                 slow_ones.add(today);
             }
             printDayDetail(d);
         }
         double total_time = Arrays.stream(all_times).sum();
-        OptionalDouble avg_time = Arrays.stream(all_times).average();
-        out.printf("\ntotal run time: %.1f ms, avg: %.1f\n", total_time, avg_time.getAsDouble());
+        double avg_time = total_time / (double) all_times.length;
+//        OptionalDouble avg_time = Arrays.stream(all_times).average();
+        out.printf("\ntotal run time: %.1f ms, avg: %.1f\n", total_time, avg_time);
 
         out.println("--------------------------------------------------------------------------------------\n");
         out.println("Days with slow run times\n");

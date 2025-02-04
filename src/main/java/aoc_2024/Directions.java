@@ -6,9 +6,9 @@ import java.util.List;
 public class Directions {
 
 
-    public enum Compass {
+     public enum Compass {
         NORTH, EAST, SOUTH, WEST;
-
+        public static final int NUMBER_DIRECTIONS=4;
         public Vector2d coordDelta() {
             switch (this) {
                 case NORTH -> {

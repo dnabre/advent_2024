@@ -11,7 +11,7 @@ import java.util.Deque;
 public class Day07 extends AoCDay {
     public static final String PART1_ANSWER = "267566105056";
     public static final String PART2_ANSWER = "116094961956019";
-    private static final ArrayList<Equation> equations = new ArrayList<>();
+    private static  ArrayList<Equation> equations;
 
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
@@ -42,6 +42,7 @@ public class Day07 extends AoCDay {
     }
 
     protected void parseInput(String filename) throws IOException {
+        equations = new ArrayList<>();
         String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
         for (String ln : lines) {
             String[] parts = ln.split(":");

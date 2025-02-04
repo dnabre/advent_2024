@@ -41,10 +41,18 @@ abstract public class AoCDay {
         String[] problem_answers = new String[]{"empty", "empty"};
 
         parseInput(inputString);
+
         problem_answers[0] = getPart1();
         problem_answers[1] = getPart2();
 
         return problem_answers;
+    }
+
+    @Override
+    public String toString() {
+        int day_num = this.getDay();
+        return String.format("Advent of Code, Day %s%d", day_num < 10 ? "0" : "", day_num);
+
     }
 
     abstract protected String getPart1();
@@ -55,14 +63,6 @@ abstract public class AoCDay {
 
     public AoCDay(int day) {
         this.day = day;
-    }
-
-    @Override
-    public String toString() {
-        int day_num = this.getDay();
-        return String.format("Advent of Code, Day %s%d",
-        day_num <10 ? "0":"", day_num);
-
     }
 }
 
