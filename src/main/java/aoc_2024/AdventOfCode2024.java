@@ -101,6 +101,15 @@ public class AdventOfCode2024 {
     }
 
     public static void runAll() {
+            // run everything so code gets JIT'd
+            AoCDay[] f_days = getAllDays();
+            for (int d = 0; d < NUMBER_OF_DAYS; d++) {
+                f_days[d].doDay(input_files[d]);
+            }
+            for (int d = 0; d < NUMBER_OF_DAYS; d++) {
+                f_days[d] = null;
+            }
+
         ArrayList<AoCDay> slow_ones = new ArrayList<>();
         days = getAllDays();
         for (int d = 0; d < NUMBER_OF_DAYS; d++) {
@@ -129,7 +138,6 @@ public class AdventOfCode2024 {
         }
         double total_time = Arrays.stream(all_times).sum();
         double avg_time = total_time / (double) all_times.length;
-//        OptionalDouble avg_time = Arrays.stream(all_times).average();
         out.printf("\ntotal run time: %.1f ms, avg: %.1f\n", total_time, avg_time);
 
         out.println("--------------------------------------------------------------------------------------\n");
