@@ -49,16 +49,18 @@ abstract public class AoCDay {
         long startPart1 = System.nanoTime();
         problem_answers[0] = getPart1();
         long endPart1 = System.nanoTime();
-        long durationPart1Ms = (endPart1 - startPart1) / 1_000_000;
-        out.printf("Part 1 completed in %d ms%n", durationPart1Ms);
-
+        long nano_count_1 = (endPart1 - startPart1);
+        long durationPart1Ms = nano_count_1 / 1_000_000L;
+        out.printf("Part 1 completed in %d ms (%d ns)%n", durationPart1Ms, nano_count_1);
 
 
         long startPart2 = System.nanoTime();
         problem_answers[1] = getPart2();
         long endPart2 = System.nanoTime();
-        long durationPart2Ms = (endPart2 - startPart2) / 1_000_000;
-        out.printf("Part 2 completed in %d ms%n", durationPart2Ms);
+        long nano_count_2 = (endPart2 - startPart2);
+        long durationPart2Ms = nano_count_2 / 1_000_000L;
+        out.printf("Part 2 completed in %d ms, (%d ns)%n", durationPart2Ms, nano_count_2);
+
 
 
         return problem_answers;
