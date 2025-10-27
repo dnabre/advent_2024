@@ -5,18 +5,21 @@ import java.io.PrintStream;
 
 abstract public class AoCDay {
 
-    protected String[] answers;
     public final int day;
+    protected String[] answers;
     protected long time = -1L;
 
-    abstract public boolean[] checkAnswers(String[] answers);
+    public AoCDay(int day) {
+        this.day = day;
+    }
 
+    abstract public boolean[] checkAnswers(String[] answers);
 
     public long doDay(String filename, boolean print_output) {
         long start, end;
         try {
             start = System.nanoTime();
-            if(print_output) {
+            if (print_output) {
                 answers = runDay(System.out, filename);
             } else {
                 answers = runDay(new PrintStream(new AoCUtils.NullStream()), filename);
@@ -61,7 +64,6 @@ abstract public class AoCDay {
         out.printf("Part 2 completed in %d ms, (%d ns)%n", durationPart2Ms, nano_count_2);
 
 
-
         return problem_answers;
     }
 
@@ -77,9 +79,5 @@ abstract public class AoCDay {
     abstract protected String getPart2();
 
     abstract protected void parseInput(String input_filename) throws IOException;
-
-    public AoCDay(int day) {
-        this.day = day;
-    }
 }
 

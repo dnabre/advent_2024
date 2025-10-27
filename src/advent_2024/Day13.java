@@ -17,6 +17,10 @@ public class Day13 extends AoCDay {
     private static final long PART2_FACTOR = 10000000000000L;
     private static ArrayList<Problem> parsed_input;
 
+    public Day13(int day) {
+        super(day);
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -59,10 +63,6 @@ public class Day13 extends AoCDay {
             }
         } while (!lines.isEmpty());
 
-    }
-
-    public Day13(int day) {
-        super(day);
     }
 
     record Button(char letter, long x, long y) {

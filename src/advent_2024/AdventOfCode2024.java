@@ -13,15 +13,17 @@ public class AdventOfCode2024 {
     public static final boolean TESTING = false;
     public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;
-    private static final int TRIALS = 5;
     protected static final double ADJUST_TIME_TO_MS = 1_000_000.0f;
     protected static final int NUMBER_OF_DAYS = 25;
     protected static final double SLOW_THRESHOLD = 400.0;
     protected static final String[][] all_answers = new String[NUMBER_OF_DAYS][];
     protected static final double[] all_times = new double[NUMBER_OF_DAYS];
+    static final String[][] test_files = {{"inputs/2024/day_01_test_01.txt"}, {"inputs/2024/day_02_test_01.txt"}, {"inputs/2024/day_03_test_01.txt"}, {"inputs/2024/day_04_test_01.txt"}, {"inputs/2024/day_05_test_01.txt"}, {"inputs/2024/day_06_test_01.txt"}, {"inputs/2024/day_07_test_01.txt"}, {"inputs/2024/day_08_test_01.txt", "inputs/2024/day_08_test_02.txt"}, {"inputs/2024/day_09_test_01.txt", "inputs/2024/day_09_test_02.txt"}, {"inputs/2024/day_10_test_01.txt", "inputs/2024/day_10_test_02.txt"}, {"inputs/2024/day_11_test_01.txt"}, {"inputs/2024/day_12_test_01.txt", "inputs/2024/day_12_test_02.txt", "inputs/2024/day_12_test_03.txt"}, {"inputs/2024/day_13_test_01.txt"}, {"inputs/2024/day_14_test_01.txt"}, {"inputs/2024/day_15_test_01.txt", "inputs/2024/day_15_test_02.txt", "inputs/2024/day_15_test_03.txt"}, {"inputs/2024/day_16_test_01.txt", "inputs/2024/day_16_test_02.txt"}, {"inputs/2024/day_17_test_01.txt", "inputs/2024/day_17_test_02.txt"}, {"inputs/2024/day_18_test_01.txt"}, {"inputs/2024/day_19_test_01.txt"}, {"inputs/2024/day_20_test_01.txt"}, {"inputs/2024/day_21_test_01.txt", "inputs/2024/day_21_test_02.txt", "inputs/2024/day_21_test_03.txt"}, {"inputs/2024/day_22_test_01.txt", "inputs/2024/day_22_test_02.txt"}, {"inputs/2024/day_23_test_01.txt", "inputs/2024/day_23_test_02.txt"}, {"inputs/2024/day_24_test_01.txt", "inputs/2024/day_24_test_02.txt", "inputs/2024/day_24_test_03.txt", "inputs/2024/day_24_test_04.txt"}, {"inputs/2024/day_25_test_01.txt"}};
+    static final String[] input_files = {"inputs/2024/day_01_input_01.txt", "inputs/2024/day_02_input_01.txt", "inputs/2024/day_03_input_01.txt", "inputs/2024/day_04_input_01.txt", "inputs/2024/day_05_input_01.txt", "inputs/2024/day_06_input_01.txt", "inputs/2024/day_07_input_01.txt", "inputs/2024/day_08_input_01.txt", "inputs/2024/day_09_input_01.txt", "inputs/2024/day_10_input_01.txt", "inputs/2024/day_11_input_01.txt", "inputs/2024/day_12_input_01.txt", "inputs/2024/day_13_input_01.txt", "inputs/2024/day_14_input_01.txt", "inputs/2024/day_15_input_01.txt", "inputs/2024/day_16_input_01.txt", "inputs/2024/day_17_input_01.txt", "inputs/2024/day_18_input_01.txt", "inputs/2024/day_19_input_01.txt", "inputs/2024/day_20_input_01.txt", "inputs/2024/day_21_input_01.txt", "inputs/2024/day_22_input_01.txt", "inputs/2024/day_23_input_01.txt", "inputs/2024/day_24_input_01.txt", "inputs/2024/day_25_input_01.txt",};
+    private static final int TRIALS = 5;
     protected static AoCDay[] days;
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         if (RUN_ALL) {
             out.println("Advent of Code 2024, running all days");
             runAll();
@@ -51,8 +53,7 @@ public class AdventOfCode2024 {
         assert test_day != null;
 
 
-
-        if(TRIALS == 1) {
+        if (TRIALS == 1) {
             long raw_time = test_day.doDay(input_string, true);
             double run_time = raw_time / ADJUST_TIME_TO_MS;
             printDayDetail(test_day, test_day.answers);
@@ -64,10 +65,10 @@ public class AdventOfCode2024 {
             }
         } else {
             double total_time = 0.0;
-            for(int trial_num=0; trial_num < TRIALS; trial_num++) {
-                total_time += test_day.doDay(input_string, false) /  ADJUST_TIME_TO_MS;
+            for (int trial_num = 0; trial_num < TRIALS; trial_num++) {
+                total_time += test_day.doDay(input_string, false) / ADJUST_TIME_TO_MS;
             }
-            out.printf("Ran %3d trials, average time: %.1f ms\n", TRIALS, total_time/ TRIALS);
+            out.printf("Ran %3d trials, average time: %.1f ms\n", TRIALS, total_time / TRIALS);
 
         }
     }
@@ -102,14 +103,14 @@ public class AdventOfCode2024 {
     }
 
     public static void runAll() {
-            // run everything so code gets JIT'd
-            AoCDay[] f_days = getAllDays();
-            for (int d = 0; d < NUMBER_OF_DAYS; d++) {
-                f_days[d].doDay(input_files[d], false);
-            }
-            for (int d = 0; d < NUMBER_OF_DAYS; d++) {
-                f_days[d] = null;
-            }
+        // run everything so code gets JIT'd
+        AoCDay[] f_days = getAllDays();
+        for (int d = 0; d < NUMBER_OF_DAYS; d++) {
+            f_days[d].doDay(input_files[d], false);
+        }
+        for (int d = 0; d < NUMBER_OF_DAYS; d++) {
+            f_days[d] = null;
+        }
 
         ArrayList<AoCDay> slow_ones = new ArrayList<>();
         days = getAllDays();
@@ -117,16 +118,16 @@ public class AdventOfCode2024 {
             AoCDay today = days[d];
             String filename = input_files[d];
             out.printf("Running day: %d ... ", today.getDay());
-            if(TRIALS == 1) {
+            if (TRIALS == 1) {
                 all_times[d] = today.doDay(filename, false) / ADJUST_TIME_TO_MS;
                 out.printf(" done. Time:  %.1f ms\n", all_times[d]);
             } else {
                 long total_time_raw = 0L;
-                for(int trial=0; trial< TRIALS; trial++) {
+                for (int trial = 0; trial < TRIALS; trial++) {
                     total_time_raw += today.doDay(filename, false);
                 }
-                double avg = total_time_raw /ADJUST_TIME_TO_MS / TRIALS;
-                out.printf(" done. Average of %d trials: %.1f ms\n", TRIALS, avg );
+                double avg = total_time_raw / ADJUST_TIME_TO_MS / TRIALS;
+                out.printf(" done. Average of %d trials: %.1f ms\n", TRIALS, avg);
                 all_times[d] = avg;
             }
             all_answers[d] = today.answers;
@@ -144,7 +145,7 @@ public class AdventOfCode2024 {
         out.println("--------------------------------------------------------------------------------------\n");
         out.println("Days with slow run times\n");
         for (AoCDay dd : slow_ones) {
-            if(dd.day==6) {
+            if (dd.day == 6) {
                 continue;
             }
             out.printf("\t\t%s , time: %.1f\n", dd, dd.time / ADJUST_TIME_TO_MS);
@@ -182,9 +183,6 @@ public class AdventOfCode2024 {
 
         return days;
     }
-
-    static final String[][] test_files = {{"inputs/2024/day_01_test_01.txt"}, {"inputs/2024/day_02_test_01.txt"}, {"inputs/2024/day_03_test_01.txt"}, {"inputs/2024/day_04_test_01.txt"}, {"inputs/2024/day_05_test_01.txt"}, {"inputs/2024/day_06_test_01.txt"}, {"inputs/2024/day_07_test_01.txt"}, {"inputs/2024/day_08_test_01.txt", "inputs/2024/day_08_test_02.txt"}, {"inputs/2024/day_09_test_01.txt", "inputs/2024/day_09_test_02.txt"}, {"inputs/2024/day_10_test_01.txt", "inputs/2024/day_10_test_02.txt"}, {"inputs/2024/day_11_test_01.txt"}, {"inputs/2024/day_12_test_01.txt", "inputs/2024/day_12_test_02.txt", "inputs/2024/day_12_test_03.txt"}, {"inputs/2024/day_13_test_01.txt"}, {"inputs/2024/day_14_test_01.txt"}, {"inputs/2024/day_15_test_01.txt", "inputs/2024/day_15_test_02.txt", "inputs/2024/day_15_test_03.txt"}, {"inputs/2024/day_16_test_01.txt", "inputs/2024/day_16_test_02.txt"}, {"inputs/2024/day_17_test_01.txt", "inputs/2024/day_17_test_02.txt"}, {"inputs/2024/day_18_test_01.txt"}, {"inputs/2024/day_19_test_01.txt"}, {"inputs/2024/day_20_test_01.txt"}, {"inputs/2024/day_21_test_01.txt", "inputs/2024/day_21_test_02.txt", "inputs/2024/day_21_test_03.txt"}, {"inputs/2024/day_22_test_01.txt", "inputs/2024/day_22_test_02.txt"}, {"inputs/2024/day_23_test_01.txt", "inputs/2024/day_23_test_02.txt"}, {"inputs/2024/day_24_test_01.txt", "inputs/2024/day_24_test_02.txt", "inputs/2024/day_24_test_03.txt", "inputs/2024/day_24_test_04.txt"}, {"inputs/2024/day_25_test_01.txt"}};
-    static final String[] input_files = {"inputs/2024/day_01_input_01.txt", "inputs/2024/day_02_input_01.txt", "inputs/2024/day_03_input_01.txt", "inputs/2024/day_04_input_01.txt", "inputs/2024/day_05_input_01.txt", "inputs/2024/day_06_input_01.txt", "inputs/2024/day_07_input_01.txt", "inputs/2024/day_08_input_01.txt", "inputs/2024/day_09_input_01.txt", "inputs/2024/day_10_input_01.txt", "inputs/2024/day_11_input_01.txt", "inputs/2024/day_12_input_01.txt", "inputs/2024/day_13_input_01.txt", "inputs/2024/day_14_input_01.txt", "inputs/2024/day_15_input_01.txt", "inputs/2024/day_16_input_01.txt", "inputs/2024/day_17_input_01.txt", "inputs/2024/day_18_input_01.txt", "inputs/2024/day_19_input_01.txt", "inputs/2024/day_20_input_01.txt", "inputs/2024/day_21_input_01.txt", "inputs/2024/day_22_input_01.txt", "inputs/2024/day_23_input_01.txt", "inputs/2024/day_24_input_01.txt", "inputs/2024/day_25_input_01.txt",};
 
 
 }

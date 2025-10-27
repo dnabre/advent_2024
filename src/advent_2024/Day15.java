@@ -25,6 +25,89 @@ public class Day15 extends AoCDay {
     private static Vector2d robot_start = null;
     private static HashSet<Vector2d> walls;
 
+    public Day15(int day) {
+        super(day);
+    }
+
+    private static ArrayList<ArrayList<String>> breakDataByNewline(String data) {
+        ArrayList<ArrayList<String>> g_string = new ArrayList<>();
+        ArrayList<String> current = new ArrayList<>();
+        for (String line : data.lines().toList()) {
+            if (line.isBlank()) {
+                g_string.add(current);
+                current = new ArrayList<>();
+            } else {
+                current.add(line);
+            }
+        }
+        if (!current.isEmpty()) {
+            g_string.add(current);
+        }
+        return g_string;
+    }
+
+    private static String expand(String line) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '#') {
+                sb.append("##");
+            } else if (c == 'O') {
+                sb.append("[]");
+            } else if (c == '.') {
+                sb.append("..");
+            } else if (c == '@') {
+                sb.append("@.");
+            } else {
+                throw new IllegalArgumentException("invalid character: " + c);
+            }
+        }
+        return sb.toString();
+    }
+
+    private static char[][] getExpandedGrid(List<String> grid_lines) {
+        int line_count = 0;
+        List<String> expanded_lines = new ArrayList<>();
+        int max_line_length = Integer.MIN_VALUE;
+        for (String ln : grid_lines) {
+            String e_line = expand(ln);
+            if (max_line_length < e_line.length()) {
+                max_line_length = e_line.length();
+            }
+            expanded_lines.add(e_line);
+            line_count++;
+        }
+        maxes = new Vector2d(max_line_length, line_count);
+        char[][] grid = new char[maxes.x][maxes.y];
+        for (int y = 0; y < maxes.y; y++) {
+            for (int x = 0; x < maxes.x; x++) {
+                char[] c_a = expanded_lines.get(y).toCharArray();
+                if (c_a[x] == '@') {
+                    robot_start = new Vector2d(x, y);
+                    grid[x][y] = '.';
+                } else {
+                    grid[x][y] = c_a[x];
+                }
+            }
+        }
+        return grid;
+    }
+
+    private static int getGPS(int x, int y) {
+        return (100 * y) + x;
+    }
+
+    private static ArrayList<Compass> getMoves(List<String> other) {
+        ArrayList<Compass> moves = new ArrayList<>();
+        for (String ll : other) {
+            char[] cc = ll.toCharArray();
+            for (char c : cc) {
+                moves.add(Compass.fromChar(c));
+            }
+        }
+        return moves;
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -169,96 +252,19 @@ public class Day15 extends AoCDay {
 
     }
 
-    private static ArrayList<ArrayList<String>> breakDataByNewline(String data) {
-        ArrayList<ArrayList<String>> g_string = new ArrayList<>();
-        ArrayList<String> current = new ArrayList<>();
-        for (String line : data.lines().toList()) {
-            if (line.isBlank()) {
-                g_string.add(current);
-                current = new ArrayList<>();
-            } else {
-                current.add(line);
-            }
-        }
-        if (!current.isEmpty()) {
-            g_string.add(current);
-        }
-        return g_string;
-    }
-
-    private static String expand(String line) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < line.length(); i++) {
-            char c = line.charAt(i);
-            if (c == '#') {
-                sb.append("##");
-            } else if (c == 'O') {
-                sb.append("[]");
-            } else if (c == '.') {
-                sb.append("..");
-            } else if (c == '@') {
-                sb.append("@.");
-            } else {
-                throw new IllegalArgumentException("invalid character: " + c);
-            }
-        }
-        return sb.toString();
-    }
-
-    private static char[][] getExpandedGrid(List<String> grid_lines) {
-        int line_count = 0;
-        List<String> expanded_lines = new ArrayList<>();
-        int max_line_length = Integer.MIN_VALUE;
-        for (String ln : grid_lines) {
-            String e_line = expand(ln);
-            if (max_line_length < e_line.length()) {
-                max_line_length = e_line.length();
-            }
-            expanded_lines.add(e_line);
-            line_count++;
-        }
-        maxes = new Vector2d(max_line_length, line_count);
-        char[][] grid = new char[maxes.x][maxes.y];
-        for (int y = 0; y < maxes.y; y++) {
-            for (int x = 0; x < maxes.x; x++) {
-                char[] c_a = expanded_lines.get(y).toCharArray();
-                if (c_a[x] == '@') {
-                    robot_start = new Vector2d(x, y);
-                    grid[x][y] = '.';
-                } else {
-                    grid[x][y] = c_a[x];
-                }
-            }
-        }
-        return grid;
-    }
-
-    private static int getGPS(int x, int y) {
-        return (100 * y) + x;
-    }
-
-    private static ArrayList<Compass> getMoves(List<String> other) {
-        ArrayList<Compass> moves = new ArrayList<>();
-        for (String ll : other) {
-            char[] cc = ll.toCharArray();
-            for (char c : cc) {
-                moves.add(Compass.fromChar(c));
-            }
-        }
-        return moves;
-    }
-
     private sealed interface CheckReturn {
         CheckReturn and(CheckReturn other);
 
         boolean isMoveGood();
     }
 
-    public Day15(int day) {
-        super(day);
-    }
-
     private record Box(Vector2d left, Vector2d right) {
+        Box {
+            if (left.equals(right)) {
+                throw new IllegalArgumentException("Parameters left and right cannot be equal");
+            }
+        }
+
         public int getGPS() {
             int x = left.x;
             int y = left.y;
@@ -305,12 +311,6 @@ public class Day15 extends AoCDay {
             box_map.put(new_box.left, new_box);
             box_map.put(new_box.right, new_box);
 
-        }
-
-        Box {
-            if (left.equals(right)) {
-                throw new IllegalArgumentException("Parameters left and right cannot be equal");
-            }
         }
 
         CheckReturn canMove(Compass dir) {

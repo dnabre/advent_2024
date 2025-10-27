@@ -78,9 +78,9 @@ public class AoCUtils {
     }
 
     public static void printGrid(char[][] grid) {
-        for (int y = 0; y < grid.length; y++) {
+        for (char[] chars : grid) {
             for (int x = 0; x < grid[0].length; x++) {
-                char ch = grid[y][x];
+                char ch = chars[x];
                 out.print(ch);
             }
             out.println();
@@ -112,13 +112,6 @@ public class AoCUtils {
         }
     }
 
-    static public class NullStream extends OutputStream {
-        @Override
-        public void write(int b) throws IOException {
-
-        }
-    }
-
     static HashMap<Vector2d, Integer> findDistanceFromStartToEverywhere(char[][] grid, Vector2d start) {
         PriorityQueue<Vector2d> queue = new PriorityQueue<>();
         queue.offer(start);
@@ -142,6 +135,13 @@ public class AoCUtils {
         return distances;
     }
 
+    static public class NullStream extends OutputStream {
+        @Override
+        public void write(int b) {
+
+        }
+    }
+
     public record Pair(int left, int right) {
-}
+    }
 }

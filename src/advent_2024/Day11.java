@@ -15,6 +15,16 @@ public class Day11 extends AoCDay {
     private static final long max = Long.MIN_VALUE;
     private static ArrayList<Long> parsed_input;
 
+    public Day11(int day) {
+        super(day);
+    }
+
+    private static boolean hasEvenNumDigit(long d) {
+        String s_str = Long.toString(d);
+        int s_length = s_str.length();
+        return (s_length % 2 == 0);
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -87,15 +97,5 @@ public class Day11 extends AoCDay {
         for (String p : parts) {
             parsed_input.add(Long.valueOf(p));
         }
-    }
-
-    private static boolean hasEvenNumDigit(long d) {
-        String s_str = Long.toString(d);
-        int s_length = s_str.length();
-        return (s_length % 2 == 0);
-    }
-
-    public Day11(int day) {
-        super(day);
     }
 }

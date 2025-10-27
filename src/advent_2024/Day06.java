@@ -21,6 +21,48 @@ public class Day06 extends AoCDay {
     private static int x_max;
     private static int y_max;
 
+    public Day06(int day) {
+        super(day);
+    }
+
+    private static boolean guard_on_map(Guard g) {
+        return g.loc.inside(x_max, y_max);
+
+    }
+
+    private static Vector2d step_forward_location(Guard g) {
+        Vector2d delta = g.heading.coordDelta();
+        Vector2d new_loc = new Vector2d(g.loc);
+        new_loc.add(delta);
+        if (!new_loc.inside(x_max, y_max)) {
+            return null;
+        }
+        return new_loc;
+    }
+
+    private static Run_Result testBlockerForward(Guard guy, Vector2d new_block) {
+        HashSet<Guard> newly_visited_states = new HashSet<>();
+
+        while (true) {
+            Vector2d next_step = step_forward_location(guy);
+            if (next_step == null) {
+                return Run_Result.ESCAPE;
+            }
+
+            if (blockers.contains(next_step) || (next_step.equals(new_block))) {
+                guy = new Guard(guy.loc, guy.heading.turnRight());
+            } else {
+                guy = new Guard(next_step, guy.heading);
+            }
+            if (newly_visited_states.contains(guy)) {
+                return Run_Result.LOOP;
+            } else {
+                newly_visited_states.add(guy);
+            }
+        }
+
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -106,48 +148,6 @@ public class Day06 extends AoCDay {
                 grid[x][y] = ch;
             }
         }
-    }
-
-    private static boolean guard_on_map(Guard g) {
-        return g.loc.inside(x_max, y_max);
-
-    }
-
-    private static Vector2d step_forward_location(Guard g) {
-        Vector2d delta = g.heading.coordDelta();
-        Vector2d new_loc = new Vector2d(g.loc);
-        new_loc.add(delta);
-        if (!new_loc.inside(x_max, y_max)) {
-            return null;
-        }
-        return new_loc;
-    }
-
-    private static Run_Result testBlockerForward(Guard guy, Vector2d new_block) {
-        HashSet<Guard> newly_visited_states = new HashSet<>();
-
-        while (true) {
-            Vector2d next_step = step_forward_location(guy);
-            if (next_step == null) {
-                return Run_Result.ESCAPE;
-            }
-
-            if (blockers.contains(next_step) || (next_step.equals(new_block))) {
-                guy = new Guard(guy.loc, guy.heading.turnRight());
-            } else {
-                guy = new Guard(next_step, guy.heading);
-            }
-            if (newly_visited_states.contains(guy)) {
-                return Run_Result.LOOP;
-            } else {
-                newly_visited_states.add(guy);
-            }
-        }
-
-    }
-
-    public Day06(int day) {
-        super(day);
     }
 
     private enum Run_Result {

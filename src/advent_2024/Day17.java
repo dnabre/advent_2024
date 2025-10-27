@@ -14,6 +14,10 @@ public class Day17 extends AoCDay {
     public static final String PART2_ANSWER = "202366627359274";
     private static Computer start_state;
 
+    public Day17(int day) {
+        super(day);
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -60,11 +64,6 @@ public class Day17 extends AoCDay {
         int b = Integer.parseInt(parts_b[1].trim());
         int c = Integer.parseInt(parts_c[1].trim());
         start_state = new Computer(a, b, c, prog_list);
-    }
-
-
-    public Day17(int day) {
-        super(day);
     }
 }
 

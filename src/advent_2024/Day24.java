@@ -21,6 +21,42 @@ public class Day24 extends AoCDay {
     private static final HashMap<String, Gate> gate_map = new HashMap<>();
     private static ArrayList<ORGate> or_gates;
 
+    public Day24(int day) {
+        super(day);
+    }
+
+    static private long getNumberFromGate() {
+        ArrayList<String> gate_names = new ArrayList<>();
+        for (Gate g : gate_map.values()) {
+            if (g.getName().startsWith(String.valueOf('z'))) {
+                gate_names.add(g.getName());
+            }
+        }
+        String[] name_array = gate_names.toArray(new String[0]);
+        Arrays.sort(name_array);
+
+
+        StringBuilder sb = new StringBuilder();
+        for (String zs : name_array) {
+            Gate g = gate_map.get(zs);
+            BitValue bv = g.getValue();
+            boolean b_bv = bv.toBool();
+            if (b_bv) {
+                sb.append("1");
+            } else {
+                sb.append("0");
+            }
+        }
+        String num = sb.reverse().toString();
+
+
+        return Long.valueOf(num, 2);
+    }
+
+    private static boolean inPart(String s) {
+        return (s.startsWith("x") || s.startsWith("y") || s.startsWith("z"));
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -209,9 +245,7 @@ public class Day24 extends AoCDay {
                     or_gates.add(og);
                     g = og;
                 }
-                default -> {
-                    System.exit(-1);
-                }
+                default -> System.exit(-1);
             }
             gate_map.put(name, g);
 
@@ -220,45 +254,20 @@ public class Day24 extends AoCDay {
 
     }
 
-    static private long getNumberFromGate() {
-        ArrayList<String> gate_names = new ArrayList<>();
-        for (Gate g : gate_map.values()) {
-            if (g.getName().startsWith(String.valueOf('z'))) {
-                gate_names.add(g.getName());
-            }
-        }
-        String[] name_array = gate_names.toArray(new String[0]);
-        Arrays.sort(name_array);
-
-
-        StringBuilder sb = new StringBuilder();
-        for (String zs : name_array) {
-            Gate g = gate_map.get(zs);
-            BitValue bv = g.getValue();
-            boolean b_bv = bv.toBool();
-            if (b_bv) {
-                sb.append("1");
-            } else {
-                sb.append("0");
-            }
-        }
-        String num = sb.reverse().toString();
-
-
-        return Long.valueOf(num, 2);
-    }
-
-    private static boolean inPart(String s) {
-        return (s.startsWith("x") || s.startsWith("y") || s.startsWith("z"));
-    }
-
-    public Day24(int day) {
-        super(day);
-    }
-
     public enum BitValue {
         One, Zero, Unknown;
 
+
+        static public BitValue parse(String t) {
+
+            if (t.equals("0")) {
+                return Zero;
+            }
+            if (t.equals("1")) {
+                return One;
+            }
+            throw new NumberFormatException(String.format("String |%s| can't be parsed to BitValue", t));
+        }
 
         public BitValue and(BitValue other) {
             if (this == One && other == One) {
@@ -282,17 +291,6 @@ public class Day24 extends AoCDay {
             } else {
                 return Zero;
             }
-        }
-
-        static public BitValue parse(String t) {
-
-            if (t.equals("0")) {
-                return Zero;
-            }
-            if (t.equals("1")) {
-                return One;
-            }
-            throw new NumberFormatException(String.format("String |%s| can't be parsed to BitValue", t));
         }
 
         public BitValue xor(BitValue other) {
@@ -336,6 +334,13 @@ public class Day24 extends AoCDay {
     record ANDGate(String left, String right, String name) implements Gate {
 
 
+        ANDGate(String left, String right, String name) {
+            this.left = left;
+            this.right = right;
+            this.name = name;
+            gate_map.put(name, this);
+        }
+
         @Override
         public String[] getAllNames() {
             return new String[]{name, left, right};
@@ -366,17 +371,19 @@ public class Day24 extends AoCDay {
         public String toString() {
             return String.format("%s AND %s -> %s", this.left, this.right, this.name);
         }
-
-        ANDGate(String left, String right, String name) {
-            this.left = left;
-            this.right = right;
-            this.name = name;
-            gate_map.put(name, this);
-        }
     }
 
     record ORGate(String left, String right, String name) implements Gate {
 
+
+        ORGate(String left, String right, String name) {
+
+            this.left = left;
+            this.right = right;
+            this.name = name;
+
+            gate_map.put(name, this);
+        }
 
         @Override
         public String[] getAllNames() {
@@ -409,18 +416,15 @@ public class Day24 extends AoCDay {
         public String toString() {
             return String.format("%s  OR %s -> %s", this.left, this.right, this.name);
         }
-
-        ORGate(String left, String right, String name) {
-
-            this.left = left;
-            this.right = right;
-            this.name = name;
-
-            gate_map.put(name, this);
-        }
     }
 
     record SourceGate(String name, BitValue value) implements Gate {
+        SourceGate(String name, BitValue value) {
+            this.name = name;
+            this.value = value;
+            gate_map.put(name, this);
+        }
+
         @Override
         public String[] getAllNames() {
             return new String[]{name};
@@ -449,16 +453,17 @@ public class Day24 extends AoCDay {
         public String toString() {
             return String.format("%s: %s", this.name, this.value == BitValue.One ? "1" : "0");
         }
-
-        SourceGate(String name, BitValue value) {
-            this.name = name;
-            this.value = value;
-            gate_map.put(name, this);
-        }
     }
 
     record XORGate(String left, String right, String name) implements Gate {
 
+
+        XORGate(String left, String right, String name) {
+            this.left = left;
+            this.right = right;
+            this.name = name;
+            gate_map.put(name, this);
+        }
 
         @Override
         public String[] getAllNames() {
@@ -490,13 +495,6 @@ public class Day24 extends AoCDay {
         @Override
         public String toString() {
             return String.format("%s XOR %s -> %s", this.left, this.right, this.name);
-        }
-
-        XORGate(String left, String right, String name) {
-            this.left = left;
-            this.right = right;
-            this.name = name;
-            gate_map.put(name, this);
         }
     }
 

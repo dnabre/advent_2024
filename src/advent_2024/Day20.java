@@ -8,56 +8,19 @@ import java.util.HashSet;
 public class Day20 extends AoCDay {
     public static final String PART1_ANSWER = "1441";
     public static final String PART2_ANSWER = "1021490";
-    private static Vector2d MAP_END;
-    private static Vector2d MAP_START;
     private static final int PART1_JUMP_SIZE = 2;
     private static final int PART1_THRESHOLD = 100;
     private static final int PART2_MAX_DISTANCE = 20;
-    private static HashMap<Vector2d, Integer> ToEnd;
     private static final char WALL = '#';
+    private static Vector2d MAP_END;
+    private static Vector2d MAP_START;
+    private static HashMap<Vector2d, Integer> ToEnd;
     private static char[][] grid;
     private static Vector2d[] path;
     private static HashSet<Vector2d> path_set;
 
-    public boolean[] checkAnswers(String[] answers) {
-        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
-    }
-
-    protected String getPart1() {
-        long answer = getAllCheatsFromPath();
-        return String.valueOf(answer);
-    }
-
-    protected String getPart2() {
-        int answer = getAllCheatWithMax();
-        return String.valueOf(answer);
-    }
-
-    protected void parseInput(String filename) throws IOException {
-        grid = AoCUtils.parseGrid(filename);
-
-
-        for (int y = 0; y < grid.length; y++) {
-            for (int x = 0; x < grid[0].length; x++) {
-                char ch = grid[y][x];
-                if (ch == 'S') {
-                    MAP_START = new Vector2d(x, y);
-                    grid[y][x] = '.';
-                }
-                if (ch == 'E') {
-                    MAP_END = new Vector2d(x, y);
-                    grid[y][x] = '.';
-                }
-
-            }
-        }
-
-        grid[MAP_START.y][MAP_START.x] = '.';
-        grid[MAP_END.y][MAP_END.x] = '.';
-
-        ToEnd = AoCUtils.findDistanceFromStartToEverywhere(grid, MAP_END);
-        build_path();
-
+    public Day20(int day) {
+        super(day);
     }
 
     private static Vector2d bestNextStep(Vector2d current, HashMap<Vector2d, Integer> toEnd) {
@@ -128,7 +91,44 @@ public class Day20 extends AoCDay {
         return good_cheat_count;
     }
 
-    public Day20(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
+    }
+
+    protected String getPart1() {
+        long answer = getAllCheatsFromPath();
+        return String.valueOf(answer);
+    }
+
+    protected String getPart2() {
+        int answer = getAllCheatWithMax();
+        return String.valueOf(answer);
+    }
+
+    protected void parseInput(String filename) throws IOException {
+        grid = AoCUtils.parseGrid(filename);
+
+
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[0].length; x++) {
+                char ch = grid[y][x];
+                if (ch == 'S') {
+                    MAP_START = new Vector2d(x, y);
+                    grid[y][x] = '.';
+                }
+                if (ch == 'E') {
+                    MAP_END = new Vector2d(x, y);
+                    grid[y][x] = '.';
+                }
+
+            }
+        }
+
+        grid[MAP_START.y][MAP_START.x] = '.';
+        grid[MAP_END.y][MAP_END.x] = '.';
+
+        ToEnd = AoCUtils.findDistanceFromStartToEverywhere(grid, MAP_END);
+        build_path();
+
     }
 }

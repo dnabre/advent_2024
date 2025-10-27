@@ -16,39 +16,8 @@ public class Day12 extends AoCDay {
     private static Vector2d max;
     private static ArrayList<Plot> plot_list;
 
-    public boolean[] checkAnswers(String[] answers) {
-        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
-    }
-
-    protected String getPart1() {
-        int total = 0;
-        for (Plot p : plot_list) {
-            total += calcPerimeter(p, farm_grid) * p.area();
-        }
-        long answer = total;
-        return String.valueOf(answer);
-    }
-
-    protected String getPart2() {
-        int total = 0;
-        for (Plot p : plot_list) {
-            total += calcSides(p) * p.area();
-        }
-        long answer = total;
-        return String.valueOf(answer);
-    }
-
-    protected void parseInput(String filename) throws IOException {
-        String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
-        int width = lines[0].length();
-        int height = lines.length;
-        max = new Vector2d(width, height);
-        farm_grid = new char[height][width];
-        for (int y = 0; y < max.y; y++) {
-            char[] line_array = lines[y].toCharArray();
-            if (max.x >= 0) System.arraycopy(line_array, 0, farm_grid[y], 0, max.x);
-        }
-        plot_list = getPlots(farm_grid);
+    public Day12(int day) {
+        super(day);
     }
 
     private static int calcPerimeter(Plot plot, char[][] grid) {
@@ -130,8 +99,39 @@ public class Day12 extends AoCDay {
         return plot_list;
     }
 
-    public Day12(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
+    }
+
+    protected String getPart1() {
+        int total = 0;
+        for (Plot p : plot_list) {
+            total += calcPerimeter(p, farm_grid) * p.area();
+        }
+        long answer = total;
+        return String.valueOf(answer);
+    }
+
+    protected String getPart2() {
+        int total = 0;
+        for (Plot p : plot_list) {
+            total += calcSides(p) * p.area();
+        }
+        long answer = total;
+        return String.valueOf(answer);
+    }
+
+    protected void parseInput(String filename) throws IOException {
+        String[] lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
+        int width = lines[0].length();
+        int height = lines.length;
+        max = new Vector2d(width, height);
+        farm_grid = new char[height][width];
+        for (int y = 0; y < max.y; y++) {
+            char[] line_array = lines[y].toCharArray();
+            if (max.x >= 0) System.arraycopy(line_array, 0, farm_grid[y], 0, max.x);
+        }
+        plot_list = getPlots(farm_grid);
     }
 
     record Plot(char plant, HashSet<Vector2d> tiles) {

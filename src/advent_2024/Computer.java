@@ -7,15 +7,57 @@ import java.util.Objects;
 import static java.lang.System.out;
 
 public class Computer {
+    static public final long[] two_powers = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+    static final OpCode[] decode = {OpCode.ADV, OpCode.BXL, OpCode.BST, OpCode.JNZ, OpCode.BXC, OpCode.OUT, OpCode.BDV, OpCode.CDV};
+    public final long[] program;
     public boolean halted = false;
     public ArrayList<Long> output;
     public int pc = 0;
-    public long[] program;
     public long reg_a;
     public long reg_b;
     public long reg_c;
     public boolean verbose_outputs = false;
-    static public final long[] two_powers = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+
+    public Computer(Computer other) {
+        this.reg_a = other.reg_a;
+        this.reg_b = other.reg_b;
+        this.reg_c = other.reg_c;
+
+        this.output = new ArrayList<>(other.output);
+        this.program = Arrays.copyOf(other.program, other.program.length);
+        this.pc = other.pc;
+        this.halted = other.halted;
+        this.verbose_outputs = other.verbose_outputs;
+    }
+
+    public Computer(long ra, long rb, long rc, ArrayList<Long> prog) {
+        reg_a = ra;
+        reg_b = rb;
+        reg_c = rc;
+        program = prog.stream().mapToLong(i -> i).toArray();
+        output = new ArrayList<>();
+    }
+
+    public Computer(long ra, long rb, long rc, long[] prog) {
+        reg_a = ra;
+        reg_b = rb;
+        reg_c = rc;
+        program = prog.clone();
+        output = new ArrayList<>();
+    }
+
+    public static String runToHalt(Computer other) {
+        Computer fresh = new Computer(other);
+        boolean running = true;
+        while (running) {
+            running = fresh.step();
+        }
+        return fresh.getFormatedOutput();
+    }
+
+    static OpCode asOpCode(long o) {
+        return decode[(int) o];
+    }
 
     public long getCombo(long lit) {
         int literal = Math.toIntExact(lit);
@@ -104,15 +146,6 @@ public class Computer {
         return output;
     }
 
-    public static String runToHalt(Computer other) {
-        Computer fresh = new Computer(other);
-        boolean running = true;
-        while (running) {
-            running = fresh.step();
-        }
-        return fresh.getFormatedOutput();
-    }
-
     public boolean step() {
         if (this.halted || pc >= program.length) {
             this.halted = true;
@@ -156,40 +189,6 @@ public class Computer {
         return true;
     }
 
-    static final OpCode[] decode = {OpCode.ADV, OpCode.BXL, OpCode.BST, OpCode.JNZ, OpCode.BXC, OpCode.OUT, OpCode.BDV, OpCode.CDV};
-
-    public Computer(Computer other) {
-        this.reg_a = other.reg_a;
-        this.reg_b = other.reg_b;
-        this.reg_c = other.reg_c;
-
-        this.output = new ArrayList<>(other.output);
-        this.program = Arrays.copyOf(other.program, other.program.length);
-        this.pc = other.pc;
-        this.halted = other.halted;
-        this.verbose_outputs = other.verbose_outputs;
-    }
-
-    public Computer(long ra, long rb, long rc, ArrayList<Long> prog) {
-        reg_a = ra;
-        reg_b = rb;
-        reg_c = rc;
-        program = prog.stream().mapToLong(i -> i).toArray();
-        output = new ArrayList<>();
-    }
-
-    public Computer(long ra, long rb, long rc, long[] prog) {
-        reg_a = ra;
-        reg_b = rb;
-        reg_c = rc;
-        program = prog.clone();
-        output = new ArrayList<>();
-    }
-
     enum OpCode {ADV, BXL, BST, JNZ, BXC, OUT, BDV, CDV}
-
-    static OpCode asOpCode(long o) {
-        return decode[(int) o];
-    }
 }
 

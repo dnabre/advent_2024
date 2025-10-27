@@ -11,9 +11,13 @@ public class Day25 extends AoCDay {
     public static final String PART1_ANSWER = "3065";
     public static final String PART2_ANSWER = "";
     private static final int HEIGHT = 7;
+    private static final int WIDTH = 5;
     private static ArrayList<int[]> Keys;
     private static ArrayList<int[]> Locks;
-    private static final int WIDTH = 5;
+
+    public Day25(int day) {
+        super(day);
+    }
 
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
@@ -36,7 +40,7 @@ public class Day25 extends AoCDay {
 
     protected String getPart2() {
 
-        return String.valueOf("");
+        return "";
     }
 
     protected void parseInput(String filename) throws IOException {
@@ -61,10 +65,5 @@ public class Day25 extends AoCDay {
                 Locks.add(cols);
             }
         }
-    }
-
-
-    public Day25(int day) {
-        super(day);
     }
 }

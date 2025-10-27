@@ -15,6 +15,34 @@ public class Day18 extends AoCDay {
     private static final int PART1_NUMBER_OF_BYTES = AdventOfCode2024.TESTING ? 12 : 1024;
     private static Vector2d[] drops;
 
+    public Day18(int day) {
+        super(day);
+    }
+
+    private static HashMap<Vector2d, Integer> getAllDistancesStartingDropList(int drop_count) {
+        assert (drop_count < drops.length);
+        HashSet<Vector2d> bad_spots = new HashSet<>(Arrays.asList(drops).subList(0, drop_count));
+        PriorityQueue<Vector2d> work_queue = new PriorityQueue<>();
+        work_queue.offer(MAP_END);
+        HashMap<Vector2d, Integer> distances = new HashMap<>();
+        distances.put(MAP_END, 0);
+        while (!work_queue.isEmpty()) {
+            Vector2d current = work_queue.poll();
+            int dist = distances.get(current);
+            List<Vector2d> neighbors = Directions.Compass.getNeighborsClamped(current, 0, GRID_SIZE.x - 1);
+            for (Vector2d v : neighbors) {
+                if (!bad_spots.contains(v)) {
+                    int n_dist = dist + 1;
+                    if (n_dist < distances.getOrDefault(v, Integer.MAX_VALUE)) {
+                        distances.put(v, n_dist);
+                        work_queue.offer(v);
+                    }
+                }
+            }
+        }
+        return distances;
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -57,34 +85,6 @@ public class Day18 extends AoCDay {
             max.y = Math.max(max.y, y);
             idx++;
         }
-    }
-
-    private static HashMap<Vector2d, Integer> getAllDistancesStartingDropList(int drop_count) {
-        assert (drop_count < drops.length);
-        HashSet<Vector2d> bad_spots = new HashSet<>(Arrays.asList(drops).subList(0, drop_count));
-        PriorityQueue<Vector2d> work_queue = new PriorityQueue<>();
-        work_queue.offer(MAP_END);
-        HashMap<Vector2d, Integer> distances = new HashMap<>();
-        distances.put(MAP_END, 0);
-        while (!work_queue.isEmpty()) {
-            Vector2d current = work_queue.poll();
-            int dist = distances.get(current);
-            List<Vector2d> neighbors = Directions.Compass.getNeighborsClamped(current, 0, GRID_SIZE.x - 1);
-            for (Vector2d v : neighbors) {
-                if (!bad_spots.contains(v)) {
-                    int n_dist = dist + 1;
-                    if (n_dist < distances.getOrDefault(v, Integer.MAX_VALUE)) {
-                        distances.put(v, n_dist);
-                        work_queue.offer(v);
-                    }
-                }
-            }
-        }
-        return distances;
-    }
-
-    public Day18(int day) {
-        super(day);
     }
 
 }

@@ -14,6 +14,43 @@ public class Day09 extends AoCDay {
     public static final String PART2_ANSWER = "6363913128533";
     private static char[] packed_disk;
 
+    public Day09(int day) {
+        super(day);
+    }
+
+    private static long getChecksum(int[] disk_for_checksum) {
+        long checksum = 0;
+        for (int i = 0; i < disk_for_checksum.length; i++) {
+            if (disk_for_checksum[i] == -1) continue;
+
+            checksum += ((long) i * disk_for_checksum[i]);
+        }
+        return checksum;
+    }
+
+    private static int[] getUnpackedDisk(char[] packed) {
+        ArrayList<Integer> disk_list = new ArrayList<>();
+        int file_no = 0;
+        boolean isFile = true;
+
+        for (char ch : packed) {
+            int chick = Character.getNumericValue(ch);
+            int to_write = -1;
+            if (isFile) {
+                to_write = file_no;
+                file_no++;
+
+            }
+            for (int count = 0; count < chick; count++) {
+                disk_list.add(to_write);
+            }
+            isFile = !isFile;
+        }
+
+        return disk_list.stream().flatMapToInt(IntStream::of).toArray();
+
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -108,44 +145,7 @@ public class Day09 extends AoCDay {
 
     }
 
-    private static long getChecksum(int[] disk_for_checksum) {
-        long checksum = 0;
-        for (int i = 0; i < disk_for_checksum.length; i++) {
-            if (disk_for_checksum[i] == -1) continue;
-
-            checksum += ((long) i * disk_for_checksum[i]);
-        }
-        return checksum;
-    }
-
-    private static int[] getUnpackedDisk(char[] packed) {
-        ArrayList<Integer> disk_list = new ArrayList<>();
-        int file_no = 0;
-        boolean isFile = true;
-
-        for (char ch : packed) {
-            int chick = Character.getNumericValue(ch);
-            int to_write = -1;
-            if (isFile) {
-                to_write = file_no;
-                file_no++;
-
-            }
-            for (int count = 0; count < chick; count++) {
-                disk_list.add(to_write);
-            }
-            isFile = !isFile;
-        }
-
-        return disk_list.stream().flatMapToInt(IntStream::of).toArray();
-
-    }
-
     private sealed interface BlockSpan {
-    }
-
-    public Day09(int day) {
-        super(day);
     }
 
     private record EmptyBlock(int offset, int size) implements BlockSpan, Comparable<EmptyBlock> {

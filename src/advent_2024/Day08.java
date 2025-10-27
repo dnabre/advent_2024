@@ -13,6 +13,25 @@ public class Day08 extends AoCDay {
     private static char[][] grid;
     private static Vector2d max;
 
+    public Day08(int day) {
+        super(day);
+    }
+
+    private static HashMap<Character, ArrayList<Vector2d>> getAntennaList(char[][] grid) {
+        HashMap<Character, ArrayList<Vector2d>> antennas = new HashMap<>();
+        for (int y = 0; y < max.y; y++) {
+            for (int x = 0; x < max.x; x++) {
+                char ch = grid[x][y];
+                if (ch != '.') {
+                    ArrayList<Vector2d> ant_list = antennas.getOrDefault(ch, new ArrayList<>());
+                    ant_list.add(new Vector2d(x, y));
+                    antennas.put(ch, ant_list);
+                }
+            }
+        }
+        return antennas;
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -104,25 +123,6 @@ public class Day08 extends AoCDay {
         int max_x = grid.length;
         int max_y = grid[0].length;
         max = new Vector2d(max_x, max_y);
-    }
-
-    private static HashMap<Character, ArrayList<Vector2d>> getAntennaList(char[][] grid) {
-        HashMap<Character, ArrayList<Vector2d>> antennas = new HashMap<>();
-        for (int y = 0; y < max.y; y++) {
-            for (int x = 0; x < max.x; x++) {
-                char ch = grid[x][y];
-                if (ch != '.') {
-                    ArrayList<Vector2d> ant_list = antennas.getOrDefault(ch, new ArrayList<>());
-                    ant_list.add(new Vector2d(x, y));
-                    antennas.put(ch, ant_list);
-                }
-            }
-        }
-        return antennas;
-    }
-
-    public Day08(int day) {
-        super(day);
     }
 
 

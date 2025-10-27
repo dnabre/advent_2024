@@ -12,6 +12,73 @@ public class Day23 extends AoCDay {
     private static LinkPair[] linkPairs;
     private static List<Node> node_list;
 
+    public Day23(int day) {
+        super(day);
+    }
+
+    static public ArrayList<HashSet<String>> doBronKerbosch(HashMap<String, HashSet<String>> graph, HashSet<String> to_explore, HashSet<String> seen, HashSet<String> explored) {
+        if (to_explore.isEmpty() && seen.isEmpty()) {
+            ArrayList<HashSet<String>> e_result = new ArrayList<>();
+            e_result.add(explored);
+            return e_result;
+        }
+        ArrayList<HashSet<String>> cliques = new ArrayList<>();
+        while (!to_explore.isEmpty()) {
+            String v = to_explore.iterator().next();
+            to_explore.remove(v);
+
+            HashSet<String> new_to_explore = new HashSet<>(to_explore);
+            new_to_explore.retainAll(graph.get(v));
+
+            HashSet<String> new_seen = new HashSet<>(seen);
+            new_seen.retainAll(graph.get(v));
+            HashSet<String> new_explored = new HashSet<>(explored);
+            new_explored.add(v);
+
+            cliques.addAll(doBronKerbosch(graph, new_to_explore, new_seen, new_explored));
+
+            seen.add(v);
+        }
+        return cliques;
+    }
+
+    private static void addTripleToSet(String[] tri, HashSet<HashSet<String>> triangles) {
+        HashSet<String> set = new HashSet<>();
+        set.add(tri[0]);
+        set.add(tri[1]);
+        set.add(tri[2]);
+        if (set.size() != 3) {
+            throw new IllegalArgumentException(String.format("Tri isn't size 3, size: %d, %s", set.size(), set));
+        }
+        triangles.add(set);
+    }
+
+    static HashMap<String, Node> getHostToNode() {
+        HashSet<Node> node_set = new HashSet<>();
+        HashMap<String, Node> node_map = new HashMap<>();
+        for (LinkPair lp : linkPairs) {
+            Node node1, node2;
+            if (node_map.containsKey(lp.left)) {
+                node1 = node_map.get(lp.left);
+            } else {
+                node1 = new Node(lp.left, new HashSet<>());
+                node_map.put(lp.left, node1);
+            }
+            if (node_map.containsKey(lp.right)) {
+                node2 = node_map.get(lp.right);
+            } else {
+                node2 = new Node(lp.right, new HashSet<>());
+                node_map.put(lp.right, node2);
+            }
+            node_set.add(node1);
+            node_set.add(node2);
+            node1.adjacent.add(node2.name);
+            node2.adjacent.add(node1.name);
+        }
+        node_list = node_set.stream().toList();
+        return node_map;
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -90,87 +157,20 @@ public class Day23 extends AoCDay {
         host_to_node = getHostToNode();
     }
 
-    static public ArrayList<HashSet<String>> doBronKerbosch(HashMap<String, HashSet<String>> graph, HashSet<String> to_explore, HashSet<String> seen, HashSet<String> explored) {
-        if (to_explore.isEmpty() && seen.isEmpty()) {
-            ArrayList<HashSet<String>> e_result = new ArrayList<>();
-            e_result.add(explored);
-            return e_result;
-        }
-        ArrayList<HashSet<String>> cliques = new ArrayList<>();
-        while (!to_explore.isEmpty()) {
-            String v = to_explore.iterator().next();
-            to_explore.remove(v);
-
-            HashSet<String> new_to_explore = new HashSet<>(to_explore);
-            new_to_explore.retainAll(graph.get(v));
-
-            HashSet<String> new_seen = new HashSet<>(seen);
-            new_seen.retainAll(graph.get(v));
-            HashSet<String> new_explored = new HashSet<>(explored);
-            new_explored.add(v);
-
-            cliques.addAll(doBronKerbosch(graph, new_to_explore, new_seen, new_explored));
-
-            seen.add(v);
-        }
-        return cliques;
-    }
-
-    private static void addTripleToSet(String[] tri, HashSet<HashSet<String>> triangles) {
-        HashSet<String> set = new HashSet<>();
-        set.add(tri[0]);
-        set.add(tri[1]);
-        set.add(tri[2]);
-        if (set.size() != 3) {
-            throw new IllegalArgumentException(String.format("Tri isn't size 3, size: %d, %s", set.size(), set));
-        }
-        triangles.add(set);
-    }
-
-    public Day23(int day) {
-        super(day);
-    }
-
     record LinkPair(String left, String right) {
-        @Override
-        public String toString() {
-            return String.format("<%s-%s>", left, right);
-        }
-
         static LinkPair fromStringPair(String s) {
             String[] part = s.split("-");
             return new LinkPair(part[0].trim(), part[1].trim());
         }
 
+        @Override
+        public String toString() {
+            return String.format("<%s-%s>", left, right);
+        }
+
     }
 
     record Node(String name, HashSet<String> adjacent) {
-    }
-
-    static HashMap<String, Node> getHostToNode() {
-        HashSet<Node> node_set = new HashSet<>();
-        HashMap<String, Node> node_map = new HashMap<>();
-        for (LinkPair lp : linkPairs) {
-            Node node1, node2;
-            if (node_map.containsKey(lp.left)) {
-                node1 = node_map.get(lp.left);
-            } else {
-                node1 = new Node(lp.left, new HashSet<>());
-                node_map.put(lp.left, node1);
-            }
-            if (node_map.containsKey(lp.right)) {
-                node2 = node_map.get(lp.right);
-            } else {
-                node2 = new Node(lp.right, new HashSet<>());
-                node_map.put(lp.right, node2);
-            }
-            node_set.add(node1);
-            node_set.add(node2);
-            node1.adjacent.add(node2.name);
-            node2.adjacent.add(node1.name);
-        }
-        node_list = node_set.stream().toList();
-        return node_map;
     }
 
 }

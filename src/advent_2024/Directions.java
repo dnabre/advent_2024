@@ -6,26 +6,9 @@ import java.util.List;
 public class Directions {
 
 
-     public enum Compass {
+    public enum Compass {
         NORTH, EAST, SOUTH, WEST;
-        public static final int NUMBER_DIRECTIONS=4;
-        public Vector2d coordDelta() {
-            switch (this) {
-                case NORTH -> {
-                    return new Vector2d(0, -1);
-                }
-                case EAST -> {
-                    return new Vector2d(1, 0);
-                }
-                case SOUTH -> {
-                    return new Vector2d(0, +1);
-                }
-                case WEST -> {
-                    return new Vector2d(-1, 0);
-                }
-            }
-            throw new RuntimeException("This should be Unreachable");
-        }
+        public static final int NUMBER_DIRECTIONS = 4;
 
         public static Compass fromChar(char ch) {
             switch (ch) {
@@ -64,6 +47,24 @@ public class Directions {
                 }
             }
             return results;
+        }
+
+        public Vector2d coordDelta() {
+            switch (this) {
+                case NORTH -> {
+                    return new Vector2d(0, -1);
+                }
+                case EAST -> {
+                    return new Vector2d(1, 0);
+                }
+                case SOUTH -> {
+                    return new Vector2d(0, +1);
+                }
+                case WEST -> {
+                    return new Vector2d(-1, 0);
+                }
+            }
+            throw new RuntimeException("This should be Unreachable");
         }
 
         public Compass reverse() {

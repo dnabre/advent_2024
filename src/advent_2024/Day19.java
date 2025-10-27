@@ -13,43 +13,12 @@ public class Day19 extends AoCDay {
     public static final String PART1_ANSWER = "367";
     public static final String PART2_ANSWER = "724388733465031";
     private static final HashMap<String, Boolean> cache = new HashMap<>();
+    private static final HashMap<String, Long> ways_cache = new HashMap<>();
     private static ArrayList<String> designs;
     private static ArrayList<String> patterns;
-    private static final HashMap<String, Long> ways_cache = new HashMap<>();
 
-    public boolean[] checkAnswers(String[] answers) {
-        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
-    }
-
-    protected String getPart1() {
-        int count = 0;
-        for (String design : designs) {
-            if (canMake(design, filterPatterns(design, patterns))) {
-                count++;
-            }
-        }
-        long answer = count;
-        return String.valueOf(answer);
-    }
-
-    protected String getPart2() {
-        long total = 0;
-        for (String design : designs) {
-            total += countWays(design, filterPatterns(design, patterns));
-        }
-        long answer = total;
-        return String.valueOf(answer);
-    }
-
-    protected void parseInput(String input_filename) throws IOException {
-        String[] lines = Files.readAllLines(Path.of(input_filename)).toArray(new String[0]);
-        patterns = new ArrayList<>(Arrays.stream(lines[0].split(",")).map(String::trim).toList());
-        designs = new ArrayList<>();
-
-        for (int i = 2; i < lines.length; i++) {
-            String des = lines[i].trim();
-            designs.add(des);
-        }
+    public Day19(int day) {
+        super(day);
     }
 
     private static Boolean canMake(String design, ArrayList<String> patterns) {
@@ -98,8 +67,39 @@ public class Day19 extends AoCDay {
         return viable;
     }
 
-    public Day19(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
+    }
+
+    protected String getPart1() {
+        int count = 0;
+        for (String design : designs) {
+            if (canMake(design, filterPatterns(design, patterns))) {
+                count++;
+            }
+        }
+        long answer = count;
+        return String.valueOf(answer);
+    }
+
+    protected String getPart2() {
+        long total = 0;
+        for (String design : designs) {
+            total += countWays(design, filterPatterns(design, patterns));
+        }
+        long answer = total;
+        return String.valueOf(answer);
+    }
+
+    protected void parseInput(String input_filename) throws IOException {
+        String[] lines = Files.readAllLines(Path.of(input_filename)).toArray(new String[0]);
+        patterns = new ArrayList<>(Arrays.stream(lines[0].split(",")).map(String::trim).toList());
+        designs = new ArrayList<>();
+
+        for (int i = 2; i < lines.length; i++) {
+            String des = lines[i].trim();
+            designs.add(des);
+        }
     }
 
 }

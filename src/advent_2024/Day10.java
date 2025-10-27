@@ -13,36 +13,8 @@ public class Day10 extends AoCDay {
     private static final int MAX_HEIGHT = 9;
     private static char[][] grid;
 
-    public boolean[] checkAnswers(String[] answers) {
-        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
-    }
-
-    protected String getPart1() {
-        List<Vector2d> starts = getStartingPositions();
-        List<Vector2d> targets = getTargetPositions();
-        int path_total = 0;
-        for (Vector2d start : starts) {
-            int found_paths = FindPathStartToPeaks(start, targets);
-            path_total += found_paths;
-        }
-        long answer = path_total;
-        return String.valueOf(answer);
-    }
-
-    protected String getPart2() {
-        List<Vector2d> starts = getStartingPositions();
-        List<Vector2d> targets = getTargetPositions();
-        int path_total = 0;
-        for (Vector2d start : starts) {
-            int found_paths = FindDistinctPathStartToPeaks(start, targets);
-            path_total += found_paths;
-        }
-        long answer = path_total;
-        return String.valueOf(answer);
-    }
-
-    protected void parseInput(String filename) throws IOException {
-        grid = AoCUtils.parseGrid(filename);
+    public Day10(int day) {
+        super(day);
     }
 
     private static int FindDistinctPathStartToPeaks(Vector2d start_point, List<Vector2d> targets) {
@@ -50,7 +22,7 @@ public class Day10 extends AoCDay {
         int min_idx = 0;
         int max_idx = grid.length - 1;
         HashSet<State2> seen = new HashSet<>();
-        State2 start = new State2(start_point, new ArrayList<Vector2d>(10));
+        State2 start = new State2(start_point, new ArrayList<>(10));
         start.path.add(start_point);
         ArrayDeque<State2> work_queue = new ArrayDeque<>();
         work_queue.addLast(start);
@@ -128,8 +100,36 @@ public class Day10 extends AoCDay {
         return pos;
     }
 
-    public Day10(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
+    }
+
+    protected String getPart1() {
+        List<Vector2d> starts = getStartingPositions();
+        List<Vector2d> targets = getTargetPositions();
+        int path_total = 0;
+        for (Vector2d start : starts) {
+            int found_paths = FindPathStartToPeaks(start, targets);
+            path_total += found_paths;
+        }
+        long answer = path_total;
+        return String.valueOf(answer);
+    }
+
+    protected String getPart2() {
+        List<Vector2d> starts = getStartingPositions();
+        List<Vector2d> targets = getTargetPositions();
+        int path_total = 0;
+        for (Vector2d start : starts) {
+            int found_paths = FindDistinctPathStartToPeaks(start, targets);
+            path_total += found_paths;
+        }
+        long answer = path_total;
+        return String.valueOf(answer);
+    }
+
+    protected void parseInput(String filename) throws IOException {
+        grid = AoCUtils.parseGrid(filename);
     }
 
     record State(Vector2d current) {

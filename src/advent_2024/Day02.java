@@ -10,34 +10,8 @@ public class Day02 extends AoCDay {
     public static final String PART2_ANSWER = "476";
     private static String[] lines;
 
-    public boolean[] checkAnswers(String[] answers) {
-        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
-    }
-
-    protected String getPart1() {
-
-        int safe_reports = 0;
-        for (String line : lines) {
-            if (isRowSafe(AoCUtils.WhitespaceDelimitedLineToIntegers(line))) {
-                safe_reports++;
-            }
-        }
-        return Integer.toString(safe_reports);
-    }
-
-    protected String getPart2() {
-        int safe_reports = 0;
-        for (String line : lines) {
-            int[] row = AoCUtils.WhitespaceDelimitedLineToIntegers(line);
-            if (isRowSafeReportsSkipping(row)) {
-                safe_reports++;
-            }
-        }
-        return Integer.toString(safe_reports);
-    }
-
-    protected void parseInput(String filename) throws IOException {
-        lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
+    public Day02(int day) {
+        super(day);
     }
 
     public static boolean isRowSafe(int[] row) {
@@ -96,8 +70,34 @@ public class Day02 extends AoCDay {
         return isRowSafe(new_arr);
     }
 
-    public Day02(int day) {
-        super(day);
+    public boolean[] checkAnswers(String[] answers) {
+        return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
+    }
+
+    protected String getPart1() {
+
+        int safe_reports = 0;
+        for (String line : lines) {
+            if (isRowSafe(AoCUtils.WhitespaceDelimitedLineToIntegers(line))) {
+                safe_reports++;
+            }
+        }
+        return Integer.toString(safe_reports);
+    }
+
+    protected String getPart2() {
+        int safe_reports = 0;
+        for (String line : lines) {
+            int[] row = AoCUtils.WhitespaceDelimitedLineToIntegers(line);
+            if (isRowSafeReportsSkipping(row)) {
+                safe_reports++;
+            }
+        }
+        return Integer.toString(safe_reports);
+    }
+
+    protected void parseInput(String filename) throws IOException {
+        lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
     }
 
 

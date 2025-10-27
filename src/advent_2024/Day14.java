@@ -15,6 +15,10 @@ public class Day14 extends AoCDay {
     public static final String PART2_ANSWER = "7687";
     private static ArrayList<Robot> robot_initial;
 
+    public Day14(int day) {
+        super(day);
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -97,10 +101,6 @@ public class Day14 extends AoCDay {
             v = new Vector2d(Integer.parseInt(v_parts[0]), Integer.parseInt(v_parts[1]));
             robot_initial.add(new Robot(p, v));
         }
-    }
-
-    public Day14(int day) {
-        super(day);
     }
 
     record Robot(Vector2d pos, Vector2d velocity) {

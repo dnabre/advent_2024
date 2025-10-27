@@ -12,6 +12,10 @@ public class Day01 extends AoCDay {
     public static final String PART2_ANSWER = "24643097";
     static private String[] lines;
 
+    public Day01(int day) {
+        super(day);
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -70,9 +74,5 @@ public class Day01 extends AoCDay {
 
     protected void parseInput(String filename) throws IOException {
         lines = Files.readAllLines(Path.of(filename)).toArray(new String[0]);
-    }
-
-    public Day01(int day) {
-        super(day);
     }
 }

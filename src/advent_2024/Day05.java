@@ -12,6 +12,71 @@ public class Day05 extends AoCDay {
     private static HashMap<Integer, HashSet<Integer>> before_rules;
     private static LinkedList<LinkedList<Integer>> update_list;
 
+    public Day05(int day) {
+        super(day);
+    }
+
+    private static boolean checkUpdateArray(int[] updates) {
+        for (int i = 1; i < updates.length; i++) {
+            int left = updates[i - 1];
+            int right = updates[i];
+            //before rules
+            if (before_rules.containsKey(right)) {
+                if (!before_rules.get(right).contains(left)) {
+
+                    return false;
+                }
+            }
+            //after rules
+            if (after_rules.containsKey(left)) {
+                if (!after_rules.get(left).contains(right)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkUpdateList(List<Integer> ups) {
+        int[] updates = ups.stream().mapToInt(i -> i).toArray();
+        return checkUpdateArray(updates);
+    }
+
+    private static void fix_update_list(int[] updates) {
+        for (int i = 1; i < updates.length; i++) {
+            int left = updates[i - 1];
+            int right = updates[i];
+            //before rules
+            if (before_rules.containsKey(right)) {
+                if (!before_rules.get(right).contains(left)) {
+                    updates[i - 1] = right;
+                    updates[i] = left;
+
+                }
+            }
+            left = updates[i - 1];
+            right = updates[i];
+
+            //after rules
+            if (after_rules.containsKey(left)) {
+                if (!after_rules.get(left).contains(right)) {
+                    updates[i - 1] = right;
+                    updates[i] = left;
+                }
+            }
+        }
+    }
+
+    private static int get_middle_of_array(int[] ups) {
+        int mid_index = ups.length / 2;
+        return ups[mid_index];
+    }
+
+    private static <T> T get_middle_of_list(List<T> ups) {
+        int mid_index = ups.size() / 2;
+        return ups.get(mid_index);
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -94,71 +159,6 @@ public class Day05 extends AoCDay {
                 }
             }
         }
-    }
-
-    private static boolean checkUpdateArray(int[] updates) {
-        for (int i = 1; i < updates.length; i++) {
-            int left = updates[i - 1];
-            int right = updates[i];
-            //before rules
-            if (before_rules.containsKey(right)) {
-                if (!before_rules.get(right).contains(left)) {
-
-                    return false;
-                }
-            }
-            //after rules
-            if (after_rules.containsKey(left)) {
-                if (!after_rules.get(left).contains(right)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private static boolean checkUpdateList(List<Integer> ups) {
-        int[] updates = ups.stream().mapToInt(i -> i).toArray();
-        return checkUpdateArray(updates);
-    }
-
-    private static void fix_update_list(int[] updates) {
-        for (int i = 1; i < updates.length; i++) {
-            int left = updates[i - 1];
-            int right = updates[i];
-            //before rules
-            if (before_rules.containsKey(right)) {
-                if (!before_rules.get(right).contains(left)) {
-                    updates[i - 1] = right;
-                    updates[i] = left;
-
-                }
-            }
-            left = updates[i - 1];
-            right = updates[i];
-
-            //after rules
-            if (after_rules.containsKey(left)) {
-                if (!after_rules.get(left).contains(right)) {
-                    updates[i - 1] = right;
-                    updates[i] = left;
-                }
-            }
-        }
-    }
-
-    private static int get_middle_of_array(int[] ups) {
-        int mid_index = ups.length / 2;
-        return ups[mid_index];
-    }
-
-    private static <T> T get_middle_of_list(List<T> ups) {
-        int mid_index = ups.size() / 2;
-        return ups.get(mid_index);
-    }
-
-    public Day05(int day) {
-        super(day);
     }
 
 }

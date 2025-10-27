@@ -14,6 +14,10 @@ public class Day03 extends AoCDay {
     public static final String PART2_REGEX = "mul\\(\\d{1,3},\\d{1,3}\\)|don't\\(\\)|do\\(\\)";
     private static String input;
 
+    public Day03(int day) {
+        super(day);
+    }
+
     public boolean[] checkAnswers(String[] answers) {
         return new boolean[]{answers[0].equals(PART1_ANSWER), answers[1].equals(PART2_ANSWER)};
     }
@@ -63,9 +67,5 @@ public class Day03 extends AoCDay {
 
     protected void parseInput(String filename) throws IOException {
         input = Files.readString(Path.of(filename));
-    }
-
-    public Day03(int day) {
-        super(day);
     }
 }
