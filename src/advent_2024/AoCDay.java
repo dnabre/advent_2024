@@ -19,12 +19,12 @@ abstract public class AoCDay {
         long start, end;
         try {
             start = System.nanoTime();
-            //answers = runDay(new PrintStream(new AoCUtils.NullStream()), filename);
-            answers = runDay(System.out, filename);
+            answers = runDay(new PrintStream(new AoCUtils.NullStream()), filename);
+            //answers = runDay(System.out, filename);
             end = System.nanoTime();
             time = end - start;
         } catch (IOException e) {
-            System.err.printf("I/O error when running Day %d on file: %s \t (%s)\n", this.day, filename, e);
+            System.err.printf("\t I/O error when running Day %d on file: %s \t (%s)\n", this.day, filename, e);
         }
 
         return time;

@@ -9,7 +9,7 @@ import static java.lang.System.out;
 
 public class AdventOfCode2024 {
     public static final int TARGET_DAY = 22;
-    public static final boolean RUN_ALL = false;
+    public static final boolean RUN_ALL = true;
     public static final boolean TESTING = false;
     public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;
@@ -21,7 +21,7 @@ public class AdventOfCode2024 {
     protected static final double[] all_times = new double[NUMBER_OF_DAYS];
     protected static AoCDay[] days;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         if (RUN_ALL) {
             out.println("Advent of Code 2024, running all days");
             runAll();
