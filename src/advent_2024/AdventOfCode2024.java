@@ -8,12 +8,12 @@ import java.util.Arrays;
 import static java.lang.System.out;
 
 public class AdventOfCode2024 {
-    public static final int TARGET_DAY = 22;
-    public static final boolean RUN_ALL = false;
+    public static final int TARGET_DAY = 25;
+    public static final boolean RUN_ALL = true;
     public static final boolean TESTING = false;
     public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;
-    private static final int TRIALS = 1;
+    private static final int TRIALS = 5;
     protected static final double ADJUST_TIME_TO_MS = 1_000_000.0f;
     protected static final int NUMBER_OF_DAYS = 25;
     protected static final double SLOW_THRESHOLD = 400.0;
@@ -144,6 +144,9 @@ public class AdventOfCode2024 {
         out.println("--------------------------------------------------------------------------------------\n");
         out.println("Days with slow run times\n");
         for (AoCDay dd : slow_ones) {
+            if(dd.day==6) {
+                continue;
+            }
             out.printf("\t\t%s , time: %.1f\n", dd, dd.time / ADJUST_TIME_TO_MS);
         }
     }

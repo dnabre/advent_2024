@@ -6,11 +6,8 @@ import java.io.PrintStream;
 abstract public class AoCDay {
 
     protected String[] answers;
-    protected int day;
+    public final int day;
     protected long time = -1L;
-    public static final String PART1_ANSWER = "WRONG";
-    public static final String PART2_ANSWER = "WRONG";
-
 
     abstract public boolean[] checkAnswers(String[] answers);
 
@@ -47,9 +44,6 @@ abstract public class AoCDay {
         String[] problem_answers = new String[]{"empty", "empty"};
 
         parseInput(inputString);
-
-//        problem_answers[0] = getPart1();
-//        problem_answers[1] = getPart2();
 
         long startPart1 = System.nanoTime();
         problem_answers[0] = getPart1();

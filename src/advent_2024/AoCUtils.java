@@ -141,4 +141,7 @@ public class AoCUtils {
         }
         return distances;
     }
+
+    public record Pair(int left, int right) {
+}
 }
