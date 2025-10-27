@@ -15,12 +15,17 @@ abstract public class AoCDay {
     abstract public boolean[] checkAnswers(String[] answers);
 
 
-    public long doDay(String filename) {
+    public long doDay(String filename, boolean print_output) {
         long start, end;
         try {
             start = System.nanoTime();
-            answers = runDay(new PrintStream(new AoCUtils.NullStream()), filename);
-            //answers = runDay(System.out, filename);
+            if(print_output) {
+                answers = runDay(System.out, filename);
+            } else {
+                answers = runDay(new PrintStream(new AoCUtils.NullStream()), filename);
+            }
+
+
             end = System.nanoTime();
             time = end - start;
         } catch (IOException e) {

@@ -9,7 +9,7 @@ import static java.lang.System.out;
 
 public class AdventOfCode2024 {
     public static final int TARGET_DAY = 22;
-    public static final boolean RUN_ALL = true;
+    public static final boolean RUN_ALL = false;
     public static final boolean TESTING = false;
     public static final int TEST_IDX = 1;
     public static final boolean TIMING = true;
@@ -53,7 +53,7 @@ public class AdventOfCode2024 {
 
 
         if(TRIALS == 1) {
-            long raw_time = test_day.doDay(input_string);
+            long raw_time = test_day.doDay(input_string, true);
             double run_time = raw_time / ADJUST_TIME_TO_MS;
             printDayDetail(test_day, test_day.answers);
             String[] results = test_day.answers;
@@ -65,7 +65,7 @@ public class AdventOfCode2024 {
         } else {
             double total_time = 0.0;
             for(int trial_num=0; trial_num < TRIALS; trial_num++) {
-                total_time += test_day.doDay(input_string) /  ADJUST_TIME_TO_MS;
+                total_time += test_day.doDay(input_string, false) /  ADJUST_TIME_TO_MS;
             }
             out.printf("Ran %3d trials, average time: %.1f ms\n", TRIALS, total_time/ TRIALS);
 
@@ -105,7 +105,7 @@ public class AdventOfCode2024 {
             // run everything so code gets JIT'd
             AoCDay[] f_days = getAllDays();
             for (int d = 0; d < NUMBER_OF_DAYS; d++) {
-                f_days[d].doDay(input_files[d]);
+                f_days[d].doDay(input_files[d], false);
             }
             for (int d = 0; d < NUMBER_OF_DAYS; d++) {
                 f_days[d] = null;
@@ -118,12 +118,12 @@ public class AdventOfCode2024 {
             String filename = input_files[d];
             out.printf("Running day: %d ... ", today.getDay());
             if(TRIALS == 1) {
-                all_times[d] = today.doDay(filename) / ADJUST_TIME_TO_MS;
+                all_times[d] = today.doDay(filename, false) / ADJUST_TIME_TO_MS;
                 out.printf(" done. Time:  %.1f ms\n", all_times[d]);
             } else {
                 long total_time_raw = 0L;
                 for(int trial=0; trial< TRIALS; trial++) {
-                    total_time_raw += today.doDay(filename);
+                    total_time_raw += today.doDay(filename, false);
                 }
                 double avg = total_time_raw /ADJUST_TIME_TO_MS / TRIALS;
                 out.printf(" done. Average of %d trials: %.1f ms\n", TRIALS, avg );

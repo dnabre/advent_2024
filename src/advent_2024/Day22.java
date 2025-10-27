@@ -3,13 +3,10 @@ package advent_2024;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
 // --- Day 22: Monkey Market ---
 
-/***
- * Note: prototyped in python, some oddities in a direct translation
- *
+/* originally prototyped in python, then converted to java, then multiple
+   rewrites for speed. the original problem has long been forgotten
  */
 
 public class Day22 extends AoCDay {
@@ -39,33 +36,74 @@ public class Day22 extends AoCDay {
         return String.valueOf(answer);
     }
 
+
+
     protected String getPart2() {
+        int[] buf = new int[19*19*19*19];
+        int[] gains = new int[19*19*19*19];
 
-        HashMap<Quad, Long> daily = new HashMap<>(QUAD_MAP_SIZE);
-        for (long init : start_numbers) {
-            getDiffs(init);
-            HashSet<Quad> added = new HashSet<>(ADDED_SET_SIZE);
-            for (int j = 0; j < STEPS - 4; j++) {
+        for(long seed: start_numbers) {
 
-                Quad each_day = new Quad(diff[j], diff[j + 1], diff[j + 2], diff[j + 3]);
 
-                if (!added.contains(each_day)) {
-                    long offset = daily.getOrDefault(each_day, 0L);
-                    offset += diff2[j + 3];
-                    daily.put(each_day, offset);
-                    added.add(each_day);
-                }
+            computeGains(seed, buf);
+            for(int i = 0; i < buf.length; i++) {
+                gains[i] += buf[i];
+                buf[i]=0;
             }
         }
 
+        int max = gains[0];
+        for(int g: gains) {
+            max = Math.max(max, g);
+        }
+        int part2 = max;
+        System.out.printf("part2: %s\n", part2);
 
-        long max = Long.MIN_VALUE;
-        for (long t : daily.values()) {
-            max = Math.max(max, t);
+
+
+        return String.valueOf(part2);
+    }
+
+    protected int seq_id(long a, long b, long c, long d) {
+        long r =  (a+9L) * (19L*19L*19L) +
+                        (b+9L) * (19L*19L) +
+                        (c+9) * 19L +
+                        (d+9);
+
+//        System.out.printf("seq_id(a:%d, b:%d, c:%d, d:%d) = %d %n", a, b, c, d, r);
+        return (int)r;
+    }
+
+
+    protected void computeGains(long seed, int[] price_sequence) {
+
+        Pair[] changes = new Pair[2000];
+        long prev_price = seed % 10;
+        int changes_back =0;
+        for (int i = 0; i < 2000; i++) {
+            long number = step(seed);
+            long price = number % 10;
+
+            changes[changes_back] = new Pair((int) price - (int)prev_price, (int) price);
+            changes_back++;
+            prev_price = price;
+            seed = number;
         }
 
-        long answer = max;
-        return String.valueOf(answer);
+
+        // Doing this backwards make a world of difference.
+        // Since it elmenets a lot of code, which was the problem, it's super clear.
+
+        for (int i = (2000 - 3 - 1) ; i >= 0; i--) {
+            int idx = seq_id(changes[i].left,
+                    changes[i+1].left,
+                    changes[i+2].left,
+                    changes[i+3].left
+                    );
+            int  gain = changes[i+3].right();
+            price_sequence[idx] = gain;
+        }
+
     }
 
     @Override
@@ -116,4 +154,9 @@ public class Day22 extends AoCDay {
 
     public record Quad(long one, long two, long three, long four) {
     }
+
+
+    protected static record Pair(int left, int right) {}
+
+
 }

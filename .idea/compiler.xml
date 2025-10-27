@@ -4,8 +4,4 @@
     <option name="USE_RELEASE_OPTION" value="false" />
     <bytecodeTargetLevel target="23" />
   </component>
-  <component name="JavacSettings">
-    <option name="DEBUGGING_INFO" value="false" />
-    <option name="ADDITIONAL_OPTIONS_STRING" value="-g:none " />
-  </component>
 </project>
